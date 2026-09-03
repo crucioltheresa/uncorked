@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Uncorked — Curated wines from independent producers and iconic estates."
+    />
+    <title>{% block title %}Uncorked{% endblock %}</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+  </head>
+  <body>
+    <!-- NAV -->
+    <header>
+      <nav class="nav">
+        <div class="nav__search">
+          <input type="text" placeholder="Search..." />
+        </div>
+        <div class="nav__logo">
+          <a href="{% url 'homepage' %}">Uncorked</a>
+        </div>
+        <div class="nav__icons">
+          <a href="#">♡</a>
+          <a href="#">👤</a>
+          <a href="#">🛒</a>
+        </div>
+      </nav>
+      <nav class="nav__categories">
+        <a href="#">Sparkling Wine</a>
+        <a href="#">White Wine</a>
+        <a href="#">Rosé Wine</a>
+        <a href="#">Red Wine</a>
+        <a href="#">Natural Wine</a>
+        <a href="#">Country</a>
+      </nav>
+      <div class="promo-bar">
+        <span>10% off if you buy 8 Bottles Of Wine or More!</span>
+        <span>Free National Delivery on orders of €100+</span>
+      </div>
+    </header>
+
+    <!-- MESSAGES -->
+    {% if messages %}
+    <div class="messages">
+      {% for message in messages %}
+      <div class="message message--{{ message.tags }}">{{ message }}</div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- MAIN CONTENT -->
+    <main>{% block content %}{% endblock %}</main>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+      <div class="footer__links">
+        <a href="#">About</a>
+        <span>·</span>
+        <a href="#">FAQ</a>
+        <span>·</span>
+        <a href="#">Shipping</a>
+        <span>·</span>
+        <a href="#">Privacy</a>
+        <span>·</span>
+        <a href="#">Contact</a>
+      </div>
+      <div class="footer__legal">
+        <p>
+          © 2026 Uncorked. All rights reserved. · You must be 18 or over to
+          purchase alcohol.
+        </p>
+        <p class="footer__responsible">
+          Please drink responsibly. And have FUN!
+        </p>
+      </div>
+    </footer>
+
+    {% block scripts %}{% endblock %}
+  </body>
+</html>

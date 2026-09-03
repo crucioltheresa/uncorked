@@ -129,3 +129,6 @@ MAILERS = {
 }
 
 AUTH_USER_MODEL = "accounts.CustomUser"
+
+STATICFILES_DIRS = [BASE_DIR / "static"]
+STATIC_URL = "static/"
