@@ -1,0 +1,2287 @@
+[
+  {
+    "model": "products.region",
+    "pk": 1,
+    "fields": {
+      "name": "Catalonia",
+      "country": "Spain",
+      "slug": "catalonia-spain",
+      "description": ""
+    }
+  },
+  {
+    "model": "products.region",
+    "pk": 2,
+    "fields": {
+      "name": "Loire Valley",
+      "country": "France",
+      "slug": "loire-valley-france",
+      "description": ""
+    }
+  },
+  {
+    "model": "products.region",
+    "pk": 3,
+    "fields": {
+      "name": "Tenerife",
+      "country": "Spain",
+      "slug": "tenerife-canary-islands-spain",
+      "description": ""
+    }
+  },
+  {
+    "model": "products.region",
+    "pk": 4,
+    "fields": {
+      "name": "Penedès (Anoia)",
+      "country": "Spain",
+      "slug": "pened-s-anoia-catalonia-spain",
+      "description": ""
+    }
+  },
+  {
+    "model": "products.region",
+    "pk": 5,
+    "fields": {
+      "name": "Vin de France",
+      "country": "Vin de France",
+      "slug": "vin-de-france",
+      "description": ""
+    }
+  },
+  {
+    "model": "products.region",
+    "pk": 6,
+    "fields": {
+      "name": "Spain",
+      "country": "Spain",
+      "slug": "spain",
+      "description": ""
+    }
+  },
+  {
+    "model": "products.region",
+    "pk": 7,
+    "fields": {
+      "name": "California",
+      "country": "USA",
+      "slug": "california-usa",
+      "description": ""
+    }
+  },
+  {
+    "model": "products.region",
+    "pk": 8,
+    "fields": {
+      "name": "Santa Barbara County",
+      "country": "USA",
+      "slug": "santa-barbara-county-california-usa",
+      "description": ""
+    }
+  },
+  {
+    "model": "products.region",
+    "pk": 9,
+    "fields": {
+      "name": "Willamette Valley",
+      "country": "USA",
+      "slug": "willamette-valley-oregon-usa",
+      "description": ""
+    }
+  },
+  {
+    "model": "products.region",
+    "pk": 10,
+    "fields": {
+      "name": "Randersacker",
+      "country": "Germany",
+      "slug": "randersacker-franconia-germany",
+      "description": ""
+    }
+  },
+  {
+    "model": "products.region",
+    "pk": 11,
+    "fields": {
+      "name": "Central Italy",
+      "country": "Central Italy",
+      "slug": "central-italy",
+      "description": ""
+    }
+  },
+  {
+    "model": "products.region",
+    "pk": 12,
+    "fields": {
+      "name": "San Luis Obispo",
+      "country": "USA",
+      "slug": "san-luis-obispo-california-usa",
+      "description": ""
+    }
+  },
+  {
+    "model": "products.region",
+    "pk": 13,
+    "fields": {
+      "name": "Alto Adige/Trentino",
+      "country": "Italy",
+      "slug": "alto-adige-trentino-italy",
+      "description": ""
+    }
+  },
+  {
+    "model": "products.region",
+    "pk": 14,
+    "fields": {
+      "name": "France",
+      "country": "France",
+      "slug": "france",
+      "description": ""
+    }
+  },
+  {
+    "model": "products.region",
+    "pk": 15,
+    "fields": {
+      "name": "France (Vin de France)",
+      "country": "France (Vin de France)",
+      "slug": "france-vin-de-france",
+      "description": ""
+    }
+  },
+  {
+    "model": "products.region",
+    "pk": 16,
+    "fields": {
+      "name": "Slovenia (Vipava Valley)",
+      "country": "Slovenia (Vipava Valley)",
+      "slug": "slovenia-vipava-valley",
+      "description": ""
+    }
+  },
+  {
+    "model": "products.region",
+    "pk": 17,
+    "fields": {
+      "name": "Burgundy",
+      "country": "France",
+      "slug": "burgundy-france",
+      "description": ""
+    }
+  },
+  {
+    "model": "products.region",
+    "pk": 18,
+    "fields": {
+      "name": "Moravia",
+      "country": "Czech Republic",
+      "slug": "moravia-czech-republic",
+      "description": ""
+    }
+  },
+  {
+    "model": "products.region",
+    "pk": 19,
+    "fields": {
+      "name": "Tuscany",
+      "country": "Italy",
+      "slug": "tuscany-italy",
+      "description": ""
+    }
+  },
+  {
+    "model": "products.region",
+    "pk": 20,
+    "fields": {
+      "name": "Riverland",
+      "country": "South Australia",
+      "slug": "riverland-south-australia",
+      "description": ""
+    }
+  },
+  {
+    "model": "products.region",
+    "pk": 21,
+    "fields": {
+      "name": "Anderson Valley",
+      "country": "USA",
+      "slug": "anderson-valley-california-usa",
+      "description": ""
+    }
+  },
+  {
+    "model": "products.region",
+    "pk": 22,
+    "fields": {
+      "name": "Ribeiro",
+      "country": "Spain",
+      "slug": "ribeiro-galicia-spain",
+      "description": ""
+    }
+  },
+  {
+    "model": "products.region",
+    "pk": 23,
+    "fields": {
+      "name": "Rioja",
+      "country": "Spain",
+      "slug": "rioja-spain",
+      "description": ""
+    }
+  },
+  {
+    "model": "products.region",
+    "pk": 24,
+    "fields": {
+      "name": "Terra Alta",
+      "country": "Spain",
+      "slug": "terra-alta-spain",
+      "description": ""
+    }
+  },
+  {
+    "model": "products.region",
+    "pk": 25,
+    "fields": {
+      "name": "Valdeorras",
+      "country": "Spain",
+      "slug": "valdeorras-galicia-spain",
+      "description": ""
+    }
+  },
+  {
+    "model": "products.region",
+    "pk": 26,
+    "fields": {
+      "name": "Penedès",
+      "country": "Spain",
+      "slug": "pened-s-spain",
+      "description": ""
+    }
+  },
+  {
+    "model": "products.region",
+    "pk": 27,
+    "fields": {
+      "name": "Denmark",
+      "country": "Denmark",
+      "slug": "denmark",
+      "description": ""
+    }
+  },
+  {
+    "model": "products.region",
+    "pk": 28,
+    "fields": {
+      "name": "Castilla-La Mancha",
+      "country": "Spain",
+      "slug": "castilla-la-mancha-spain",
+      "description": ""
+    }
+  },
+  {
+    "model": "products.region",
+    "pk": 29,
+    "fields": {
+      "name": "Emilia-Romagna",
+      "country": "Italy",
+      "slug": "emilia-romagna-italy",
+      "description": ""
+    }
+  },
+  {
+    "model": "products.region",
+    "pk": 30,
+    "fields": {
+      "name": "Italy",
+      "country": "Italy",
+      "slug": "italy",
+      "description": ""
+    }
+  },
+  {
+    "model": "products.region",
+    "pk": 31,
+    "fields": {
+      "name": "Paarl",
+      "country": "South Africa",
+      "slug": "paarl-south-africa",
+      "description": ""
+    }
+  },
+  {
+    "model": "products.region",
+    "pk": 32,
+    "fields": {
+      "name": "Bordeaux",
+      "country": "France",
+      "slug": "bordeaux-france",
+      "description": ""
+    }
+  },
+  {
+    "model": "products.region",
+    "pk": 33,
+    "fields": {
+      "name": "Seneca Lake",
+      "country": "USA",
+      "slug": "seneca-lake-new-york-usa",
+      "description": ""
+    }
+  },
+  {
+    "model": "products.region",
+    "pk": 34,
+    "fields": {
+      "name": "Finger Lakes",
+      "country": "USA",
+      "slug": "finger-lakes-new-york-usa",
+      "description": ""
+    }
+  },
+  {
+    "model": "products.region",
+    "pk": 35,
+    "fields": {
+      "name": "Alsace",
+      "country": "France",
+      "slug": "alsace-france",
+      "description": ""
+    }
+  },
+  {
+    "model": "products.region",
+    "pk": 36,
+    "fields": {
+      "name": "Nelson",
+      "country": "New Zealand",
+      "slug": "nelson-new-zealand",
+      "description": ""
+    }
+  },
+  {
+    "model": "products.region",
+    "pk": 37,
+    "fields": {
+      "name": "El Pla del Penedès",
+      "country": "Spain",
+      "slug": "el-pla-del-pened-s-barcelona-spain",
+      "description": ""
+    }
+  },
+  {
+    "model": "products.region",
+    "pk": 38,
+    "fields": {
+      "name": "Arbaz",
+      "country": "Switzerland",
+      "slug": "arbaz-switzerland",
+      "description": ""
+    }
+  },
+  {
+    "model": "products.region",
+    "pk": 39,
+    "fields": {
+      "name": "Cyclades",
+      "country": "Greece",
+      "slug": "cyclades-greece",
+      "description": ""
+    }
+  },
+  {
+    "model": "products.region",
+    "pk": 40,
+    "fields": {
+      "name": "Campanha",
+      "country": "Brazil",
+      "slug": "campanha-brazil",
+      "description": ""
+    }
+  },
+  {
+    "model": "products.region",
+    "pk": 41,
+    "fields": {
+      "name": "Kalecik",
+      "country": "Turkey",
+      "slug": "kalecik-turkey",
+      "description": ""
+    }
+  },
+  {
+    "model": "products.region",
+    "pk": 42,
+    "fields": {
+      "name": "Central Otago",
+      "country": "New Zealand",
+      "slug": "central-otago-new-zealand",
+      "description": ""
+    }
+  },
+  {
+    "model": "products.region",
+    "pk": 43,
+    "fields": {
+      "name": "Bannockburn",
+      "country": "New Zealand",
+      "slug": "bannockburn-central-otago-new-zealand",
+      "description": ""
+    }
+  },
+  {
+    "model": "products.region",
+    "pk": 44,
+    "fields": {
+      "name": "Belgium",
+      "country": "Belgium",
+      "slug": "belgium",
+      "description": ""
+    }
+  },
+  {
+    "model": "products.region",
+    "pk": 45,
+    "fields": {
+      "name": "Marlborough",
+      "country": "New Zealand",
+      "slug": "marlborough-new-zealand",
+      "description": ""
+    }
+  },
+  {
+    "model": "products.region",
+    "pk": 46,
+    "fields": {
+      "name": "Portugal",
+      "country": "Portugal",
+      "slug": "portugal",
+      "description": ""
+    }
+  },
+  {
+    "model": "products.region",
+    "pk": 47,
+    "fields": {
+      "name": "Mendoza",
+      "country": "Argentina",
+      "slug": "mendoza-argentina",
+      "description": ""
+    }
+  },
+  {
+    "model": "products.region",
+    "pk": 48,
+    "fields": {
+      "name": "Hillside Vineyard",
+      "country": "USA",
+      "slug": "hillside-vineyard-mendocino-california-usa",
+      "description": ""
+    }
+  },
+  {
+    "model": "products.region",
+    "pk": 49,
+    "fields": {
+      "name": "Lovett Vineyard",
+      "country": "USA",
+      "slug": "lovett-vineyard-mendocino-california-usa",
+      "description": ""
+    }
+  },
+  {
+    "model": "products.region",
+    "pk": 50,
+    "fields": {
+      "name": "Open Hand Ranch",
+      "country": "USA",
+      "slug": "open-hand-ranch-mendocino-california-usa",
+      "description": ""
+    }
+  },
+  {
+    "model": "products.region",
+    "pk": 51,
+    "fields": {
+      "name": "Perenti Vineyard",
+      "country": "USA",
+      "slug": "perenti-vineyard-mendocino-california-usa",
+      "description": ""
+    }
+  },
+  {
+    "model": "products.region",
+    "pk": 52,
+    "fields": {
+      "name": "Rheinhessen",
+      "country": "Germany",
+      "slug": "rheinhessen-germany",
+      "description": ""
+    }
+  },
+  {
+    "model": "products.region",
+    "pk": 53,
+    "fields": {
+      "name": "Vacqueyras",
+      "country": "France",
+      "slug": "vacqueyras-rh-ne-france",
+      "description": ""
+    }
+  },
+  {
+    "model": "products.region",
+    "pk": 54,
+    "fields": {
+      "name": "Savennières",
+      "country": "France",
+      "slug": "savenni-res-loire-valley-france",
+      "description": ""
+    }
+  },
+  {
+    "model": "products.region",
+    "pk": 55,
+    "fields": {
+      "name": "Rhône Valley / Ventoux",
+      "country": "France",
+      "slug": "rh-ne-valley-ventoux-france",
+      "description": ""
+    }
+  },
+  {
+    "model": "products.region",
+    "pk": 56,
+    "fields": {
+      "name": "Val de Loire",
+      "country": "France",
+      "slug": "val-de-loire-france",
+      "description": ""
+    }
+  },
+  {
+    "model": "products.wine",
+    "pk": 1,
+    "fields": {
+      "name": "Gulp Hablo",
+      "producer": "Gulp",
+      "region": 1,
+      "wine_type": "orange",
+      "vintage": 2022,
+      "abv": "12.5",
+      "price": "18.99",
+      "stock": 24,
+      "character": "Playful, textured, gently funky",
+      "tasting_notes": "Dried apricot, orange peel, honeyed nuttiness with a grippy, tannic finish",
+      "food_pairing": "Pairs with cured meats, hard cheeses, or spiced dishes",
+      "description": "Small-batch project with a hand-drawn label; leans into a cheerful, irreverent take on natural winemaking",
+      "image": "wines/image_1.jpg",
+      "slug": "gulp-hablo-2022",
+      "is_featured": true,
+      "is_available": true,
+      "created_at": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "products.wine",
+    "pk": 2,
+    "fields": {
+      "name": "Pour de Vrai",
+      "producer": "Pour",
+      "region": 2,
+      "wine_type": "sparkling",
+      "vintage": 2023,
+      "abv": "11.0",
+      "price": "16.99",
+      "stock": 18,
+      "character": "Bright, frothy, fun aperitif style",
+      "tasting_notes": "Green apple, pear skin, a touch of yeasty bread",
+      "food_pairing": "Serve well chilled as an aperitif or with light appetizers",
+      "description": "Small-batch natural pétillant wine made using the ancestral method, embracing minimal intervention",
+      "image": "wines/image_1.jpg",
+      "slug": "pour-de-vrai-2023",
+      "is_featured": false,
+      "is_available": true,
+      "created_at": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "products.wine",
+    "pk": 3,
+    "fields": {
+      "name": "Els Perles",
+      "producer": "Els",
+      "region": 3,
+      "wine_type": "red",
+      "vintage": 2022,
+      "abv": "12.5",
+      "price": "24.99",
+      "stock": 12,
+      "character": "Light, fresh, volcanic minerality",
+      "tasting_notes": "Red berry, wild herbs, and a saline, volcanic edge",
+      "food_pairing": "Pairs with light tapas, grilled fish, or charcuterie",
+      "description": "Project by Catalan winemaker Oriol Artigas with importer José Pastor, made from old vines (60-100 yrs) on volcanic soil in La Orotava, Tenerife",
+      "image": "wines/image_1.jpg",
+      "slug": "els-perles-2022",
+      "is_featured": false,
+      "is_available": true,
+      "created_at": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "products.wine",
+    "pk": 4,
+    "fields": {
+      "name": "Celler Dumenge - Xarel·lo Vermell",
+      "producer": "Celler Dumenge",
+      "region": 4,
+      "wine_type": "sparkling",
+      "vintage": 2023,
+      "abv": "10.5",
+      "price": "23.95",
+      "stock": 15,
+      "character": "Bright, vibrant, Mediterranean, fun-day style",
+      "tasting_notes": "Baked apple, brioche, white fruit; bright greenish colour with very fine bubbles",
+      "food_pairing": "Pairs well with tapas, seafood, or as an aperitif",
+      "description": "Founded 2019 by three friends (Laia Esmel, Oriol Roig, Jaume Vilaseca) who make wine on Sundays; ancestral-method pet-nat from the rare native Xarel·lo Vermell grape",
+      "image": "wines/image_2.jpg",
+      "slug": "celler-dumenge-xarel-lo-vermell-2023",
+      "is_featured": false,
+      "is_available": true,
+      "created_at": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "products.wine",
+    "pk": 5,
+    "fields": {
+      "name": "Lazy Winemaker! - Chardonnay",
+      "producer": "Lazy Winemaker!",
+      "region": 5,
+      "wine_type": "white",
+      "vintage": 2022,
+      "abv": "12.5",
+      "price": "19.99",
+      "stock": 30,
+      "character": "Easy-drinking, soft, natural",
+      "tasting_notes": "Ripe pear, light vanilla, soft citrus finish",
+      "food_pairing": "Pairs with roast chicken, mild cheeses, or creamy pastas",
+      "description": "Natural wine label with tagline 'natural wine made by itself'; hand-illustrated, whimsical branding",
+      "image": "wines/image_3.jpg",
+      "slug": "lazy-winemaker-chardonnay-2022",
+      "is_featured": true,
+      "is_available": true,
+      "created_at": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "products.wine",
+    "pk": 6,
+    "fields": {
+      "name": "Lazy Winemaker! - Viognier",
+      "producer": "Lazy Winemaker!",
+      "region": 5,
+      "wine_type": "white",
+      "vintage": 2022,
+      "abv": "13.0",
+      "price": "21.99",
+      "stock": 22,
+      "character": "Easy-drinking, aromatic, natural",
+      "tasting_notes": "Peach, honeysuckle, a touch of spice",
+      "food_pairing": "Pairs with spiced seafood, Thai food, or soft cheeses",
+      "description": "Same producer and series as the Chardonnay; natural wine with minimal intervention",
+      "image": "wines/image_3.jpg",
+      "slug": "lazy-winemaker-viognier-2022",
+      "is_featured": false,
+      "is_available": true,
+      "created_at": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "products.wine",
+    "pk": 7,
+    "fields": {
+      "name": "Lazy Winemaker! - Rosé Pali",
+      "producer": "Lazy Winemaker!",
+      "region": 5,
+      "wine_type": "rose",
+      "vintage": 2022,
+      "abv": "12.0",
+      "price": "20.99",
+      "stock": 20,
+      "character": "Easy-drinking, natural, playful",
+      "tasting_notes": "Strawberry, watermelon, light floral notes",
+      "food_pairing": "Pairs with salads, grilled vegetables, or picnic fare",
+      "description": "Part of the Lazy Winemaker natural wine series; playful rosé made with minimal intervention",
+      "image": "wines/image_3.jpg",
+      "slug": "lazy-winemaker-ros-pali-2022",
+      "is_featured": false,
+      "is_available": true,
+      "created_at": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "products.wine",
+    "pk": 8,
+    "fields": {
+      "name": "Ana & Clara - Mediterranean Spritz",
+      "producer": "Ana & Clara",
+      "region": 6,
+      "wine_type": "sparkling",
+      "vintage": null,
+      "abv": "8.0",
+      "price": "12.99",
+      "stock": 35,
+      "character": "Refreshing, herbal, citrusy",
+      "tasting_notes": "Lime, rosemary, mint with a lightly sparkling finish",
+      "food_pairing": "Serve chilled as an aperitif or with tonic/soda",
+      "description": "Ready-to-drink Mediterranean spritz brand with natural flavors of lime, rosemary and mint",
+      "image": "wines/image_4.jpg",
+      "slug": "ana-clara-mediterranean-spritz",
+      "is_featured": false,
+      "is_available": true,
+      "created_at": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "products.wine",
+    "pk": 9,
+    "fields": {
+      "name": "Martha Stoumen 'Post Flirtation' Rosé",
+      "producer": "Martha",
+      "region": 7,
+      "wine_type": "rose",
+      "vintage": 2022,
+      "abv": "12.0",
+      "price": "17.99",
+      "stock": 14,
+      "character": "Playful, fruity, easy-drinking",
+      "tasting_notes": "Watermelon, wild strawberry, a hint of citrus zest, cucumber",
+      "food_pairing": "Pairs with light appetizers, picnics, or grilled shrimp",
+      "description": "75% Nero d'Avola, 25% Vermentino. Martha Stoumen Wines is a one-woman grape growing and natural winemaking project out of Northern California founded upon the desire to recapture a farming and winemaking culture of patience.",
+      "image": "wines/image_5.jpg",
+      "slug": "martha-stoumen-post-flirtation-ros-2022",
+      "is_featured": true,
+      "is_available": true,
+      "created_at": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "products.wine",
+    "pk": 10,
+    "fields": {
+      "name": "So Far Out - Soft Eyes Rosé",
+      "producer": "So Far Out",
+      "region": 8,
+      "wine_type": "rose",
+      "vintage": 2022,
+      "abv": "12.5",
+      "price": "19.99",
+      "stock": 16,
+      "character": "Pale, delicate, dry Californian rosé",
+      "tasting_notes": "Watermelon, white peach, subtle mineral finish",
+      "food_pairing": "Pairs with grilled fish, salads, or light appetizers",
+      "description": "By Field Recordings winery, California, known for creative, small-batch bottlings with striking label art",
+      "image": "wines/image_6.jpg",
+      "slug": "so-far-out-soft-eyes-ros-2022",
+      "is_featured": true,
+      "is_available": true,
+      "created_at": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "products.wine",
+    "pk": 11,
+    "fields": {
+      "name": "Between Us - Pink Pét-Nat Rosé",
+      "producer": "Between Us",
+      "region": 7,
+      "wine_type": "sparkling",
+      "vintage": 2022,
+      "abv": "11.5",
+      "price": "18.99",
+      "stock": 10,
+      "character": "Fizzy, bright, playful",
+      "tasting_notes": "Strawberry, red currant, gentle effervescence",
+      "food_pairing": "Serve chilled as an aperitif or with brunch fare",
+      "description": "By Vinovore (women winemakers collective/shop), California, championing female-led wine projects",
+      "image": "wines/image_6.jpg",
+      "slug": "between-us-pink-p-t-nat-ros-2022",
+      "is_featured": false,
+      "is_available": true,
+      "created_at": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "products.wine",
+    "pk": 12,
+    "fields": {
+      "name": "Drink This Wine - Chillable Red",
+      "producer": "Drink This Wine",
+      "region": 9,
+      "wine_type": "red",
+      "vintage": 2022,
+      "abv": "12.5",
+      "price": "22.99",
+      "stock": 18,
+      "character": "Juicy, playful, easy-drinking natural wine",
+      "tasting_notes": "Raspberry, cherry candy, grapefruit zest, watermelon",
+      "food_pairing": "Served chilled; great with burgers, grilled food or backyard parties",
+      "description": "Collaboration between chef/author Molly Baz and winemaker Andy Young (The Marigny); natural, native-yeast fermentation, unfined and unfiltered",
+      "image": "wines/image_7.jpg",
+      "slug": "drink-this-wine-chillable-red-2022",
+      "is_featured": false,
+      "is_available": true,
+      "created_at": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "products.wine",
+    "pk": 13,
+    "fields": {
+      "name": "Trockene Schmitts - Weisser Burgunder Erste Lage",
+      "producer": "Trockene Schmitts",
+      "region": 10,
+      "wine_type": "white",
+      "vintage": 2021,
+      "abv": "12.5",
+      "price": "28.99",
+      "stock": 8,
+      "character": "Dry, precise, mineral-driven Franconian style",
+      "tasting_notes": "Yellow apple, almond blossom, chalky minerality",
+      "food_pairing": "Pairs with fish, poultry, or Franconian cuisine",
+      "description": "Family winery since the 1920s; Erste Lage denotes a top single-vineyard site in Franconia's prestigious classification system",
+      "image": "wines/image_8.jpg",
+      "slug": "trockene-schmitts-weisser-burgunder-erste-lage-2021",
+      "is_featured": false,
+      "is_available": true,
+      "created_at": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "products.wine",
+    "pk": 14,
+    "fields": {
+      "name": "Trockene Schmitts - Früh Burgunder Erste Lage",
+      "producer": "Trockene Schmitts",
+      "region": 10,
+      "wine_type": "red",
+      "vintage": 2020,
+      "abv": "13.0",
+      "price": "31.99",
+      "stock": 6,
+      "character": "Dry, elegant, early-ripening Pinot Noir style",
+      "tasting_notes": "Red cherry, forest floor, gentle spice",
+      "food_pairing": "Pairs with roast poultry, pork, or mild red-meat dishes",
+      "description": "Same winery as above; Frühburgunder is a rare, early-ripening Pinot Noir clone specific to Germany",
+      "image": "wines/image_8.jpg",
+      "slug": "trockene-schmitts-fr-h-burgunder-erste-lage-2020",
+      "is_featured": false,
+      "is_available": true,
+      "created_at": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "products.wine",
+    "pk": 15,
+    "fields": {
+      "name": "Indigeno",
+      "producer": "Indigeno",
+      "region": 11,
+      "wine_type": "natural",
+      "vintage": 2021,
+      "abv": "13.0",
+      "price": "15.99",
+      "stock": 25,
+      "character": "Rustic, earthy, food-friendly red",
+      "tasting_notes": "Dark cherry, dried herbs, soft tannin",
+      "food_pairing": "Pairs with roasted meats, pasta with red sauce, aged pecorino",
+      "description": "Organic red wine emphasizing native (indigenous) Italian grape varieties; EU organic certification",
+      "image": "wines/image_9.jpg",
+      "slug": "indigeno-2021",
+      "is_featured": false,
+      "is_available": true,
+      "created_at": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "products.wine",
+    "pk": 16,
+    "fields": {
+      "name": "Lazy Winemaker! - Cabernet Franc",
+      "producer": "Lazy Winemaker!",
+      "region": 5,
+      "wine_type": "red",
+      "vintage": 2022,
+      "abv": "12.5",
+      "price": "20.99",
+      "stock": 20,
+      "character": "Easy-drinking, natural, light red",
+      "tasting_notes": "Red currant, green pepper, gentle earthiness",
+      "food_pairing": "Pairs with roast vegetables, charcuterie, or light red-meat dishes",
+      "description": "Part of the Lazy Winemaker natural wine series; light, Loire-inspired Cabernet Franc with minimal intervention",
+      "image": "wines/image_10.jpg",
+      "slug": "lazy-winemaker-cabernet-franc-2022",
+      "is_featured": false,
+      "is_available": true,
+      "created_at": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "products.wine",
+    "pk": 17,
+    "fields": {
+      "name": "Wildflower Winery",
+      "producer": "Wildflower",
+      "region": 12,
+      "wine_type": "red",
+      "vintage": 2022,
+      "abv": "13.5",
+      "price": "26.99",
+      "stock": 10,
+      "character": "Small-batch, low-intervention, fruit-forward",
+      "tasting_notes": "Red raspberry, dried herbs, light spice",
+      "food_pairing": "Pairs with grilled meats, roasted vegetables, or soft cheeses",
+      "description": "Small California natural wine producer emphasizing minimal intervention and single-vineyard sourcing",
+      "image": "wines/image_11.jpg",
+      "slug": "wildflower-winery-2022",
+      "is_featured": false,
+      "is_available": true,
+      "created_at": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "products.wine",
+    "pk": 18,
+    "fields": {
+      "name": "Reuilly",
+      "producer": "Reuilly",
+      "region": 2,
+      "wine_type": "white",
+      "vintage": 2022,
+      "abv": "12.5",
+      "price": "22.99",
+      "stock": 14,
+      "character": "Crisp, mineral, typical Loire white",
+      "tasting_notes": "Grapefruit, gooseberry, flinty minerality",
+      "food_pairing": "Pairs with goat cheese, shellfish, or light fish dishes",
+      "description": "Imported by Kermit Lynch, a well-regarded importer of small French estates; classic Loire Sauvignon Blanc from the Reuilly appellation",
+      "image": "wines/image_11.jpg",
+      "slug": "reuilly-2022",
+      "is_featured": false,
+      "is_available": true,
+      "created_at": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "products.wine",
+    "pk": 19,
+    "fields": {
+      "name": "Furlani - Alpino Macerato",
+      "producer": "Furlani",
+      "region": 13,
+      "wine_type": "orange",
+      "vintage": 2021,
+      "abv": "12.5",
+      "price": "24.99",
+      "stock": 9,
+      "character": "Textured, orange-wine style",
+      "tasting_notes": "Dried apricot, chamomile, light tannic grip",
+      "food_pairing": "Pairs with aged cheeses, cured meats, or roasted root vegetables",
+      "description": "Mountain-themed natural wine label from Northern Italy, made with extended skin contact for texture and depth",
+      "image": "wines/image_12.jpg",
+      "slug": "furlani-alpino-macerato-2021",
+      "is_featured": false,
+      "is_available": true,
+      "created_at": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "products.wine",
+    "pk": 20,
+    "fields": {
+      "name": "Furlani - Alpino",
+      "producer": "Furlani",
+      "region": 13,
+      "wine_type": "white",
+      "vintage": 2022,
+      "abv": "12.0",
+      "price": "21.99",
+      "stock": 12,
+      "character": "Fresh, alpine style",
+      "tasting_notes": "Green apple, alpine herbs, crisp acidity",
+      "food_pairing": "Pairs with mountain cheeses, charcuterie, or light pasta dishes",
+      "description": "Same producer as the Macerato; a fresher, unoaked white showcasing the alpine terroir of Northern Italy",
+      "image": "wines/image_12.jpg",
+      "slug": "furlani-alpino-2022",
+      "is_featured": false,
+      "is_available": true,
+      "created_at": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "products.wine",
+    "pk": 21,
+    "fields": {
+      "name": "Saltimbanque",
+      "producer": "Saltimbanque",
+      "region": 14,
+      "wine_type": "rose",
+      "vintage": 2021,
+      "abv": "12.5",
+      "price": "19.99",
+      "stock": 11,
+      "character": "Playful, textured, circus-inspired branding",
+      "tasting_notes": "Ripe peach, orange zest, a light tannic edge",
+      "food_pairing": "Pairs with grilled vegetables, tapas, or soft cheeses",
+      "description": "Small-batch natural wine with a playful, performance-inspired label celebrating the spirit of the travelling circus",
+      "image": "wines/image_12.jpg",
+      "slug": "saltimbanque-2021",
+      "is_featured": false,
+      "is_available": true,
+      "created_at": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "products.wine",
+    "pk": 22,
+    "fields": {
+      "name": "élément(s)",
+      "producer": "élément(s)",
+      "region": 15,
+      "wine_type": "natural",
+      "vintage": 2023,
+      "abv": "12.5",
+      "price": "17.99",
+      "stock": 16,
+      "character": "Playful, conceptual natural wine",
+      "tasting_notes": "Citrus, herbs, and light red fruit depending on blend component",
+      "food_pairing": "Pairs well with mixed tapas or a cheese board",
+      "description": "Label uses chemical-element abbreviations for its grape blend, a conceptual play on the periodic table; natural wine with creative branding",
+      "image": "wines/image_13.jpg",
+      "slug": "l-ment-s-2023",
+      "is_featured": false,
+      "is_available": true,
+      "created_at": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "products.wine",
+    "pk": 23,
+    "fields": {
+      "name": "Definitely Today",
+      "producer": "Definitely",
+      "region": 14,
+      "wine_type": "orange",
+      "vintage": 2023,
+      "abv": "12.0",
+      "price": "18.99",
+      "stock": 13,
+      "character": "Bright, playful, natural",
+      "tasting_notes": "Citrus peel, white flowers, light skin-contact grip",
+      "food_pairing": "Pairs with light seafood or a cheese plate",
+      "description": "Stylized, colorful label typical of the modern natural-wine movement; minimal intervention winemaking with a focus on freshness",
+      "image": "wines/image_14.jpg",
+      "slug": "definitely-today-2023",
+      "is_featured": false,
+      "is_available": true,
+      "created_at": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "products.wine",
+    "pk": 24,
+    "fields": {
+      "name": "Korenika - Moškon Malvazija",
+      "producer": "Korenika",
+      "region": 16,
+      "wine_type": "orange",
+      "vintage": 2018,
+      "abv": "13.0",
+      "price": "27.99",
+      "stock": 7,
+      "character": "Textured, amber-hued, gently oxidative",
+      "tasting_notes": "Dried apricot, walnut, honeyed depth",
+      "food_pairing": "Pairs with cured meats, mature cheeses, or mushroom dishes",
+      "description": "Korenika & Moškon is a small Slovenian natural wine estate known for skin-contact whites from the Vipava Valley",
+      "image": "wines/image_14.jpg",
+      "slug": "korenika-mo-kon-malvazija-2018",
+      "is_featured": false,
+      "is_available": true,
+      "created_at": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "products.wine",
+    "pk": 25,
+    "fields": {
+      "name": "Maison Chanzy - Bourgogne Chardonnay",
+      "producer": "Maison Chanzy",
+      "region": 17,
+      "wine_type": "white",
+      "vintage": 2023,
+      "abv": "13.0",
+      "price": "29.99",
+      "stock": 15,
+      "character": "Classic, fresh Burgundian Chardonnay",
+      "tasting_notes": "Citrus, white flower, subtle oak spice",
+      "food_pairing": "Pairs with poultry, seafood, or soft cheeses",
+      "description": "Maison Chanzy is an established Burgundy négociant and estate based in Bouzeron, producing classic Burgundian wines",
+      "image": "wines/image_15.jpg",
+      "slug": "maison-chanzy-bourgogne-chardonnay-2023",
+      "is_featured": true,
+      "is_available": true,
+      "created_at": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "products.wine",
+    "pk": 26,
+    "fields": {
+      "name": "Milan Nestarec - OKR",
+      "producer": "Milan Nestarec",
+      "region": 18,
+      "wine_type": "natural",
+      "vintage": 2020,
+      "abv": "12.5",
+      "price": "23.99",
+      "stock": 10,
+      "character": "Natural, experimental, lightly funky style",
+      "tasting_notes": "Wild berry, herbal spice, subtle skin-contact grip",
+      "food_pairing": "Pairs with charcuterie, mushroom dishes, or aged cheeses",
+      "description": "Milan Nestarec is a well-known Czech natural winemaker known for playful labels and low-intervention winemaking in Moravia",
+      "image": "wines/image_16.jpg",
+      "slug": "milan-nestarec-okr-2020",
+      "is_featured": false,
+      "is_available": true,
+      "created_at": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "products.wine",
+    "pk": 27,
+    "fields": {
+      "name": "Luna Vineyard - Night Harvest",
+      "producer": "Luna Vineyard",
+      "region": 19,
+      "wine_type": "red",
+      "vintage": 2022,
+      "abv": "13.5",
+      "price": "21.99",
+      "stock": 18,
+      "character": "Fresh, approachable natural-leaning style",
+      "tasting_notes": "Blackcurrant, violet, soft herbal note",
+      "food_pairing": "Pairs with grilled red meats, aged cheeses, or tomato-based pasta",
+      "description": "Playful illustrated label depicting a night grape harvest; approachable Tuscan Cabernet Sauvignon with natural winemaking sensibility",
+      "image": "wines/image_17.jpg",
+      "slug": "luna-vineyard-night-harvest-2022",
+      "is_featured": false,
+      "is_available": true,
+      "created_at": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "products.wine",
+    "pk": 28,
+    "fields": {
+      "name": "Delinquente - Weeping Juan",
+      "producer": "Delinquente",
+      "region": 20,
+      "wine_type": "sparkling",
+      "vintage": 2020,
+      "abv": "11.0",
+      "price": "19.99",
+      "stock": 12,
+      "character": "Playful, smashable natural wine",
+      "tasting_notes": "Watermelon, red berry, gentle fizz",
+      "food_pairing": "Serve chilled as an easy-drinking aperitif",
+      "description": "Delinquente Wine Co., founded by Con-Greg Grigoriou, focuses on Southern Italian grape varieties suited to Riverland's hot climate",
+      "image": "wines/image_18.jpg",
+      "slug": "delinquente-weeping-juan-2020",
+      "is_featured": false,
+      "is_available": true,
+      "created_at": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "products.wine",
+    "pk": 29,
+    "fields": {
+      "name": "Delinquente - Tuff Nutt",
+      "producer": "Delinquente",
+      "region": 20,
+      "wine_type": "sparkling",
+      "vintage": 2020,
+      "abv": "11.0",
+      "price": "18.99",
+      "stock": 10,
+      "character": "Bright, citrusy, gently sparkling",
+      "tasting_notes": "Meyer lemon curd, green apple, light effervescence",
+      "food_pairing": "Pairs with light appetizers or on its own as an aperitif",
+      "description": "Same producer as Weeping Juan; a sparkling white from the rare Bianco d'Alessano grape variety",
+      "image": "wines/image_18.jpg",
+      "slug": "delinquente-tuff-nutt-2020",
+      "is_featured": false,
+      "is_available": true,
+      "created_at": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "products.wine",
+    "pk": 30,
+    "fields": {
+      "name": "Delinquente - Roko il Vagabondo",
+      "producer": "Delinquente",
+      "region": 20,
+      "wine_type": "red",
+      "vintage": 2020,
+      "abv": "13.5",
+      "price": "22.99",
+      "stock": 9,
+      "character": "Bold, rustic red",
+      "tasting_notes": "Dark plum, black pepper, earthy tannin",
+      "food_pairing": "Pairs with grilled sausage, pizza, or aged pecorino",
+      "description": "Same producer as above; a bold Montepulciano showcasing the richness of Riverland fruit",
+      "image": "wines/image_18.jpg",
+      "slug": "delinquente-roko-il-vagabondo-2020",
+      "is_featured": false,
+      "is_available": true,
+      "created_at": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "products.wine",
+    "pk": 31,
+    "fields": {
+      "name": "Delinquente - Pretty Boy",
+      "producer": "Delinquente",
+      "region": 20,
+      "wine_type": "rose",
+      "vintage": 2020,
+      "abv": "11.0",
+      "price": "17.99",
+      "stock": 14,
+      "character": "Bright, fruity, dry rosé",
+      "tasting_notes": "Strawberry, rose petal, cranberry, pomegranate",
+      "food_pairing": "Great for summer BBQs and light dishes",
+      "description": "Same producer as above; wild-fermented, minimal intervention rosé from Nero d'Avola",
+      "image": "wines/image_18.jpg",
+      "slug": "delinquente-pretty-boy-2020",
+      "is_featured": false,
+      "is_available": true,
+      "created_at": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "products.wine",
+    "pk": 32,
+    "fields": {
+      "name": "Unnamed - Baby Face Orange",
+      "producer": "Unnamed",
+      "region": 14,
+      "wine_type": "orange",
+      "vintage": 2022,
+      "abv": "12.5",
+      "price": "19.99",
+      "stock": 8,
+      "character": "Quirky, playful branding, textured wine",
+      "tasting_notes": "Dried fruit, honey, light tannic grip",
+      "food_pairing": "Pairs with soft cheeses or roasted vegetables",
+      "description": "Small-batch natural wine with an unusual portrait-style label; skin-contact white with textured, amber character",
+      "image": "wines/image_19.jpg",
+      "slug": "unnamed-baby-face-orange-2022",
+      "is_featured": false,
+      "is_available": true,
+      "created_at": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "products.wine",
+    "pk": 33,
+    "fields": {
+      "name": "Hand-Label Cabernet Sauvignon",
+      "producer": "Hand-Label",
+      "region": 7,
+      "wine_type": "red",
+      "vintage": 2021,
+      "abv": "13.5",
+      "price": "24.99",
+      "stock": 7,
+      "character": "Rustic, hand-labeled, small-batch red",
+      "tasting_notes": "Blackberry, cedar, soft tannin",
+      "food_pairing": "Pairs with grilled steak or hard cheeses",
+      "description": "Small-production Cabernet Sauvignon with a hand-drawn, artisanal label celebrating the craft of independent winemaking",
+      "image": "wines/image_20.jpg",
+      "slug": "hand-label-cabernet-sauvignon-2021",
+      "is_featured": false,
+      "is_available": true,
+      "created_at": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "products.wine",
+    "pk": 34,
+    "fields": {
+      "name": "Lover Girl - Catch & Release Wines",
+      "producer": "Lover Girl",
+      "region": 21,
+      "wine_type": "natural",
+      "vintage": 2023,
+      "abv": "12.5",
+      "price": "22.99",
+      "stock": 9,
+      "character": "Playful, small-batch natural wine",
+      "tasting_notes": "Pear, white peach, delicate floral note",
+      "food_pairing": "Pairs with light seafood, salads, or soft cheeses",
+      "description": "Catch & Release Wines is a small California natural wine label with a playful identity and focus on minimal intervention",
+      "image": "wines/image_21.jpg",
+      "slug": "lover-girl-catch-release-wines-2023",
+      "is_featured": false,
+      "is_available": true,
+      "created_at": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "products.wine",
+    "pk": 35,
+    "fields": {
+      "name": "Viña Mein",
+      "producer": "Viña",
+      "region": 22,
+      "wine_type": "white",
+      "vintage": 2017,
+      "abv": "13.0",
+      "price": "26.99",
+      "stock": 8,
+      "character": "Textured, mineral Galician white",
+      "tasting_notes": "White peach, citrus, saline minerality",
+      "food_pairing": "Pairs with seafood, shellfish, or grilled fish",
+      "description": "Viña Mein is a respected Ribeiro estate known for barrel-aged whites from native Galician grape varieties",
+      "image": "wines/image_22.jpg",
+      "slug": "vi-a-mein-2017",
+      "is_featured": false,
+      "is_available": true,
+      "created_at": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "products.wine",
+    "pk": 36,
+    "fields": {
+      "name": "Placet",
+      "producer": "Placet",
+      "region": 23,
+      "wine_type": "white",
+      "vintage": 2021,
+      "abv": "13.0",
+      "price": "23.99",
+      "stock": 11,
+      "character": "Fresh, traditional Rioja white",
+      "tasting_notes": "Green apple, chamomile, light minerality",
+      "food_pairing": "Pairs with white fish, tapas, or fresh cheeses",
+      "description": "Palacios Remondo project focused on old-vine Viura; a fresh, mineral-driven take on traditional white Rioja",
+      "image": "wines/image_22.jpg",
+      "slug": "placet-2021",
+      "is_featured": false,
+      "is_available": true,
+      "created_at": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "products.wine",
+    "pk": 37,
+    "fields": {
+      "name": "Nuestra Señora del Portal - Garnatxa Blanca",
+      "producer": "Nuestra Señora del Portal",
+      "region": 24,
+      "wine_type": "red",
+      "vintage": 2024,
+      "abv": "13.0",
+      "price": "14.99",
+      "stock": 20,
+      "character": "Fresh, aromatic Catalan white",
+      "tasting_notes": "White flowers, ripe pear, soft minerality",
+      "food_pairing": "Pairs with rice dishes, seafood, or grilled vegetables",
+      "description": "Small Catalan cooperative-style bottling of native Garnacha Blanca from the Terra Alta appellation",
+      "image": "wines/image_22.jpg",
+      "slug": "nuestra-se-ora-del-portal-garnatxa-blanca-2024",
+      "is_featured": false,
+      "is_available": true,
+      "created_at": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "products.wine",
+    "pk": 38,
+    "fields": {
+      "name": "Louro",
+      "producer": "Louro",
+      "region": 25,
+      "wine_type": "white",
+      "vintage": 2021,
+      "abv": "13.0",
+      "price": "28.99",
+      "stock": 9,
+      "character": "Mineral, textured Galician white",
+      "tasting_notes": "White stone fruit, wet slate, citrus zest",
+      "food_pairing": "Pairs with shellfish, roasted fish, or soft cheeses",
+      "description": "Made by Rafael Palacios, one of Galicia's most acclaimed winemakers; Godello at its most precise and mineral",
+      "image": "wines/image_22.jpg",
+      "slug": "louro-2021",
+      "is_featured": false,
+      "is_available": true,
+      "created_at": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "products.wine",
+    "pk": 39,
+    "fields": {
+      "name": "Cosmic",
+      "producer": "Cosmic",
+      "region": 26,
+      "wine_type": "white",
+      "vintage": 2022,
+      "abv": "12.5",
+      "price": "13.99",
+      "stock": 22,
+      "character": "Fresh, easy-drinking Mediterranean white",
+      "tasting_notes": "Citrus, white blossom, light herbal note",
+      "food_pairing": "Pairs with tapas, seafood, or fresh salads",
+      "description": "Made by Peiras Baltà, a Penedès-based producer; a fresh and aromatic Mediterranean white for everyday enjoyment",
+      "image": "wines/image_22.jpg",
+      "slug": "cosmic-2022",
+      "is_featured": false,
+      "is_available": true,
+      "created_at": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "products.wine",
+    "pk": 40,
+    "fields": {
+      "name": "Arensbak - Red",
+      "producer": "Arensbak",
+      "region": 27,
+      "wine_type": "red",
+      "vintage": null,
+      "abv": "0.0",
+      "price": "11.99",
+      "stock": 18,
+      "character": "Alcohol-free red wine alternative",
+      "tasting_notes": "Dark berry, light spice, soft tannic structure",
+      "food_pairing": "Pairs with red meats or hearty stews; ideal for alcohol-free occasions",
+      "description": "Danish non-alcoholic wine brand aimed at giving a full-bodied red wine experience without alcohol",
+      "image": "wines/image_23.jpg",
+      "slug": "arensbak-red",
+      "is_featured": false,
+      "is_available": true,
+      "created_at": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "products.wine",
+    "pk": 41,
+    "fields": {
+      "name": "Mur Wine x Cano - Red",
+      "producer": "Mur Wine x Cano",
+      "region": 28,
+      "wine_type": "red",
+      "vintage": null,
+      "abv": "13.0",
+      "price": "16.99",
+      "stock": 15,
+      "character": "100% natural, field-blend style",
+      "tasting_notes": "Mixed red berry, herbal spice, light rustic earthiness",
+      "food_pairing": "Pairs with grilled meats, stews, or aged cheeses",
+      "description": "By Mur Wines, a natural wine producer working with a wide field-blend of native and international varieties",
+      "image": "wines/image_25.jpg",
+      "slug": "mur-wine-x-cano-red",
+      "is_featured": false,
+      "is_available": true,
+      "created_at": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "products.wine",
+    "pk": 42,
+    "fields": {
+      "name": "Lucci - Lambrusco Reggiano DOC",
+      "producer": "Lucci",
+      "region": 29,
+      "wine_type": "sparkling",
+      "vintage": 2022,
+      "abv": "11.0",
+      "price": "14.99",
+      "stock": 28,
+      "character": "Dry, fruity, lightly sparkling",
+      "tasting_notes": "Red berry, slight fizz, refreshing acidity",
+      "food_pairing": "Pairs classically with charcuterie, pizza, or rich Emilian food",
+      "description": "DOC-designated dry (Secco) style Lambrusco from Reggio Emilia; the perfect partner for the rich food of Emilia-Romagna",
+      "image": "wines/image_26.jpg",
+      "slug": "lucci-lambrusco-reggiano-doc-2022",
+      "is_featured": false,
+      "is_available": true,
+      "created_at": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "products.wine",
+    "pk": 43,
+    "fields": {
+      "name": "Villa Rocca - Trebbiano",
+      "producer": "Villa Rocca",
+      "region": 30,
+      "wine_type": "white",
+      "vintage": 2022,
+      "abv": "12.0",
+      "price": "12.99",
+      "stock": 20,
+      "character": "Light, crisp white",
+      "tasting_notes": "Green apple, lemon zest, light almond note",
+      "food_pairing": "Pairs with seafood, light pasta, or antipasti",
+      "description": "Villa Rocca is a small Italian estate producing everyday-drinking whites from classic Italian varieties",
+      "image": "wines/image_27.jpg",
+      "slug": "villa-rocca-trebbiano-2022",
+      "is_featured": false,
+      "is_available": true,
+      "created_at": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "products.wine",
+    "pk": 44,
+    "fields": {
+      "name": "Landskroon",
+      "producer": "Landskroon",
+      "region": 31,
+      "wine_type": "red",
+      "vintage": 2020,
+      "abv": "14.0",
+      "price": "17.99",
+      "stock": 13,
+      "character": "Full-bodied, warm-climate South African red",
+      "tasting_notes": "Dark fruit, spice, soft oak influence",
+      "food_pairing": "Pairs with grilled meats or hearty stews",
+      "description": "Landskroon is an established Paarl estate with a long history of producing warm-climate South African red wines",
+      "image": "wines/image_27.jpg",
+      "slug": "landskroon-2020",
+      "is_featured": false,
+      "is_available": true,
+      "created_at": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "products.wine",
+    "pk": 45,
+    "fields": {
+      "name": "du Moulin",
+      "producer": "du",
+      "region": 32,
+      "wine_type": "red",
+      "vintage": 2021,
+      "abv": "13.0",
+      "price": "15.99",
+      "stock": 19,
+      "character": "Approachable, everyday Bordeaux style",
+      "tasting_notes": "Red plum, soft tannin, light oak",
+      "food_pairing": "Pairs with roast meats or classic French bistro fare",
+      "description": "Small Bordeaux château producing accessible, everyday red wine with classic Bordeaux character",
+      "image": "wines/image_27.jpg",
+      "slug": "du-moulin-2021",
+      "is_featured": false,
+      "is_available": true,
+      "created_at": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "products.wine",
+    "pk": 46,
+    "fields": {
+      "name": "Eminence Road Farm Winery - Cuvée Acidalia Dry Red",
+      "producer": "Eminence Road Farm Winery",
+      "region": 33,
+      "wine_type": "red",
+      "vintage": 2019,
+      "abv": "12.5",
+      "price": "24.99",
+      "stock": 6,
+      "character": "Cool-climate, food-friendly red",
+      "tasting_notes": "Red cherry, cranberry, light earthiness",
+      "food_pairing": "Pairs with roast chicken, pork, or mild cheeses",
+      "description": "Small Finger Lakes producer specializing in cool-climate reds; the Cuvée Acidalia showcases the elegance of New York State",
+      "image": "wines/image_28.jpg",
+      "slug": "eminence-road-farm-winery-cuv-e-acidalia-dry-red-2019",
+      "is_featured": false,
+      "is_available": true,
+      "created_at": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "products.wine",
+    "pk": 47,
+    "fields": {
+      "name": "Heart & Hands - Polarity",
+      "producer": "Heart & Hands",
+      "region": 34,
+      "wine_type": "red",
+      "vintage": 2014,
+      "abv": "12.5",
+      "price": "31.99",
+      "stock": 5,
+      "character": "Elegant, cool-climate style",
+      "tasting_notes": "Red cherry, subtle earth, bright acidity",
+      "food_pairing": "Pairs with salmon, roast poultry, or mushroom dishes",
+      "description": "Heart & Hands is a respected Finger Lakes winery known for Pinot Noir and Riesling; Polarity showcases the cool elegance of the region",
+      "image": "wines/image_28.jpg",
+      "slug": "heart-hands-polarity-2014",
+      "is_featured": false,
+      "is_available": true,
+      "created_at": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "products.wine",
+    "pk": 48,
+    "fields": {
+      "name": "Tanzen Dame - Edelzwicker",
+      "producer": "Tanzen Dame",
+      "region": 35,
+      "wine_type": "white",
+      "vintage": 2016,
+      "abv": "12.0",
+      "price": "16.99",
+      "stock": 11,
+      "character": "Light, aromatic, easy-drinking white blend",
+      "tasting_notes": "White flower, stone fruit, soft spice",
+      "food_pairing": "Pairs with light poultry, quiche, or mild cheeses",
+      "description": "Edelzwicker traditionally denotes a blend of Alsace white varieties; a charming, aromatic everyday white",
+      "image": "wines/image_28.jpg",
+      "slug": "tanzen-dame-edelzwicker-2016",
+      "is_featured": false,
+      "is_available": true,
+      "created_at": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "products.wine",
+    "pk": 49,
+    "fields": {
+      "name": "Haulashore - Sauvignon Blanc",
+      "producer": "Haulashore",
+      "region": 36,
+      "wine_type": "white",
+      "vintage": 2023,
+      "abv": "13.0",
+      "price": "18.99",
+      "stock": 16,
+      "character": "Crisp, citrus-driven, typical Nelson style",
+      "tasting_notes": "Grapefruit, passionfruit, fresh-cut grass",
+      "food_pairing": "Pairs with seafood, goat cheese, or fresh salads",
+      "description": "Haulashore is a New Zealand producer sourcing fruit from the Nelson region; a vibrant, aromatic Sauvignon Blanc",
+      "image": "wines/image_29.jpg",
+      "slug": "haulashore-sauvignon-blanc-2023",
+      "is_featured": false,
+      "is_available": true,
+      "created_at": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "products.wine",
+    "pk": 50,
+    "fields": {
+      "name": "Les Copines - Red",
+      "producer": "Les Copines",
+      "region": 14,
+      "wine_type": "red",
+      "vintage": 2021,
+      "abv": "13.0",
+      "price": "14.99",
+      "stock": 24,
+      "character": "Fun, social, easy-drinking red",
+      "tasting_notes": "Red cherry, light spice, soft tannin",
+      "food_pairing": "Pairs with pizza, charcuterie, or casual gatherings",
+      "description": "Playful French label featuring dancing figures; designed for social sharing and everyday enjoyment",
+      "image": "wines/image_30.jpg",
+      "slug": "les-copines-red-2021",
+      "is_featured": false,
+      "is_available": true,
+      "created_at": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "products.wine",
+    "pk": 51,
+    "fields": {
+      "name": "Les Copines - White",
+      "producer": "Les Copines",
+      "region": 14,
+      "wine_type": "white",
+      "vintage": 2022,
+      "abv": "12.5",
+      "price": "13.99",
+      "stock": 22,
+      "character": "Light, fresh, everyday white",
+      "tasting_notes": "Citrus, green apple, light floral note",
+      "food_pairing": "Pairs with pizza or light appetizers",
+      "description": "Same producer as Les Copines Red; a fresh, easy-drinking white with the same playful pizza-illustration label",
+      "image": "wines/image_30.jpg",
+      "slug": "les-copines-white-2022",
+      "is_featured": false,
+      "is_available": true,
+      "created_at": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "products.wine",
+    "pk": 52,
+    "fields": {
+      "name": "Viña Cumbrero - Crianza",
+      "producer": "Viña Cumbrero",
+      "region": 23,
+      "wine_type": "red",
+      "vintage": 2012,
+      "abv": "13.5",
+      "price": "18.99",
+      "stock": 17,
+      "character": "Classic, balanced Rioja Crianza",
+      "tasting_notes": "Cherry, raspberry, plum, oak/vanilla, hint of coconut and strawberry",
+      "food_pairing": "Pairs with red meats, lamb, or aged cheeses",
+      "description": "Made by Bodegas Montecillo (150+ year history); aged 12 months in American oak barrels; a textbook Rioja Crianza",
+      "image": "wines/image_31.jpg",
+      "slug": "vi-a-cumbrero-crianza-2012",
+      "is_featured": true,
+      "is_available": true,
+      "created_at": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "products.wine",
+    "pk": 53,
+    "fields": {
+      "name": "Capricho by Parató",
+      "producer": "Capricho",
+      "region": 37,
+      "wine_type": "white",
+      "vintage": 2022,
+      "abv": "12.0",
+      "price": "15.99",
+      "stock": 19,
+      "character": "Fresh, easy-drinking Mediterranean white",
+      "tasting_notes": "Citrus, white peach, light floral note",
+      "food_pairing": "Pairs with seafood, salads, or light tapas",
+      "description": "Vegan wine, 100% organic production, bottled by Parató Vinícola; a fresh and sustainable choice from Penedès",
+      "image": "wines/image_32.jpg",
+      "slug": "capricho-by-parat-2022",
+      "is_featured": false,
+      "is_available": true,
+      "created_at": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "products.wine",
+    "pk": 54,
+    "fields": {
+      "name": "Mythopia - illusion",
+      "producer": "Mythopia",
+      "region": 38,
+      "wine_type": "red",
+      "vintage": 2019,
+      "abv": "13.0",
+      "price": "34.99",
+      "stock": 6,
+      "character": "No added sulfites, natural style",
+      "tasting_notes": "Red cherry, forest floor, gentle spice",
+      "food_pairing": "Pairs with roast poultry, charcuterie, or mild cheeses",
+      "description": "Mythopia is a biodynamic/natural Swiss winery in the Valais region; illusion is their flagship Pinot Noir with no added sulfites",
+      "image": "wines/image_33.jpg",
+      "slug": "mythopia-illusion-2019",
+      "is_featured": false,
+      "is_available": true,
+      "created_at": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "products.wine",
+    "pk": 55,
+    "fields": {
+      "name": "Mythopia - Jadis",
+      "producer": "Mythopia",
+      "region": 38,
+      "wine_type": "red",
+      "vintage": 2018,
+      "abv": "13.0",
+      "price": "32.99",
+      "stock": 5,
+      "character": "No added sulfites, natural style",
+      "tasting_notes": "Dark berry, earthy spice, soft tannin",
+      "food_pairing": "Pairs with stews or roasted meats",
+      "description": "Same producer as Mythopia illusion; a natural red blend from biodynamic viticulture in the Swiss Alps",
+      "image": "wines/image_33.jpg",
+      "slug": "mythopia-jadis-2018",
+      "is_featured": false,
+      "is_available": true,
+      "created_at": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "products.wine",
+    "pk": 56,
+    "fields": {
+      "name": "Mythopia - Schiller",
+      "producer": "Mythopia",
+      "region": 38,
+      "wine_type": "rose",
+      "vintage": 2020,
+      "abv": "12.5",
+      "price": "29.99",
+      "stock": 7,
+      "character": "No added sulfites, natural style",
+      "tasting_notes": "Red berry, citrus zest, light salinity",
+      "food_pairing": "Pairs with light appetizers or as an aperitif",
+      "description": "Same producer as above; Schiller is a traditional Swiss rosé-style blend of red and white grapes, made without added sulfites",
+      "image": "wines/image_33.jpg",
+      "slug": "mythopia-schiller-2020",
+      "is_featured": false,
+      "is_available": true,
+      "created_at": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "products.wine",
+    "pk": 57,
+    "fields": {
+      "name": "A Kind of Wine 05",
+      "producer": "A",
+      "region": 39,
+      "wine_type": "orange",
+      "vintage": 2022,
+      "abv": "12.5",
+      "price": "23.99",
+      "stock": 8,
+      "character": "Textured, sun-drenched, natural style",
+      "tasting_notes": "Apricot, honey, saline minerality",
+      "food_pairing": "Pairs with grilled seafood or Mediterranean mezze",
+      "description": "A natural-wine-focused project by Akiog Hotel Group in the Greek islands; sun-drenched skin-contact white from the Cyclades",
+      "image": "wines/image_34.jpg",
+      "slug": "a-kind-of-wine-05-2022",
+      "is_featured": false,
+      "is_available": true,
+      "created_at": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "products.wine",
+    "pk": 58,
+    "fields": {
+      "name": "Miolo Seleção - Rosé",
+      "producer": "Miolo Seleção",
+      "region": 40,
+      "wine_type": "rose",
+      "vintage": 2019,
+      "abv": "11.5",
+      "price": "14.99",
+      "stock": 16,
+      "character": "Light, fruity Brazilian rosé",
+      "tasting_notes": "Strawberry, watermelon, light citrus finish",
+      "food_pairing": "Pairs with light salads, grilled fish, or picnic fare",
+      "description": "Miolo is one of Brazil's largest and oldest wine producers, founded 1897; the Seleção Rosé showcases the best of the Campanha region",
+      "image": "wines/image_35.jpg",
+      "slug": "miolo-sele-o-ros-2019",
+      "is_featured": false,
+      "is_available": true,
+      "created_at": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "products.wine",
+    "pk": 59,
+    "fields": {
+      "name": "Minoj - Kalecik Karası",
+      "producer": "Minoj",
+      "region": 41,
+      "wine_type": "red",
+      "vintage": 2020,
+      "abv": "13.0",
+      "price": "16.99",
+      "stock": 10,
+      "character": "Light-to-medium bodied, native Anatolian red",
+      "tasting_notes": "Red cherry, dried herbs, soft spice",
+      "food_pairing": "Pairs with grilled lamb, kebabs, or mezze",
+      "description": "Made by Vinkara, a Turkish winery specializing in native Anatolian grape varieties; Kalecik Karası is Turkey's most celebrated indigenous red grape",
+      "image": "wines/image_36.jpg",
+      "slug": "minoj-kalecik-karas-2020",
+      "is_featured": false,
+      "is_available": true,
+      "created_at": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "products.wine",
+    "pk": 60,
+    "fields": {
+      "name": "Roaring Meg - Pinot Noir",
+      "producer": "Roaring Meg",
+      "region": 42,
+      "wine_type": "red",
+      "vintage": 2019,
+      "abv": "13.5",
+      "price": "24.99",
+      "stock": 14,
+      "character": "Vibrant, red-fruited, typical Central Otago style",
+      "tasting_notes": "Cherry, red plum, subtle spice",
+      "food_pairing": "Pairs with duck, salmon, or roasted lamb",
+      "description": "Made by Mt. Difficulty; Roaring Meg is their more approachable, entry-level label showcasing Central Otago Pinot Noir",
+      "image": "wines/image_37.jpg",
+      "slug": "roaring-meg-pinot-noir-2019",
+      "is_featured": true,
+      "is_available": true,
+      "created_at": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "products.wine",
+    "pk": 61,
+    "fields": {
+      "name": "Mt. Difficulty - Bannockburn Pinot Noir",
+      "producer": "Mt. Difficulty",
+      "region": 43,
+      "wine_type": "red",
+      "vintage": 2018,
+      "abv": "13.8",
+      "price": "39.99",
+      "stock": 8,
+      "character": "Structured, complex, cool-climate Pinot Noir",
+      "tasting_notes": "Dark cherry, earth, spice",
+      "food_pairing": "Pairs with venison, duck, or mushroom dishes",
+      "description": "Mt. Difficulty is a well-regarded Bannockburn producer known for site-specific Pinot Noir; this flagship bottling is among Central Otago's finest",
+      "image": "wines/image_37.jpg",
+      "slug": "mt-difficulty-bannockburn-pinot-noir-2018",
+      "is_featured": true,
+      "is_available": true,
+      "created_at": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "products.wine",
+    "pk": 62,
+    "fields": {
+      "name": "Sinnebeg - N Chardonnay Barrique",
+      "producer": "Sinnebeg",
+      "region": 44,
+      "wine_type": "white",
+      "vintage": 2020,
+      "abv": "13.0",
+      "price": "26.99",
+      "stock": 7,
+      "character": "Rounded, barrel-aged, cool-climate Chardonnay",
+      "tasting_notes": "Baked apple, toasted almond, gentle vanilla",
+      "food_pairing": "Pairs with roast chicken, creamy pasta, or soft cheeses",
+      "description": "Belgian wine producer making barrel-aged Chardonnay; notable as Belgium has a small but growing and exciting wine industry",
+      "image": "wines/image_38.jpg",
+      "slug": "sinnebeg-n-chardonnay-barrique-2020",
+      "is_featured": false,
+      "is_available": true,
+      "created_at": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "products.wine",
+    "pk": 63,
+    "fields": {
+      "name": "Delta - Hatters Hill Pinot Noir",
+      "producer": "Delta",
+      "region": 45,
+      "wine_type": "red",
+      "vintage": 2022,
+      "abv": "13.0",
+      "price": "22.99",
+      "stock": 11,
+      "character": "Fresh, varietally-true Marlborough style",
+      "tasting_notes": "Red cherry, spice, light earthiness",
+      "food_pairing": "Pairs with light red meats or salmon",
+      "description": "Delta Wine is a Marlborough-based New Zealand producer; Hatters Hill showcases the versatility of the Marlborough region beyond Sauvignon Blanc",
+      "image": "wines/image_40.jpg",
+      "slug": "delta-hatters-hill-pinot-noir-2022",
+      "is_featured": false,
+      "is_available": true,
+      "created_at": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "products.wine",
+    "pk": 64,
+    "fields": {
+      "name": "Da Pipa - Tinto",
+      "producer": "Da Pipa",
+      "region": 46,
+      "wine_type": "red",
+      "vintage": 2021,
+      "abv": "13.0",
+      "price": "15.99",
+      "stock": 18,
+      "character": "Easy-drinking, approachable red",
+      "tasting_notes": "Dark plum, soft spice, light oak",
+      "food_pairing": "Pairs with grilled meats, sausages, or hard cheeses",
+      "description": "Da Pipa translates roughly to 'from the barrel'; a character-driven label producing approachable Portuguese reds",
+      "image": "wines/image_41.jpg",
+      "slug": "da-pipa-tinto-2021",
+      "is_featured": false,
+      "is_available": true,
+      "created_at": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "products.wine",
+    "pk": 65,
+    "fields": {
+      "name": "This Is Not Another Lovely Malbec",
+      "producer": "This",
+      "region": 47,
+      "wine_type": "red",
+      "vintage": 2022,
+      "abv": "13.5",
+      "price": "15.99",
+      "stock": 20,
+      "character": "Bold, playful branding for a classic varietal",
+      "tasting_notes": "Dark fruit, plum, chocolate/oak notes",
+      "food_pairing": "Pairs with steak, grilled red meats, or hard cheeses",
+      "description": "Playfully-named Malbec label from Mendoza's Uco Valley area; bold in character and even bolder in personality",
+      "image": "wines/image_42.jpg",
+      "slug": "this-is-not-another-lovely-malbec-2022",
+      "is_featured": false,
+      "is_available": true,
+      "created_at": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "products.wine",
+    "pk": 66,
+    "fields": {
+      "name": "Disco! - Skin Fermented Sauvignon Blanc",
+      "producer": "Disco!",
+      "region": 48,
+      "wine_type": "orange",
+      "vintage": 2021,
+      "abv": "12.5",
+      "price": "25.99",
+      "stock": 11,
+      "character": "Vivid, funky, natural style",
+      "tasting_notes": "Dried apricot, orange peel, herbal grip",
+      "food_pairing": "Pairs with spiced dishes or aged cheeses",
+      "description": "By Subject To Change Wine Co., a Mendocino natural wine producer; skin-fermented Sauvignon Blanc with vivid colour and texture",
+      "image": "wines/image_44.jpg",
+      "slug": "disco-skin-fermented-sauvignon-blanc-2021",
+      "is_featured": false,
+      "is_available": true,
+      "created_at": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "products.wine",
+    "pk": 67,
+    "fields": {
+      "name": "Dreamboat",
+      "producer": "Dreamboat",
+      "region": 49,
+      "wine_type": "rose",
+      "vintage": 2021,
+      "abv": "12.0",
+      "price": "22.99",
+      "stock": 13,
+      "character": "Bright, easy-drinking",
+      "tasting_notes": "Watermelon, red berry, light citrus",
+      "food_pairing": "Pairs with salads, light seafood, or picnic fare",
+      "description": "Same producer as Disco!; a bright, easy-drinking field blend with a rosé hue from Mendocino",
+      "image": "wines/image_44.jpg",
+      "slug": "dreamboat-2021",
+      "is_featured": false,
+      "is_available": true,
+      "created_at": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "products.wine",
+    "pk": 68,
+    "fields": {
+      "name": "FKA! No. 2 - Real Heads Will Know",
+      "producer": "FKA! No. 2",
+      "region": 50,
+      "wine_type": "red",
+      "vintage": 2021,
+      "abv": "13.0",
+      "price": "23.99",
+      "stock": 9,
+      "character": "Rustic, funky natural red",
+      "tasting_notes": "Wild berry, earthy spice, light tannin",
+      "food_pairing": "Pairs with grilled meats or aged cheeses",
+      "description": "Same producer as above; a rustic field blend red for those who like their wine with a bit of funk and attitude",
+      "image": "wines/image_44.jpg",
+      "slug": "fka-no-2-real-heads-will-know-2021",
+      "is_featured": false,
+      "is_available": true,
+      "created_at": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "products.wine",
+    "pk": 69,
+    "fields": {
+      "name": "Wild Child",
+      "producer": "Wild",
+      "region": 51,
+      "wine_type": "red",
+      "vintage": 2021,
+      "abv": "13.5",
+      "price": "27.99",
+      "stock": 8,
+      "character": "Bold, characterful old-vine red",
+      "tasting_notes": "Dark plum, black pepper, firm structure",
+      "food_pairing": "Pairs with grilled red meats or stews",
+      "description": "Same producer as above; old-vine Carignan from Mendocino with serious structure and depth",
+      "image": "wines/image_44.jpg",
+      "slug": "wild-child-2021",
+      "is_featured": false,
+      "is_available": true,
+      "created_at": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "products.wine",
+    "pk": 70,
+    "fields": {
+      "name": "Fritz (Gunderloch)",
+      "producer": "Fritz",
+      "region": 52,
+      "wine_type": "white",
+      "vintage": 2024,
+      "abv": "12.0",
+      "price": "17.99",
+      "stock": 20,
+      "character": "Crisp, fruity, classic Rheinhessen Riesling",
+      "tasting_notes": "Green apple, citrus, mineral notes",
+      "food_pairing": "Pairs with seafood, spicy food, or Asian cuisine",
+      "description": "Gunderloch is a highly respected Rheinhessen estate known for excellent-value Riesling; Fritz is their approachable, everyday bottling",
+      "image": "wines/image_45.jpg",
+      "slug": "fritz-gunderloch-2024",
+      "is_featured": false,
+      "is_available": true,
+      "created_at": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "products.wine",
+    "pk": 71,
+    "fields": {
+      "name": "Domaine le Sang des Cailloux - Vacqueyras Un Sang Blanc",
+      "producer": "Domaine le Sang des Cailloux",
+      "region": 53,
+      "wine_type": "white",
+      "vintage": 2017,
+      "abv": "13.5",
+      "price": "32.99",
+      "stock": 6,
+      "character": "Rich, textured southern Rhône white",
+      "tasting_notes": "White peach, honeysuckle, warm mineral finish",
+      "food_pairing": "Pairs with roast poultry, seafood in cream sauce, or soft cheeses",
+      "description": "Domaine le Sang des Cailloux is a respected Vacqueyras estate; this rare white from a mainly red wine appellation is a hidden gem",
+      "image": "wines/image_48.jpg",
+      "slug": "domaine-le-sang-des-cailloux-vacqueyras-un-sang-blanc-2017",
+      "is_featured": false,
+      "is_available": true,
+      "created_at": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "products.wine",
+    "pk": 72,
+    "fields": {
+      "name": "Domaine aux Moines - Savennières Roche aux Moines",
+      "producer": "Domaine aux Moines",
+      "region": 54,
+      "wine_type": "white",
+      "vintage": 2021,
+      "abv": "13.0",
+      "price": "36.99",
+      "stock": 5,
+      "character": "Dry, mineral, age-worthy Loire white",
+      "tasting_notes": "Honeyed apple, quince, wet stone",
+      "food_pairing": "Pairs with roast chicken, creamy sauces, or aged cheeses",
+      "description": "Domaine aux Moines is a historic Savennières estate, part of the prestigious Roche aux Moines climat; a benchmark Loire Chenin Blanc",
+      "image": "wines/image_48.jpg",
+      "slug": "domaine-aux-moines-savenni-res-roche-aux-moines-2021",
+      "is_featured": false,
+      "is_available": true,
+      "created_at": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "products.wine",
+    "pk": 73,
+    "fields": {
+      "name": "Salmon Run - Sauvignon Blanc",
+      "producer": "Salmon Run",
+      "region": 45,
+      "wine_type": "white",
+      "vintage": 2023,
+      "abv": "13.0",
+      "price": "14.99",
+      "stock": 25,
+      "character": "Zesty, tropical, classic Marlborough style",
+      "tasting_notes": "Passionfruit, lime, green pepper",
+      "food_pairing": "Pairs with seafood, goat cheese, salads",
+      "description": "Made by Forrest Estate, a well-known Marlborough winery; Salmon Run is their approachable, value-driven Sauvignon Blanc",
+      "image": "wines/image_49.jpg",
+      "slug": "salmon-run-sauvignon-blanc-2023",
+      "is_featured": false,
+      "is_available": true,
+      "created_at": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "products.wine",
+    "pk": 74,
+    "fields": {
+      "name": "La Vieille Ferme",
+      "producer": "La",
+      "region": 55,
+      "wine_type": "white",
+      "vintage": 2024,
+      "abv": "12.5",
+      "price": "9.99",
+      "stock": 35,
+      "character": "Fresh, easy-drinking, everyday white",
+      "tasting_notes": "Citrus, white flower, light stone fruit",
+      "food_pairing": "Pairs well with light seafood, salads, or as an aperitif",
+      "description": "Well-known brand of the Perrin Family (Château de Beaucastel); one of the most widely distributed French value wines",
+      "image": "wines/image_50.jpg",
+      "slug": "la-vieille-ferme-2024",
+      "is_featured": false,
+      "is_available": true,
+      "created_at": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "products.wine",
+    "pk": 75,
+    "fields": {
+      "name": "Domaine Eric Chevalier - Pataquès",
+      "producer": "Domaine Eric Chevalier",
+      "region": 56,
+      "wine_type": "red",
+      "vintage": 2021,
+      "abv": "12.5",
+      "price": "24.99",
+      "stock": 12,
+      "character": "Fresh, light, easy-drinking Loire red",
+      "tasting_notes": "Red currant, light pepper, soft acidity",
+      "food_pairing": "Pairs with charcuterie, roast chicken, or light stews",
+      "description": "Domaine Eric Chevalier is a Loire Valley producer; Pataquès is a fresh, unpretentious red for everyday drinking",
+      "image": "wines/image_51.jpg",
+      "slug": "domaine-eric-chevalier-pataqu-s-2021",
+      "is_featured": false,
+      "is_available": true,
+      "created_at": "2026-01-01T00:00:00Z"
+    }
+  }
+]

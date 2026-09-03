@@ -30,7 +30,7 @@ class Wine(models.Model):
     producer = models.CharField(max_length=100)
     region = models.ForeignKey(Region, on_delete=models.PROTECT, null=True, blank=True)
     wine_type = models.CharField(max_length=50, choices=TYPE_CHOICES)
-    vintage = models.PositiveIntegerField()
+    vintage = models.PositiveIntegerField(null=True, blank=True)
     abv = models.DecimalField(max_digits=4, decimal_places=2)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     stock = models.IntegerField(default=0)
