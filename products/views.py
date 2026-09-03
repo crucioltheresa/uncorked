@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from .models import Wine, Region
 
 
@@ -23,9 +23,9 @@ def wine_list(request):
 
 
 def wine_detail(request, slug):
-    wine = Wine.get_object_or_404(Wine, slug=slug, is_available=True)
+    wine = get_object_or_404(Wine, slug=slug, is_available=True)
     related_wines = Wine.objects.filter(
-        wine_type=wine.wie_type, is_available=True
+        wine_type=wine.wine_type, is_available=True
     ).exclude(id=wine.id)[:4]
     context = {
         "wine": wine,

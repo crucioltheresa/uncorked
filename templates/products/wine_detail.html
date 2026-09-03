@@ -28,7 +28,7 @@
             </p>
 
             <!-- Add to cart form (placeholder for now) -->
-            <form method="POST" action="#">
+            <form method="POST" action="{% url 'cart_add' wine.id %}">
                 {% csrf_token %}
                 <input type="number" name="quantity" value="1" min="1" max="{{ wine.stock }}">
                 <button type="submit">ADD TO CART</button>
