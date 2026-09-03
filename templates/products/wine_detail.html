@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ wine.name }} — Uncorked{% endblock %}
+
+{% block content %}
+<div class="wine-detail">
+    <!-- Breadcrumb -->
+    <p class="breadcrumb">
+        <a href="{% url 'homepage' %}">Home</a> ›
+        <a href="{% url 'wine_list' %}">Wines</a> ›
+        {{ wine.name }}
+    </p>
+
+    <div class="wine-detail__main">
+        <!-- Image -->
+        <div class="wine-detail__image">
+            {% if wine.image %}
+            <img src="{{ wine.image.url }}" alt="{{ wine.name }}">
+            {% endif %}
+        </div>
+
+        <!-- Info -->
+        <div class="wine-detail__info">
+            <h1>{{ wine.name }} {% if wine.vintage %}— {{ wine.vintage }}{% endif %}</h1>
+            <p class="wine-detail__price">€{{ wine.price }}</p>
+            <p class="wine-detail__stock">
+                {% if wine.stock > 0 %}In stock{% else %}Out of stock{% endif %}
+            </p>
+
+            <!-- Add to cart form (placeholder for now) -->
+            <form method="POST" action="#">
+                {% csrf_token %}
+                <input type="number" name="quantity" value="1" min="1" max="{{ wine.stock }}">
+                <button type="submit">ADD TO CART</button>
+            </form>
+
+            <!-- Details table -->
+            <table class="wine-detail__table">
+                <tr><td>Country / Region</td><td>{{ wine.region }}</td></tr>
+                <tr><td>Character</td><td>{{ wine.character }}</td></tr>
+                <tr><td>Tasting Notes</td><td>{{ wine.tasting_notes }}</td></tr>
+                <tr><td>Food Match</td><td>{{ wine.food_pairing }}</td></tr>
+                {% if wine.abv %}<tr><td>ABV</td><td>{{ wine.abv }}%</td></tr>{% endif %}
+            </table>
+        </div>
+    </div>
+
+    <!-- You may also like -->
+    {% if related_wines %}
+    <div class="related-wines">
+        <h2>YOU MAY ALSO LIKE</h2>
+        <div class="wine-grid">
+            {% for related in related_wines %}
+            <div class="wine-card">
+                {% if related.image %}
+                <img src="{{ related.image.url }}" alt="{{ related.name }}">
+                {% endif %}
+                <h3><a href="{% url 'wine_detail' related.slug %}">{{ related.name }}</a></h3>
+                <p>€{{ related.price }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

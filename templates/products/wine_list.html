@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}Wines - Uncorked{% endblock %}
+
+{% block content %}
+<div class="catalogue">
+<h1>Our Wines</h1>
+
+<!-- Filters -->
+<div class="filters">
+<a href="{% url 'wine_list' %}">All</a>
+<a href="?type=red">Red</a>
+<a href="?type=white">White</a>
+<a href="?type=sparkling">Sparkling</a>
+<a href="?type=orange">Orange</a>
+<a href="?type=rose">Rosé</a>
+<a href="?type=natural">Natural</a>
+</div>
+
+<!-- Wine grid -->
+<div class="wine-grid">
+{% for wine in wines %}
+<div class="wine-card">
+    {% if wine.image %}
+    <img src="{{ wine.image.url }}" alt="{{ wine.name }}" />
+    {% endif %}
+    <span class="wine-card__badge">{{ wine.get_wine_type_display }}</span>
+    <h3><a href="{% url 'wine_detail' wine.slug %}">{{ wine.name }}</a></h3>
+    <p class="wine-card__region">{{ wine.region }}</p>
+    <p class="wine-card__character">{{ wine.character }}</p>
+    <div class="wine-card__footer">
+    <span class="wine-card__price">€{{ wine.price }}</span>
+    <a href="{% url 'wine_detail' wine.slug %}">View →</a>
+    </div>
+</div>
+{% empty %}
+<p>No wines found.</p>
+{% endfor %}
+</div>
+</div>
+{% endblock %}
