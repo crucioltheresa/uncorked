@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block title %}Order Confirmed — Uncorked{% endblock %}
+
+{% block content %}
+<div class="order-success">
+    <h1>Order Confirmed!</h1>
+    <p>Thank you, {{ order.full_name }}. Your order #{{ order.id }} has been placed.</p>
+    <p>A confirmation email will be sent to {{ order.email }}.</p>
+
+    <h2>Order Summary</h2>
+    {% for item in order.items.all %}
+    <p>{{ item.wine.name }} × {{ item.quantity }} — €{{ item.get_total }}</p>
+    {% endfor %}
+    <p><strong>Total: €{{ order.total_price }}</strong></p>
+
+    <a href="{% url 'wine_list' %}" class="btn btn--primary">Continue Shopping</a>
+</div>
+{% endblock %}

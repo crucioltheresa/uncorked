@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block title %}Checkout — Uncorked{% endblock %}
+
+{% block content %}
+<div class="checkout">
+    <h1>Checkout</h1>
+    <div class="checkout__layout">
+        <div class="checkout__form">
+            <h2>Delivery Details</h2>
+            <form method="POST">
+                {% csrf_token %}
+                {% for field in form %}
+                <div class="form-group">
+                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.errors %}
+                    <p class="error">{{ field.errors }}</p>
+                    {% endif %}
+                </div>
+                {% endfor %}
+                <button type="submit" class="btn btn--primary">Continue to Payment</button>
+            </form>
+        </div>
+        <div class="checkout__summary">
+            <h2>Order Summary</h2>
+            {% for item in cart %}
+            <div class="checkout__item">
+                <span>{{ item.wine.name }} × {{ item.quantity }}</span>
+                <span>€{{ item.total_price }}</span>
+            </div>
+            {% endfor %}
+            <hr>
+            <div class="checkout__total">
+                <strong>Total: €{{ cart.get_total_price }}</strong>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
