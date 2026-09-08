@@ -39,7 +39,7 @@ class Wine(models.Model):
     food_pairing = models.TextField(blank=True)
     description = models.TextField(blank=True)
     image = models.ImageField(upload_to="wines/", null=True, blank=True)
-    slug = models.SlugField(unique=True, blank=True)
+    slug = models.SlugField(unique=True, blank=True, max_length=255)
     is_featured = models.BooleanField(default=False)
     is_available = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
