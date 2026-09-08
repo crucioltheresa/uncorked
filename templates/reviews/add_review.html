@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block title %}Review {{ wine.name }} — Uncorked{% endblock %}
+
+{% block content %}
+<div class="review-form">
+    <h1>Review: {{ wine.name }}</h1>
+    {% if verified %}
+    <p class="verified">✓ Verified purchase</p>
+    {% endif %}
+    <form method="POST">
+        {% csrf_token %}
+        {% for field in form %}
+        <div class="form-group">
+            <label>{{ field.label }}</label>
+            {{ field }}
+            {% if field.errors %}<p class="error">{{ field.errors }}</p>{% endif %}
+        </div>
+        {% endfor %}
+        <button type="submit" class="btn btn--primary">Submit Review</button>
+        <a href="{% url 'wine_detail' wine.slug %}">Cancel</a>
+    </form>
+</div>
+{% endblock %}
