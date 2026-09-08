@@ -4,7 +4,6 @@
 
 {% block content %}
 <div class="wine-detail">
-    <!-- Breadcrumb -->
     <p class="breadcrumb">
         <a href="{% url 'homepage' %}">Home</a> ›
         <a href="{% url 'wine_list' %}">Wines</a> ›
@@ -12,14 +11,12 @@
     </p>
 
     <div class="wine-detail__main">
-        <!-- Image -->
         <div class="wine-detail__image">
             {% if wine.image %}
             <img src="{{ wine.image.url }}" alt="{{ wine.name }}">
             {% endif %}
         </div>
 
-        <!-- Info -->
         <div class="wine-detail__info">
             <h1>{{ wine.name }} {% if wine.vintage %}— {{ wine.vintage }}{% endif %}</h1>
             <p class="wine-detail__price">€{{ wine.price }}</p>
@@ -27,14 +24,17 @@
                 {% if wine.stock > 0 %}In stock{% else %}Out of stock{% endif %}
             </p>
 
-            <!-- Add to cart form (placeholder for now) -->
             <form method="POST" action="{% url 'cart_add' wine.id %}">
                 {% csrf_token %}
                 <input type="number" name="quantity" value="1" min="1" max="{{ wine.stock }}">
                 <button type="submit">ADD TO CART</button>
             </form>
 
-            <!-- Details table -->
+            <form method="POST" action="{% url 'wishlist_add' wine.id %}">
+                {% csrf_token %}
+                <button type="submit">♡ Add to Favourites</button>
+            </form>
+
             <table class="wine-detail__table">
                 <tr><td>Country / Region</td><td>{{ wine.region }}</td></tr>
                 <tr><td>Character</td><td>{{ wine.character }}</td></tr>

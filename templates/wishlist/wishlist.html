@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block title %}My Wishlist — Uncorked{% endblock %}
+
+{% block content %}
+<div class="wishlist">
+    <h1>My Wishlist</h1>
+    {% if items %}
+    <div class="wine-grid">
+        {% for item in items %}
+        <div class="wine-card">
+            {% if item.wine.image %}
+            <img src="{{ item.wine.image.url }}" alt="{{ item.wine.name }}">
+            {% endif %}
+            <h3><a href="{% url 'wine_detail' item.wine.slug %}">{{ item.wine.name }}</a></h3>
+            <p>{{ item.wine.region }}</p>
+            <p>€{{ item.wine.price }}</p>
+            <form method="POST" action="{% url 'cart_add' item.wine.id %}">
+                {% csrf_token %}
+                <input type="hidden" name="quantity" value="1">
+                <button type="submit">Add to Cart</button>
+            </form>
+            <form method="POST" action="{% url 'wishlist_remove' item.wine.id %}">
+                {% csrf_token %}
+                <button type="submit">Remove</button>
+            </form>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p>Your wishlist is empty.</p>
+    <a href="{% url 'wine_list' %}">Browse our wines</a>
+    {% endif %}
+</div>
+{% endblock %}
