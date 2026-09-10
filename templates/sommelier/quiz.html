@@ -10,6 +10,10 @@
         <span class="quiz-tag">SOMMELIER</span>
         <h1>Find your perfect bottle</h1>
         <p>Answer a few questions and we'll find the right wine for you.</p>
+        <div class="quiz__progress-wrap" id="progressWrap">
+            <div class="quiz__progress-bar" id="progressBar" style="width: 0%"></div>
+            <span class="quiz__progress-text" id="progressText">Question 1 of 5</span>
+        </div>
     </div>
 
     <div class="quiz-chat" id="quizChat">
@@ -31,6 +35,9 @@
     const chat = document.getElementById('quizChat');
 
     function restartQuiz() {
+        document.getElementById('progressWrap').style.display = 'block';
+        document.getElementById('progressBar').style.width = '0%';
+        document.getElementById('progressText').textContent = 'Question 1 of 5';
         currentIndex = 0;
         Object.keys(answers).forEach(k => delete answers[k]);
         chat.innerHTML = '';
@@ -48,38 +55,44 @@
     }
 
     function askQuestion(index) {
-        if (index >= QUESTIONS.length) {
-            submitAnswers();
-            return;
-        }
+    // Update progress bar
+    const progress = Math.round((index / QUESTIONS.length) * 100);
+    document.getElementById('progressBar').style.width = progress + '%';
+    document.getElementById('progressText').textContent = 
+        index < QUESTIONS.length 
+            ? `Question ${index + 1} of ${QUESTIONS.length}` 
+            : 'Almost there...';
 
-        const q = QUESTIONS[index];
-
-        // Show bot message with slight delay
-        setTimeout(() => {
-            addMessage(q.text, 'bot');
-
-            // Show options after message appears
-            setTimeout(() => {
-                const optionsDiv = document.createElement('div');
-                optionsDiv.classList.add('chat-options');
-                optionsDiv.id = `options-${index}`;
-
-                q.options.forEach(opt => {
-                    const btn = document.createElement('button');
-                    btn.classList.add('chat-option');
-                    btn.textContent = opt.label;
-                    btn.addEventListener('click', () => {
-                        selectAnswer(index, opt.value, opt.label, optionsDiv);
-                    });
-                    optionsDiv.appendChild(btn);
-                });
-
-                chat.appendChild(optionsDiv);
-                chat.scrollTop = chat.scrollHeight;
-            }, 400);
-        }, 600);
+    if (index >= QUESTIONS.length) {
+        submitAnswers();
+        return;
     }
+
+    const q = QUESTIONS[index];
+
+    setTimeout(() => {
+        addMessage(q.text, 'bot');
+        setTimeout(() => {
+            const optionsDiv = document.createElement('div');
+            optionsDiv.classList.add('chat-options');
+            optionsDiv.id = `options-${index}`;
+
+            q.options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.classList.add('chat-option');
+                btn.textContent = opt.label;
+                btn.addEventListener('click', () => {
+                    selectAnswer(index, opt.value, opt.label, optionsDiv);
+                });
+                optionsDiv.appendChild(btn);
+            });
+
+            chat.appendChild(optionsDiv);
+            chat.scrollTop = chat.scrollHeight;
+        }, 400);
+    }, 600);
+    }
+
 
     function selectAnswer(index, value, label, optionsDiv) {
         // Save answer
@@ -119,6 +132,7 @@
     }
 
     function showResults(wines) {
+        document.getElementById('progressWrap').style.display = 'none';
         chat.style.display = 'none';
         const resultsDiv = document.getElementById('quizResults');
         const grid = document.getElementById('resultsGrid');

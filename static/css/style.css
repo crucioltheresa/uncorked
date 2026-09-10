@@ -130,3 +130,28 @@ img {
     from { opacity: 0; transform: translateY(8px); }
     to { opacity: 1; transform: translateY(0); }
 }
+
+.quiz__progress-wrap {
+    width: 100%;
+    background: #E8E0D4;
+    border-radius: 4px;
+    height: 4px;
+    margin-top: 20px;
+    position: relative;
+}
+
+.quiz__progress-bar {
+    height: 4px;
+    background: #B85C2A;
+    border-radius: 4px;
+    transition: width 0.4s ease;
+}
+
+.quiz__progress-text {
+    font-size: 11px;
+    color: #9B8B7A;
+    letter-spacing: 0.05em;
+    display: block;
+    margin-top: 6px;
+    text-align: right;
+}
