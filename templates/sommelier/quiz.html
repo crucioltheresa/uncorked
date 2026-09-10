@@ -1,0 +1,171 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Find Your Wine — Uncorked{% endblock %}
+
+{% block content %}
+<div class="quiz-page">
+
+    <div class="quiz-header">
+        <span class="quiz-tag">SOMMELIER</span>
+        <h1>Find your perfect bottle</h1>
+        <p>Answer a few questions and we'll find the right wine for you.</p>
+    </div>
+
+    <div class="quiz-chat" id="quizChat">
+        <!-- Messages appear here -->
+    </div>
+
+    <div class="quiz-results" id="quizResults" style="display:none;">
+        <h2>We found your bottles.</h2>
+        <div class="wine-grid" id="resultsGrid"></div>
+        <button class="btn btn--secondary" onclick="restartQuiz()">Retake Quiz</button>
+    </div>
+
+</div>
+
+<script>
+    const QUESTIONS = {{ questions_json|safe }};
+    let currentIndex = 0;
+    const answers = {};
+    const chat = document.getElementById('quizChat');
+
+    function restartQuiz() {
+        currentIndex = 0;
+        Object.keys(answers).forEach(k => delete answers[k]);
+        chat.innerHTML = '';
+        document.getElementById('quizResults').style.display = 'none';
+        chat.style.display = 'block';
+        setTimeout(() => askQuestion(0), 300);
+    }
+
+    function addMessage(text, type = 'bot') {
+        const msg = document.createElement('div');
+        msg.classList.add('chat-message', `chat-message--${type}`);
+        msg.innerHTML = text;
+        chat.appendChild(msg);
+        chat.scrollTop = chat.scrollHeight;
+    }
+
+    function askQuestion(index) {
+        if (index >= QUESTIONS.length) {
+            submitAnswers();
+            return;
+        }
+
+        const q = QUESTIONS[index];
+
+        // Show bot message with slight delay
+        setTimeout(() => {
+            addMessage(q.text, 'bot');
+
+            // Show options after message appears
+            setTimeout(() => {
+                const optionsDiv = document.createElement('div');
+                optionsDiv.classList.add('chat-options');
+                optionsDiv.id = `options-${index}`;
+
+                q.options.forEach(opt => {
+                    const btn = document.createElement('button');
+                    btn.classList.add('chat-option');
+                    btn.textContent = opt.label;
+                    btn.addEventListener('click', () => {
+                        selectAnswer(index, opt.value, opt.label, optionsDiv);
+                    });
+                    optionsDiv.appendChild(btn);
+                });
+
+                chat.appendChild(optionsDiv);
+                chat.scrollTop = chat.scrollHeight;
+            }, 400);
+        }, 600);
+    }
+
+    function selectAnswer(index, value, label, optionsDiv) {
+        // Save answer
+        answers[QUESTIONS[index].id] = value;
+
+        // Remove options
+        optionsDiv.remove();
+
+        // Show user reply
+        addMessage(label, 'user');
+
+        // Move to next question
+        currentIndex++;
+        askQuestion(currentIndex);
+    }
+
+    function submitAnswers() {
+        setTimeout(() => {
+            addMessage('One moment, finding your perfect bottles...', 'bot');
+
+            fetch('/sommelier/submit/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken'),
+                },
+                body: JSON.stringify({ answers })
+            })
+            .then(res => res.json())
+            .then(data => {
+                setTimeout(() => showResults(data.wines), 800);
+            })
+            .catch(() => {
+                addMessage('Something went wrong. Please try again.', 'bot');
+            });
+        }, 600);
+    }
+
+    function showResults(wines) {
+        chat.style.display = 'none';
+        const resultsDiv = document.getElementById('quizResults');
+        const grid = document.getElementById('resultsGrid');
+        grid.innerHTML = '';
+
+        if (!wines || wines.length === 0) {
+            grid.innerHTML = '<p>No wines found. Try different preferences.</p>';
+        } else {
+            wines.forEach(wine => {
+                grid.innerHTML += `
+                    <div class="wine-card">
+                        ${wine.image ? `<img src="${wine.image}" alt="${wine.name}">` : ''}
+                        <span class="wine-card__badge">${wine.type}</span>
+                        <h3><a href="/wines/${wine.slug}/">${wine.name}</a></h3>
+                        <p class="wine-card__region">${wine.region}</p>
+                        <p class="wine-card__character">${wine.character}</p>
+                        <div class="wine-card__footer">
+                            <span class="wine-card__price">€${wine.price}</span>
+                            <form method="POST" action="${wine.cart_url}">
+                                <input type="hidden" name="csrfmiddlewaretoken" value="${getCookie('csrftoken')}">
+                                <input type="hidden" name="quantity" value="1">
+                                <button type="submit">Add to Cart</button>
+                            </form>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        resultsDiv.style.display = 'block';
+    }
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            document.cookie.split(';').forEach(cookie => {
+                const c = cookie.trim();
+                if (c.startsWith(name + '=')) {
+                    cookieValue = decodeURIComponent(c.slice(name.length + 1));
+                }
+            });
+        }
+        return cookieValue;
+    }
+
+    // Start quiz
+    askQuestion(0);
+</script>
+
+{% endblock %}
