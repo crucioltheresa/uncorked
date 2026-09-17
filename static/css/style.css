@@ -101,7 +101,7 @@ a {
 }
 
 a:hover {
-    color: var(--color-accent);
+    color: inherit;
 }
 
 ul,
@@ -523,7 +523,10 @@ p {
 }
 
 .nav__logo a:hover {
-    color: var(--color-dark) !important;
+    color: var(--color-dark);
+    text-shadow: 
+        3px 3px 0px var(--color-accent),
+        4px 4px 0px var(--color-accent);
 }
 
 .nav__search {
