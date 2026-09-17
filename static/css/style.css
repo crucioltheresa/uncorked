@@ -522,7 +522,7 @@ p {
     color: var(--color-dark);
 }
 
-.nav__logo a {
+.nav__logo a:hover {
     color: var(--color-dark);
 }
 
