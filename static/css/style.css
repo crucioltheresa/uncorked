@@ -30,6 +30,8 @@
     --text-xl: 28px;
     --text-2xl: 36px;
     --text-3xl: 48px;
+    --text-4xl: 64px;
+    --text-5xl: 96px;
 
     /* Spacing */
     --space-xs: 8px;
@@ -502,17 +504,17 @@ p {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 14px var(--container-pad);
-    height: 64px;
+    padding: 20px var(--container-pad);
+    height: 160px;
 }
 
 .nav__logo {
     font-family: 'Plaster', serif;
-    font-size: 32px;
+    font-size: 96px;
     color: var(--color-dark);
     text-shadow: 
-        3px 3px 0px var(--color-accent),
-        4px 4px 0px var(--color-accent);
+        5px 5px 0px var(--color-accent),
+        6px 6px 0px var(--color-accent);
     letter-spacing: 0.02em;
     text-align: center;
     flex: 1;
@@ -525,22 +527,50 @@ p {
 .nav__logo a:hover {
     color: var(--color-dark);
     text-shadow: 
-        3px 3px 0px var(--color-accent),
-        4px 4px 0px var(--color-accent);
+        5px 5px 0px var(--color-accent),
+        6px 6px 0px var(--color-accent);
 }
 
 .nav__search {
-    display: none;
+    display: flex;
+    align-items: center;
+    background: var(--color-card);
+    border: 0.5px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    padding: 8px 14px;
+    gap: 8px;
+    width: 200px;
+}
+
+.nav__search input {
+    border: none;
+    background: none;
+    font-size: var(--text-sm);
+    outline: none;
+    width: 100%;
+    font-family: var(--font-body);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-mid);
+}
+
+.nav__search input::placeholder {
+    color: var(--color-mid);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: var(--text-xs);
 }
 
 .nav__icons {
     display: flex;
     align-items: center;
-    gap: var(--space-sm);
+    gap: var(--space-md);
+    width: 200px;
+    justify-content: flex-end;
 }
 
 .nav__icon {
-    font-size: 20px;
+    font-size: 24px;
     color: var(--color-dark);
     position: relative;
     transition: color var(--transition);
@@ -569,12 +599,12 @@ p {
 .nav__categories {
     display: flex;
     align-items: center;
-    overflow-x: auto;
-    scrollbar-width: none;
+    justify-content: center;
+    border-top: 0.5px solid var(--color-border);
     border-bottom: 0.5px solid var(--color-border);
     padding: 0 var(--container-pad);
-    gap: var(--space-md);
-    height: 44px;
+    gap: var(--space-xl);
+    height: 48px;
 }
 
 .nav__categories::-webkit-scrollbar {
@@ -583,16 +613,15 @@ p {
 
 .nav__category {
     font-size: var(--text-sm);
-    color: var(--color-mid);
+    color: var(--color-dark);
     white-space: nowrap;
     transition: color var(--transition);
-    padding: 0 4px;
+    letter-spacing: 0.03em;
 }
 
 .nav__category:hover,
 .nav__category--active {
     color: var(--color-accent);
-    font-weight: 500;
 }
 
 .promo-bar {
@@ -1950,11 +1979,15 @@ p {
     }
 
     .nav__logo {
-        font-size: var(--text-2xl);
+        font-size: var(--text-3xl);
     }
 
     .nav__search {
         width: 240px;
+    }
+
+    .nav__categories a {
+        font-size: var(--text-lg);
     }
 
     .wine-detail__image img {
