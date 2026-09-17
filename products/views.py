@@ -1,3 +1,4 @@
+from django.core.paginator import Paginator
 from django.shortcuts import render, get_object_or_404
 from .models import Wine, Region
 
@@ -11,6 +12,10 @@ def wine_list(request):
         wines = wines.filter(wine_type=wine_type)
     if region:
         wines = wines.filter(region__slug=region)
+
+    paginator = Paginator(wines, 12)
+    page_number = request.GET.get("page")
+    wines = paginator.get_page(page_number)
 
     regions = Region.objects.all()
     context = {
