@@ -523,7 +523,7 @@ p {
 }
 
 .nav__logo a:hover {
-    color: var(--color-dark);
+    color: var(--color-dark) !important;
 }
 
 .nav__search {
