@@ -2,98 +2,193 @@
 
 {% block title %}{{ wine.name }} — Uncorked{% endblock %}
 
+{% block meta_description %}{{ wine.character }} — {{ wine.tasting_notes|truncatechars:150 }}{% endblock %}
+
 {% block content %}
 <div class="wine-detail">
-    <p class="breadcrumb">
-        <a href="{% url 'homepage' %}">Home</a> ›
-        <a href="{% url 'wine_list' %}">Wines</a> ›
-        {{ wine.name }}
-    </p>
+    <div class="container">
 
-    <div class="wine-detail__main">
-        <div class="wine-detail__image">
-            {% if wine.image %}
-            <img src="{{ wine.image.url }}" alt="{{ wine.name }}">
+        <!-- Breadcrumb -->
+        <p class="breadcrumb">
+            <a href="{% url 'homepage' %}">Home</a>
+            <span>›</span>
+            <a href="{% url 'wine_list' %}?type={{ wine.wine_type }}">{{ wine.get_wine_type_display }} Wine</a>
+            <span>›</span>
+            <span class="bold">{{ wine.name }}</span>
+        </p>
+
+        <!-- Main layout -->
+        <div class="wine-detail__main">
+
+            <!-- Image -->
+            <div class="wine-detail__image">
+                {% if wine.image %}
+                <img src="{{ wine.image.url }}" alt="{{ wine.name }}">
+                {% endif %}
+            </div>
+
+            <!-- Info -->
+            <div class="wine-detail__info">
+                <h1 class="wine-detail__name">
+                    {{ wine.name }}{% if wine.vintage %} - {{ wine.vintage }}{% endif %}
+                </h1>
+
+                <p class="wine-detail__price">€{{ wine.price }}</p>
+
+                <p class="wine-detail__stock {% if wine.stock > 0 %}wine-detail__stock--in{% else %}wine-detail__stock--out{% endif %}">
+                    {% if wine.stock > 0 %}
+                    <i class="bi bi-patch-check"></i> In stock
+                    {% else %}
+                    <i class="bi bi-x-circle"></i> Out of stock
+                    {% endif %}
+                </p>
+
+                <!-- Add to cart + wishlist -->
+                <form method="POST" action="{% url 'cart_add' wine.id %}">
+                    {% csrf_token %}
+                    <div class="wine-detail__actions">
+                        <div class="wine-detail__quantity-row">
+                            <div class="quantity-stepper">
+                                <button type="button" onclick="this.nextElementSibling.stepDown()">−</button>
+                                <input type="number" name="quantity" value="1" min="1" max="{{ wine.stock }}">
+                                <button type="button" onclick="this.previousElementSibling.stepUp()">+</button>
+                            </div>
+                            <a href="{% url 'wishlist_add' wine.id %}" class="wine-detail__wishlist">
+                                <i class="bi bi-star"></i> Add to Favourites
+                            </a>
+                        </div>
+                        <button type="submit" class="btn btn--primary btn--full">
+                            ADD TO CART
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Details table -->
+                <table class="wine-detail__table">
+                    <tr>
+                        <td>Country / Region</td>
+                        <td>{{ wine.region }}</td>
+                    </tr>
+                    <tr>
+                        <td>Character</td>
+                        <td>{{ wine.character }}</td>
+                    </tr>
+                    <tr>
+                        <td>Tasting Notes</td>
+                        <td>{{ wine.tasting_notes }}</td>
+                    </tr>
+                    <tr>
+                        <td>Food Match</td>
+                        <td>{{ wine.food_pairing }}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <!-- About the producer -->
+        {% if wine.description %}
+        <div class="wine-detail__producer">
+            <span class="wine-detail__producer-tag">About the Producer</span>
+            <p>{{ wine.description }}</p>
+        </div>
+        {% endif %}
+
+        <!-- Reviews -->
+        <div class="reviews">
+            <h2 class="reviews__title">Reviews</h2>
+            {% if request.user.is_authenticated %}
+            <a href="{% url 'add_review' wine.id %}" class="btn btn--outline btn--sm mb-md">
+                <i class="bi bi-pencil"></i> Write a Review
+            </a>
             {% endif %}
-        </div>
 
-        <div class="wine-detail__info">
-            <h1>{{ wine.name }} {% if wine.vintage %}— {{ wine.vintage }}{% endif %}</h1>
-            <p class="wine-detail__price">€{{ wine.price }}</p>
-            <p class="wine-detail__stock">
-                {% if wine.stock > 0 %}In stock{% else %}Out of stock{% endif %}
-            </p>
-
-            <form method="POST" action="{% url 'cart_add' wine.id %}">
-                {% csrf_token %}
-                <input type="number" name="quantity" value="1" min="1" max="{{ wine.stock }}">
-                <button type="submit">ADD TO CART</button>
-            </form>
-
-            <form method="POST" action="{% url 'wishlist_add' wine.id %}">
-                {% csrf_token %}
-                <button type="submit">♡ Add to Favourites</button>
-            </form>
-
-            <table class="wine-detail__table">
-                <tr><td>Country / Region</td><td>{{ wine.region }}</td></tr>
-                <tr><td>Character</td><td>{{ wine.character }}</td></tr>
-                <tr><td>Tasting Notes</td><td>{{ wine.tasting_notes }}</td></tr>
-                <tr><td>Food Match</td><td>{{ wine.food_pairing }}</td></tr>
-                {% if wine.abv %}<tr><td>ABV</td><td>{{ wine.abv }}%</td></tr>{% endif %}
-            </table>
-        </div>
-    </div>
-
-    <!-- Reviews section -->
-<div class="reviews">
-    <h2>Reviews</h2>
-    {% if request.user.is_authenticated %}
-    <a href="{% url 'add_review' wine.id %}">Write a Review</a>
-    {% endif %}
-
-    {% for review in wine.reviews.all %}
-    <div class="review">
-        <p>
-            {% for i in "12345" %}
-            {% if forloop.counter <= review.rating %}★{% else %}☆{% endif %}
+            {% for review in wine.reviews.all %}
+            <div class="review">
+                <div class="review__stars">
+                    {% for i in "12345" %}
+                    {% if forloop.counter <= review.rating %}
+                    <i class="bi bi-star-fill"></i>
+                    {% else %}
+                    <i class="bi bi-star"></i>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+                <h4 class="review__title">{{ review.title }}</h4>
+                <p class="review__body">{{ review.body }}</p>
+                <div class="review__meta">
+                    <span>{{ review.user.email }}</span>
+                    {% if review.verified_purchase %}
+                    <span class="verified">
+                        <i class="bi bi-patch-check-fill"></i> Verified purchase
+                    </span>
+                    {% endif %}
+                </div>
+                {% if review.user == request.user %}
+                <form method="POST" action="{% url 'delete_review' review.id %}" class="mt-sm">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn--sm" style="color: var(--color-error);">
+                        <i class="bi bi-trash"></i> Delete
+                    </button>
+                </form>
+                {% endif %}
+            </div>
+            {% empty %}
+            <p>No reviews yet. Be the first!</p>
             {% endfor %}
-        </p>
-        <h4>{{ review.title }}</h4>
-        <p>{{ review.body }}</p>
-        <p>— {{ review.user.email }}
-        {% if review.verified_purchase %}
-        <span class="verified">✓ Verified purchase</span>
-        {% endif %}
-        </p>
-        {% if review.user == request.user %}
-        <form method="POST" action="{% url 'delete_review' review.id %}">
-            {% csrf_token %}
-            <button type="submit">Delete</button>
-        </form>
-        {% endif %}
+        </div>
+
     </div>
-    {% empty %}
-    <p>No reviews yet. Be the first!</p>
-    {% endfor %}
 </div>
 
-    <!-- You may also like -->
-    {% if related_wines %}
-    <div class="related-wines">
+<!-- You may also like -->
+{% if related_wines %}
+<div class="related-wines">
+    <div class="container">
         <h2>YOU MAY ALSO LIKE</h2>
         <div class="wine-grid">
             {% for related in related_wines %}
             <div class="wine-card">
-                {% if related.image %}
-                <img src="{{ related.image.url }}" alt="{{ related.name }}">
-                {% endif %}
-                <h3><a href="{% url 'wine_detail' related.slug %}">{{ related.name }}</a></h3>
-                <p>€{{ related.price }}</p>
+                <div class="wine-card__image">
+                    {% if related.image %}
+                    <a href="{% url 'wine_detail' related.slug %}">
+                        <img src="{{ related.image.url }}" alt="{{ related.name }}">
+                    </a>
+                    {% endif %}
+                </div>
+                <div class="wine-card__top">
+                    <h3 class="wine-card__name">
+                        <a href="{% url 'wine_detail' related.slug %}">{{ related.name }}</a>
+                    </h3>
+                    <span class="wine-card__price">€{{ related.price }}</span>
+                </div>
+                <p class="wine-card__region">{{ related.region }}{% if related.vintage %} · {{ related.vintage }}{% endif %}</p>
+                <p class="wine-card__character">{{ related.character }}</p>
+                <form method="POST" action="{% url 'cart_add' related.id %}">
+                    {% csrf_token %}
+                    <div class="wine-card__actions">
+                        <div class="quantity-stepper">
+                            <button type="button" onclick="this.nextElementSibling.stepDown()">−</button>
+                            <input type="number" name="quantity" value="1" min="1" max="{{ related.stock }}">
+                            <button type="button" onclick="this.previousElementSibling.stepUp()">+</button>
+                        </div>
+                        <button type="submit" class="wine-card__add-btn">Add to Cart</button>
+                    </div>
+                </form>
             </div>
             {% endfor %}
         </div>
     </div>
-    {% endif %}
 </div>
+{% endif %}
+
+<!-- Newsletter -->
+<div class="newsletter-section container">
+    <h2>Stay in the know</h2>
+    <p>New arrivals, tasting notes, producer stories — no noise.</p>
+    <div class="newsletter-form">
+        <input type="email" placeholder="your@email.com">
+        <button class="btn btn--primary">SUBSCRIBE</button>
+    </div>
+</div>
+
 {% endblock %}

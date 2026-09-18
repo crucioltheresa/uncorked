@@ -19,15 +19,14 @@
     <header>
         <nav class="nav">
             <div class="nav__top">
-                <div class="nav__search">
+                <button class="nav__hamburger" aria-label="Menu">
+                    <i class="bi bi-list"></i>
+                </button>
+                <div class="nav__search-mobile">
+                    <input type="text" placeholder="Search">
                     <i class="bi bi-search"></i>
-                    <input type="text" placeholder="Search wines...">
                 </div>
-                <a href="{% url 'homepage' %}" class="nav__logo">Uncorked</a>
                 <div class="nav__icons">
-                    <a href="{% url 'wishlist_detail' %}" class="nav__icon">
-                        <i class="bi bi-heart"></i>
-                    </a>
                     {% if request.user.is_authenticated %}
                     <a href="{% url 'account_logout' %}" class="nav__icon">
                         <i class="bi bi-person-fill"></i>
@@ -40,13 +39,14 @@
                     <a href="{% url 'cart_detail' %}" class="nav__icon">
                         <i class="bi bi-bag"></i>
                         {% if request.session.cart %}
-                        <span class="nav__icon-count">
-                            {{ request.session.cart|length }}
-                        </span>
+                        <span class="nav__icon-count">{{ request.session.cart|length }}</span>
                         {% endif %}
                     </a>
                 </div>
             </div>
+
+            <a href="{% url 'homepage' %}" class="nav__logo">Uncorked</a>
+
             <div class="nav__categories">
                 <a href="{% url 'wine_list' %}" class="nav__category {% if not request.GET.type %}nav__category--active{% endif %}">All</a>
                 <a href="{% url 'wine_list' %}?type=sparkling" class="nav__category {% if request.GET.type == 'sparkling' %}nav__category--active{% endif %}">Sparkling Wine</a>
@@ -55,9 +55,9 @@
                 <a href="{% url 'wine_list' %}?type=red" class="nav__category {% if request.GET.type == 'red' %}nav__category--active{% endif %}">Red Wine</a>
                 <a href="{% url 'wine_list' %}?type=natural" class="nav__category {% if request.GET.type == 'natural' %}nav__category--active{% endif %}">Natural Wine</a>
             </div>
+
             <div class="promo-bar">
-                <span>10% off if you buy 8 Bottles Of Wine or More!</span>
-                <span>Free National Delivery on orders of €100+</span>
+                <span class="promo-bar__text" id="promoText"></span>
             </div>
         </nav>
     </header>
@@ -118,6 +118,32 @@
         </div>
     </footer>
 
-    {% block scripts %}{% endblock %}
+    {% block scripts %}
+    <script>
+        const promoMessages = [
+            "10% off if you buy 8 Bottles Of Wine or More!",
+            "Free National Delivery on orders of €100+"
+        ];
+
+        let currentPromo = 0;
+        const promoEl = document.getElementById('promoText');
+
+        function updatePromo() {
+            promoEl.style.opacity = '0';
+            promoEl.style.transform = 'translateX(20px)';
+            
+            setTimeout(() => {
+                currentPromo = (currentPromo + 1) % promoMessages.length;
+                promoEl.textContent = promoMessages[currentPromo];
+                promoEl.style.opacity = '1';
+                promoEl.style.transform = 'translateX(0)';
+            }, 400);
+        }
+
+        // Set initial message
+        promoEl.textContent = promoMessages[0];
+        setInterval(updatePromo, 3000);
+    {% endblock %}
+    </script>
 </body>
 </html>

@@ -19,9 +19,9 @@
             {% if selected_type %}
             <a href="{% url 'wine_list' %}">Wines</a>
             <span>›</span>
-            <span>{{ selected_type|title }}</span>
+            <span class="bold">{{ selected_type|title }}</span>
             {% else %}
-            <span>All Wines</span>
+            <span class="bold">All Wines</span>
             {% endif %}
         </p>
 
