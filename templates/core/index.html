@@ -1,11 +1,147 @@
 {% extends 'base.html' %}
+{% load static %}
 
-{% block title %}Home - Uncorked{% endblock %}
+{% block title %}Uncorked — Curated Wines from Independent Producers{% endblock %}
+
+{% block meta_description %}Discover our curated selection of natural, classic and independent wines. Handpicked from producers across 12 countries.{% endblock %}
 
 {% block content %}
-<h1>Welcome to Uncorked</h1>
-<p>
-  Discover our curated selection of wines from independent producers and iconic
-  estates.
-</p>
+
+<!-- HERO -->
+<section class="hero">
+    <img src="{% static 'img/hero.jpg' %}" alt="Uncorked wine selection" class="hero__img">
+    <div class="hero__content">
+        <span class="hero__tag">Natural, classic, and everything in between.</span>
+        <h1 class="hero__title">Wine with a<br>point of view.</h1>
+        <a href="{% url 'wine_list' %}" class="btn btn--accent">SHOP HERE →</a>
+    </div>
+</section>
+
+<!-- NEW ARRIVALS -->
+<section class="homepage-section">
+    <div class="section-header">
+        <h2 class="section-title--caps section-title--center">New Arrivals</h2>
+    </div>
+    <div class="wine-grid">
+        {% for wine in featured_wines %}
+        <div class="wine-card">
+            <div class="wine-card__image">
+                {% if wine.image %}
+                <a href="{% url 'wine_detail' wine.slug %}">
+                    <img src="{{ wine.image.url }}" alt="{{ wine.name }}">
+                </a>
+                {% endif %}
+                <span class="badge badge--{{ wine.wine_type }} wine-card__badge">
+                    {{ wine.get_wine_type_display }}
+                </span>
+            </div>
+            <div class="wine-card__top">
+                <h3 class="wine-card__name">
+                    <a href="{% url 'wine_detail' wine.slug %}">{{ wine.name }}</a>
+                </h3>
+                <span class="wine-card__price">€{{ wine.price }}</span>
+            </div>
+            <p class="wine-card__region">{{ wine.region }} {% if wine.vintage %}· {{ wine.vintage }}{% endif %}</p>
+            <p class="wine-card__character">{{ wine.character }}</p>
+            <form method="POST" action="{% url 'cart_add' wine.id %}">
+                {% csrf_token %}
+                <div class="wine-card__actions">
+                    <div class="quantity-stepper">
+                        <button type="button" onclick="this.nextElementSibling.stepDown()">−</button>
+                        <input type="number" name="quantity" value="1" min="1" max="{{ wine.stock }}">
+                        <button type="button" onclick="this.previousElementSibling.stepUp()">+</button>
+                    </div>
+                    <button type="submit" class="wine-card__add-btn">Add to Cart</button>
+                </div>
+            </form>
+        </div>
+        {% endfor %}
+    </div>
+    <div class="text-center mt-md">
+        <a href="{% url 'wine_list' %}" class="btn btn--accent">SEE ALL</a>
+    </div>
+</section>
+
+<!-- EDITORIAL STRIP 1 -->
+<section class="editorial-strip">
+    <img src="{% static 'img/editorial_1.jpg' %}" alt="Independent producers" class="editorial-strip__img">
+    <div class="editorial-strip__content">
+        <h2 class="editorial-strip__title">Handpicked from independent producers across 12 countries.</h2>
+    </div>
+</section>
+
+<!-- SOCIAL PROOF -->
+<section class="social-proof">
+    <p class="social-proof__quote">"We see wine as more than just a drink. It's about curiosity, connection, and finding something that surprises you."</p>
+    <p class="social-proof__name">The Uncorked Team</p>
+    <div class="social-proof__awards">
+        <img src="{% static 'img/awards/award-1.png' %}" alt="Decanter Award 2024">
+        <img src="{% static 'img/awards/award-2.png' %}" alt="BIG WA">
+        <img src="{% static 'img/awards/award-3.png' %}" alt="SWA">
+        <img src="{% static 'img/awards/award-4.png' %}" alt="SWA Gold">
+    </div>
+</section>
+
+<!-- SOMMELIER CTA -->
+<section class="sommelier-cta">
+    <img src="{% static 'img/sommelier.jpg' %}" alt="Ask our sommelier" class="sommelier-cta__img">
+    <div class="sommelier-cta__content">
+        <span class="sommelier-cta__tag">Sommelier</span>
+        <h2 class="sommelier-cta__title">Not sure what to choose?</h2>
+        <p class="sommelier-cta__sub">Chat with our virtual sommelier — tell us the occasion, the food, the mood. We'll find your bottle.</p>
+        <a href="{% url 'quiz_start' %}" class="btn btn--accent">ASK THE SOMMELIER →</a>
+    </div>
+</section>
+
+<!-- ABOUT -->
+<section class="about-section">
+    <div class="about-section__header">
+        <span class="about-section__tag">Who We Are</span>
+    </div>
+    <h2 class="about-section__title">Small shop.<br>Big curiosity.</h2>
+    <p class="about-section__body">We're a small, independent wine shop with a simple idea: great wine shouldn't be complicated to find. We prioritise small producers, natural methods and honest farming — but we also know when a classic is a classic for a reason. No algorithms. No bulk buying. Just a curated selection we'd drink ourselves.</p>
+</section>
+
+<!-- EDITORIAL STRIP 2 -->
+<section class="editorial-strip">
+    <img src="{% static 'img/editorial_2.jpg' %}" alt="Every bottle chosen for a reason" class="editorial-strip__img">
+    <div class="editorial-strip__content">
+        <h2 class="editorial-strip__title">"Every bottle in our selection is chosen for a reason."</h2>
+    </div>
+</section>
+
+<!-- REVIEWS -->
+<section class="homepage-section homepage-section--surface">
+    <span class="label">What People Say</span>
+    <div class="reviews-carousel" id="reviewsCarousel">
+        <div class="review-card">
+            <div class="review__stars">★★★★★</div>
+            <p class="review__body">"Uncorked is the first wine shop that actually felt curated for someone with taste — not just a warehouse with a website."</p>
+            <p class="review__name">— Sofia M., Dublin</p>
+            <span class="verified"><i class="bi bi-patch-check-fill"></i> Verified</span>
+        </div>
+        <div class="review-card">
+            <div class="review__stars">★★★★★</div>
+            <p class="review__body">"Found my new favourite natural wine here. The character descriptions are spot on."</p>
+            <p class="review__name">— Marco T., Lisbon</p>
+            <span class="verified"><i class="bi bi-patch-check-fill"></i> Verified</span>
+        </div>
+    </div>
+    <div class="carousel-dots">
+        <span class="dot dot--active"></span>
+        <span class="dot"></span>
+    </div>
+</section>
+
+<!-- NEWSLETTER -->
+<section class="newsletter-section">
+    <h2>Stay in the know</h2>
+    <p>New arrivals, tasting notes, producer stories — no noise.</p>
+    <form class="newsletter-form" method="POST" action="{% url 'newsletter_signup' %}">
+        {% csrf_token %}
+        <input type="email" name="email" placeholder="your@email.com" required>
+        <button type="submit" class="btn btn--primary">SUBSCRIBE</button>
+    </form>
+</section>
+
 {% endblock %}
