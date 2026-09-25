@@ -2332,32 +2332,34 @@ p {
    18. WORLD MAP / EXPLORE COUNTRIES
    ============================================================ */
 
+.explore-countries {
+    background: var(--color-dark);
+    padding: 0;
+}
+
 .page-header {
     text-align: center;
     padding: var(--space-lg) var(--container-pad);
-    background: var(--color-surface);
+    background: var(--color-dark);
 }
 
 .page-header__title {
     font-family: var(--font-display);
     font-size: var(--text-2xl);
     margin-bottom: var(--space-sm);
+    color: var(--color-bg);
 }
 
 .page-header__subtitle {
     font-size: var(--text-md);
-    color: var(--color-mid);
-}
-
-.explore-countries {
-    padding: var(--space-lg) var(--container-pad);
+    color: var(--color-bg);
 }
 
 .world-map-container {
     width: 100%;
     max-width: 1000px;
-    margin: 0 auto var(--space-xl);
-    background: var(--color-bg);
+    margin: 0 auto;
+    padding: 0 var(--container-pad) var(--space-xl);
 }
 
 .world-map-container svg {
@@ -2367,15 +2369,15 @@ p {
 }
 
 .world-map__country {
-    fill: var(--color-border);
-    stroke: var(--color-card);
-    stroke-width: 1;
+    fill: none;
+    stroke: var(--color-mid);
+    stroke-width: 0.5;
     cursor: default;
     transition: fill var(--transition);
 }
 
 .world-map__country--has-wines {
-    fill: var(--color-surface);
+    fill: var(--color-beige);
     cursor: pointer;
 }
 
@@ -2387,8 +2389,8 @@ p {
 
 .world-map-tooltip {
     position: fixed;
-    background: var(--color-dark);
-    color: var(--color-card);
+    background: var(--color-bg);
+    color: var(--color-dark);
     padding: var(--space-xs) var(--space-sm);
     border-radius: var(--radius-md);
     font-size: var(--text-sm);
@@ -2396,12 +2398,13 @@ p {
     pointer-events: none;
     z-index: 1000;
     transform: translate(-50%, -100%);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
 }
 
 .countries-list {
     max-width: 1200px;
     margin: 0 auto;
+    padding: 0 var(--container-pad) var(--space-lg);
 }
 
 .countries-list__title {
@@ -2409,6 +2412,7 @@ p {
     font-size: var(--text-xl);
     margin-bottom: var(--space-md);
     text-align: center;
+    color: var(--color-bg);
 }
 
 .countries-grid {
@@ -2419,13 +2423,13 @@ p {
 
 .country-card {
     text-decoration: none;
-    color: var(--color-dark);
-    transition: color var(--transition);
+    color: var(--color-bg);
+    transition: text-decoration var(--transition);
 }
 
 .country-card:hover,
 .country-card:focus {
-    color: var(--color-accent);
+    text-decoration: underline;
     outline: none;
 }
 
@@ -2443,8 +2447,12 @@ p {
         font-size: var(--text-3xl);
     }
 
-    .explore-countries {
-        padding: var(--space-xl) var(--container-pad);
+    .world-map-container {
+        padding: 0 var(--container-pad) var(--space-xl);
+    }
+
+    .countries-list {
+        padding: 0 var(--container-pad) var(--space-xl);
     }
 }
 
