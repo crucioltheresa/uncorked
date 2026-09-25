@@ -2367,15 +2367,15 @@ p {
 }
 
 .world-map__country {
-    fill: none;
-    stroke: var(--color-dark);
-    stroke-width: 0.5;
+    fill: var(--color-border);
+    stroke: var(--color-card);
+    stroke-width: 1;
     cursor: default;
     transition: fill var(--transition);
 }
 
 .world-map__country--has-wines {
-    fill: var(--color-dark);
+    fill: var(--color-surface);
     cursor: pointer;
 }
 
