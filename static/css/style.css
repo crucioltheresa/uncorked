@@ -2337,6 +2337,28 @@ p {
     padding: 0;
 }
 
+.explore-instruction {
+    font-family: var(--font-body);
+    font-size: var(--text-sm);
+    color: var(--color-beige);
+    text-align: center;
+    padding: var(--space-lg) var(--container-pad) var(--space-md);
+    margin: 0;
+    display: none;
+}
+
+@media (hover: hover) {
+    .explore-instruction--hover {
+        display: block;
+    }
+}
+
+@media (hover: none) {
+    .explore-instruction--touch {
+        display: block;
+    }
+}
+
 .page-header {
     text-align: center;
     padding: var(--space-lg) var(--container-pad);
@@ -2402,7 +2424,7 @@ p {
 }
 
 .countries-list {
-    max-width: 1200px;
+    max-width: 900px;
     margin: 0 auto;
     padding: 0 var(--container-pad) var(--space-lg);
 }
@@ -2425,6 +2447,7 @@ p {
     text-decoration: none;
     color: var(--color-bg);
     transition: text-decoration var(--transition);
+    text-align: center;
 }
 
 .country-card:hover,
@@ -2435,7 +2458,7 @@ p {
 
 .country-card__name {
     font-weight: 600;
-    display: inline;
+    display: block;
 }
 
 @media (min-width: 768px) {
