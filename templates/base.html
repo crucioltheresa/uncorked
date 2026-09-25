@@ -58,7 +58,7 @@
                 <a href="{% url 'wine_list' %}?type=rose" class="nav__category {% if request.GET.type == 'rose' %}nav__category--active{% endif %}">Rosé Wine</a>
                 <a href="{% url 'wine_list' %}?type=red" class="nav__category {% if request.GET.type == 'red' %}nav__category--active{% endif %}">Red Wine</a>
                 <a href="{% url 'wine_list' %}?type=natural" class="nav__category {% if request.GET.type == 'natural' %}nav__category--active{% endif %}">Natural Wine</a>
-                <a href="{% url 'wine_list' %}?region=country" class="nav__category nav__category--highlight {% if request.GET.region == 'country' %}nav__category--active{% endif %}">Country</a>
+                <a href="{% url 'explore_countries' %}" class="nav__category nav__category--highlight {% if request.resolver_match.url_name == 'explore_countries' %}nav__category--active{% endif %}">Country</a>
             </div>
 
             <div class="promo-bar">

@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Explore by Country — Uncorked{% endblock %}
+
+{% block meta_description %}Discover wines from different countries around the world. Explore our curated selection by origin.{% endblock %}
+
+{% block content %}
+
+<!-- PAGE HEADER -->
+<section class="page-header">
+    <h1 class="page-header__title">Explore by Country</h1>
+    <p class="page-header__subtitle">Discover wines from winemakers around the world</p>
+</section>
+
+<!-- WORLD MAP -->
+<section class="explore-countries">
+    <div class="world-map-container">
+        {% include "includes/world-map.svg" %}
+    </div>
+
+    <!-- COUNTRIES LIST -->
+    <div class="countries-list">
+        <h2 class="countries-list__title">Wines by Country</h2>
+        <div class="countries-grid">
+            {% for country in countries %}
+            <a href="{% url 'wine_list' %}?country={{ country.name }}" class="country-card">
+                <div class="country-card__content">
+                    <h3 class="country-card__name">{{ country.name }}</h3>
+                    <span class="country-card__count">{{ country.wine_count }} wine{% if country.wine_count != 1 %}s{% endif %}</span>
+                </div>
+                <div class="country-card__iso">{{ country.iso_code }}</div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+{% endblock %}
+
+{% block scripts %}
+{{ block.super }}
+{{ countries|json_script:"countriesData" }}
+<script>
+    // World Map: Handle country selection via SVG paths
+    const svgPaths = document.querySelectorAll('.world-map__country');
+    const countryData = JSON.parse(document.getElementById('countriesData').textContent);
+
+    // Create lookup map for ISO code -> country data
+    const isoMap = {};
+    countryData.forEach(country => {
+        isoMap[country.iso_code] = country;
+    });
+
+    // Add hover/focus interactions to SVG paths
+    svgPaths.forEach(path => {
+        const isoCode = path.id;
+        const countryInfo = isoMap[isoCode];
+
+        if (countryInfo) {
+            path.classList.add('world-map__country--has-wines');
+            path.setAttribute('aria-label', `${countryInfo.name}: ${countryInfo.wine_count} wines`);
+            path.setAttribute('tabindex', '0');
+
+            // Hover/focus: show tooltip
+            path.addEventListener('mouseenter', () => {
+                showTooltip(path, countryInfo);
+            });
+
+            path.addEventListener('focus', () => {
+                showTooltip(path, countryInfo);
+            });
+
+            // Leave/blur: hide tooltip
+            path.addEventListener('mouseleave', () => {
+                hideTooltip();
+            });
+
+            path.addEventListener('blur', () => {
+                hideTooltip();
+            });
+
+            // Click: navigate to wines filtered by country
+            path.addEventListener('click', () => {
+                window.location.href = `{% url 'wine_list' %}?country=${encodeURIComponent(countryInfo.name)}`;
+            });
+
+            // Enter/Space: navigate
+            path.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    window.location.href = `{% url 'wine_list' %}?country=${encodeURIComponent(countryInfo.name)}`;
+                }
+            });
+        }
+    });
+
+    // Tooltip functionality
+    let tooltipEl = null;
+
+    function showTooltip(pathEl, countryInfo) {
+        if (tooltipEl) {
+            tooltipEl.remove();
+        }
+
+        tooltipEl = document.createElement('div');
+        tooltipEl.className = 'world-map-tooltip';
+        tooltipEl.innerHTML = `
+            <strong>${countryInfo.name}</strong><br>
+            ${countryInfo.wine_count} wine${countryInfo.wine_count !== 1 ? 's' : ''}
+        `;
+        document.body.appendChild(tooltipEl);
+
+        // Position tooltip near cursor or path center
+        const rect = pathEl.getBoundingClientRect();
+        tooltipEl.style.left = (rect.left + rect.width / 2) + 'px';
+        tooltipEl.style.top = (rect.top - 40) + 'px';
+    }
+
+    function hideTooltip() {
+        if (tooltipEl) {
+            tooltipEl.remove();
+            tooltipEl = null;
+        }
+    }
+</script>
+{% endblock %}

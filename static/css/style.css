@@ -19,9 +19,10 @@
    15. Wishlist
    16. Reviews
    17. Sommelier Quiz
-   18. Auth Pages
-   19. Static Pages
-   20. Utilities
+   18. World Map / Explore Countries
+   19. Auth Pages
+   20. Static Pages
+   21. Utilities
 
 ============================================================ */
 
@@ -2303,7 +2304,171 @@ p {
 
 
 /* ============================================================
-   18. AUTH PAGES
+   18. WORLD MAP / EXPLORE COUNTRIES
+   ============================================================ */
+
+.page-header {
+    text-align: center;
+    padding: var(--space-lg) var(--container-pad);
+    background: var(--color-surface);
+}
+
+.page-header__title {
+    font-family: var(--font-display);
+    font-size: var(--text-2xl);
+    margin-bottom: var(--space-sm);
+}
+
+.page-header__subtitle {
+    font-size: var(--text-md);
+    color: var(--color-mid);
+}
+
+.explore-countries {
+    padding: var(--space-lg) var(--container-pad);
+}
+
+.world-map-container {
+    width: 100%;
+    max-width: 1000px;
+    margin: 0 auto var(--space-xl);
+    background: var(--color-card);
+    border: 0.5px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: var(--space-md);
+}
+
+.world-map-container svg {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.world-map__country {
+    fill: var(--color-border);
+    stroke: var(--color-card);
+    stroke-width: 1;
+    cursor: default;
+    transition: fill var(--transition), filter var(--transition);
+}
+
+.world-map__country--has-wines {
+    fill: var(--color-surface);
+    cursor: pointer;
+}
+
+.world-map__country--has-wines:hover,
+.world-map__country--has-wines:focus {
+    fill: var(--color-accent);
+    outline: none;
+}
+
+.world-map-tooltip {
+    position: fixed;
+    background: var(--color-dark);
+    color: var(--color-card);
+    padding: var(--space-xs) var(--space-sm);
+    border-radius: var(--radius-md);
+    font-size: var(--text-sm);
+    white-space: nowrap;
+    pointer-events: none;
+    z-index: 1000;
+    transform: translate(-50%, -100%);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.countries-list {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.countries-list__title {
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    margin-bottom: var(--space-md);
+    text-align: center;
+}
+
+.countries-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: var(--space-md);
+}
+
+.country-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    background: var(--color-card);
+    border: 0.5px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: var(--space-md);
+    text-decoration: none;
+    color: inherit;
+    transition: all var(--transition);
+}
+
+.country-card:hover {
+    border-color: var(--color-accent);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transform: translateY(-2px);
+}
+
+.country-card__content {
+    margin-bottom: var(--space-sm);
+}
+
+.country-card__name {
+    font-size: var(--text-md);
+    font-weight: 600;
+    margin-bottom: var(--space-xs);
+}
+
+.country-card__count {
+    font-size: var(--text-sm);
+    color: var(--color-mid);
+}
+
+.country-card__iso {
+    font-size: var(--text-xs);
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    color: var(--color-accent);
+    text-transform: uppercase;
+}
+
+@media (min-width: 768px) {
+    .page-header {
+        padding: var(--space-xl) var(--container-pad);
+    }
+
+    .page-header__title {
+        font-size: var(--text-3xl);
+    }
+
+    .explore-countries {
+        padding: var(--space-xl) var(--container-pad);
+    }
+
+    .world-map-container {
+        padding: var(--space-lg);
+    }
+
+    .countries-grid {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: var(--space-lg);
+    }
+}
+
+@media (min-width: 1280px) {
+    .countries-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+
+/* ============================================================
+   19. AUTH PAGES
    ============================================================ */
 
 .auth-page {

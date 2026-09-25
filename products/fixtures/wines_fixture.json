@@ -44,7 +44,7 @@
     "pk": 5,
     "fields": {
       "name": "Vin de France",
-      "country": "Vin de France",
+      "country": "France",
       "slug": "vin-de-france",
       "description": ""
     }
@@ -104,7 +104,7 @@
     "pk": 11,
     "fields": {
       "name": "Central Italy",
-      "country": "Central Italy",
+      "country": "Italy",
       "slug": "central-italy",
       "description": ""
     }
@@ -144,7 +144,7 @@
     "pk": 15,
     "fields": {
       "name": "France (Vin de France)",
-      "country": "France (Vin de France)",
+      "country": "France",
       "slug": "france-vin-de-france",
       "description": ""
     }
@@ -154,7 +154,7 @@
     "pk": 16,
     "fields": {
       "name": "Slovenia (Vipava Valley)",
-      "country": "Slovenia (Vipava Valley)",
+      "country": "Slovenia",
       "slug": "slovenia-vipava-valley",
       "description": ""
     }
@@ -194,7 +194,7 @@
     "pk": 20,
     "fields": {
       "name": "Riverland",
-      "country": "South Australia",
+      "country": "Australia",
       "slug": "riverland-south-australia",
       "description": ""
     }
