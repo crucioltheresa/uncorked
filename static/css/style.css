@@ -2333,14 +2333,13 @@ p {
    ============================================================ */
 
 .explore-countries {
-    background: var(--color-dark);
-    padding: 0;
+    padding: var(--space-lg) var(--container-pad);
 }
 
 .explore-instruction {
     font-family: var(--font-body);
     font-size: var(--text-sm);
-    color: var(--color-beige);
+    color: var(--color-mid);
     text-align: center;
     padding: var(--space-lg) var(--container-pad) var(--space-md);
     margin: 0;
@@ -2362,26 +2361,25 @@ p {
 .page-header {
     text-align: center;
     padding: var(--space-lg) var(--container-pad);
-    background: var(--color-dark);
+    background: var(--color-surface);
 }
 
 .page-header__title {
     font-family: var(--font-display);
     font-size: var(--text-2xl);
     margin-bottom: var(--space-sm);
-    color: var(--color-bg);
 }
 
 .page-header__subtitle {
     font-size: var(--text-md);
-    color: var(--color-bg);
+    color: var(--color-mid);
 }
 
 .world-map-container {
     width: 100%;
     max-width: 1000px;
-    margin: 0 auto;
-    padding: 0 var(--container-pad) var(--space-xl);
+    margin: 0 auto var(--space-xl);
+    padding: 0;
 }
 
 .world-map-container svg {
@@ -2391,15 +2389,15 @@ p {
 }
 
 .world-map__country {
-    fill: none;
-    stroke: var(--color-mid);
-    stroke-width: 0.5;
+    fill: var(--color-surface);
+    stroke: var(--color-border);
+    stroke-width: 1;
     cursor: default;
     transition: fill var(--transition);
 }
 
 .world-map__country--has-wines {
-    fill: var(--color-beige);
+    fill: var(--color-mid);
     cursor: pointer;
 }
 
@@ -2411,8 +2409,8 @@ p {
 
 .world-map-tooltip {
     position: fixed;
-    background: var(--color-bg);
-    color: var(--color-dark);
+    background: var(--color-dark);
+    color: var(--color-card);
     padding: var(--space-xs) var(--space-sm);
     border-radius: var(--radius-md);
     font-size: var(--text-sm);
@@ -2420,7 +2418,7 @@ p {
     pointer-events: none;
     z-index: 1000;
     transform: translate(-50%, -100%);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .countries-list {
@@ -2445,14 +2443,14 @@ p {
 
 .country-card {
     text-decoration: none;
-    color: var(--color-bg);
-    transition: text-decoration var(--transition);
+    color: var(--color-dark);
+    transition: color var(--transition);
     text-align: center;
 }
 
 .country-card:hover,
 .country-card:focus {
-    text-decoration: underline;
+    color: var(--color-accent);
     outline: none;
 }
 
