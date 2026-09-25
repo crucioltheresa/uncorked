@@ -147,3 +147,57 @@ class ExploreCountriesViewTest(TestCase):
         self.assertEqual(country_dict['France']['iso_code'], 'FRA')
         self.assertEqual(country_dict['Spain']['wine_count'], 1)
         self.assertEqual(country_dict['Spain']['iso_code'], 'ESP')
+
+    def test_search_by_wine_name(self):
+        """Test that search by wine name returns correct results."""
+        response = self.client.get(reverse('wine_list'), {'q': 'Wine 1'})
+        wines = response.context['wines']
+
+        self.assertEqual(wines.paginator.count, 1)
+        self.assertEqual(wines[0].name, 'Wine 1')
+        self.assertEqual(response.context['search_query'], 'Wine 1')
+
+    def test_search_by_producer(self):
+        """Test that search by producer name returns correct results."""
+        response = self.client.get(reverse('wine_list'), {'q': 'Producer 2'})
+        wines = response.context['wines']
+
+        self.assertEqual(wines.paginator.count, 1)
+        self.assertEqual(wines[0].producer, 'Producer 2')
+
+    def test_search_by_country(self):
+        """Test that search by country returns correct results."""
+        response = self.client.get(reverse('wine_list'), {'q': 'Spain'})
+        wines = response.context['wines']
+
+        self.assertEqual(wines.paginator.count, 1)
+        self.assertEqual(wines[0].region.country, 'Spain')
+
+    def test_search_empty_query(self):
+        """Test that empty search query returns all wines."""
+        response = self.client.get(reverse('wine_list'), {'q': ''})
+        wines = response.context['wines']
+
+        self.assertEqual(wines.paginator.count, 4)
+
+    def test_search_no_results(self):
+        """Test that search with no results shows friendly message."""
+        response = self.client.get(reverse('wine_list'), {'q': 'NonexistentWine'})
+        wines = response.context['wines']
+
+        self.assertEqual(wines.paginator.count, 0)
+        self.assertEqual(response.context['search_query'], 'NonexistentWine')
+        self.assertContains(response, 'No wines found for')
+
+    def test_search_stacks_with_type_filter(self):
+        """Test that search stacks with type filter."""
+        response = self.client.get(reverse('wine_list'), {
+            'q': 'Producer 1',
+            'type': 'red'
+        })
+        wines = response.context['wines']
+
+        # Only Wine 1 matches both "Producer 1" and red type
+        self.assertEqual(wines.paginator.count, 1)
+        self.assertEqual(wines[0].name, 'Wine 1')
+        self.assertEqual(wines[0].wine_type, 'red')

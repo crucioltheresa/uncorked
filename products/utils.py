@@ -43,4 +43,5 @@ def get_countries_with_wine_counts():
                 'wine_count': item['count'],
             })
 
+    result.sort(key=lambda x: x['name'])
     return result

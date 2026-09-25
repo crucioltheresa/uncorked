@@ -26,8 +26,12 @@
         </p>
 
         <h1 class="catalogue__title">
-            {% if selected_type %}{{ selected_type|title }} Wines{% else %}Our Wines{% endif %}
+            {% if search_query %}Search Results{% elif selected_type %}{{ selected_type|title }} Wines{% else %}Our Wines{% endif %}
         </h1>
+
+        {% if search_query %}
+        <p class="search-results-info">{{ total_wines }} result{% if total_wines != 1 %}s{% endif %} for <strong>"{{ search_query }}"</strong></p>
+        {% endif %}
 
         <!-- Wine grid -->
         <div class="wine-grid">
@@ -66,7 +70,13 @@
                 </form>
             </div>
             {% empty %}
-            <p>No wines found.</p>
+            <p>
+                {% if search_query %}
+                No wines found for "{{ search_query }}". Try a different search term.
+                {% else %}
+                No wines found.
+                {% endif %}
+            </p>
             {% endfor %}
         </div>
 
@@ -74,7 +84,7 @@
         {% if wines.has_other_pages %}
         <div class="pagination">
             {% if wines.has_previous %}
-            <a href="?page={{ wines.previous_page_number }}{% if selected_type %}&type={{ selected_type }}{% endif %}">
+            <a href="?page={{ wines.previous_page_number }}{% if selected_type %}&type={{ selected_type }}{% endif %}{% if selected_country %}&country={{ selected_country }}{% endif %}{% if selected_region %}&region={{ selected_region }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}">
                 <i class="bi bi-chevron-left"></i>
             </a>
             {% endif %}
@@ -82,11 +92,11 @@
             {% if wines.number == num %}
             <span class="current">{{ num }}</span>
             {% else %}
-            <a href="?page={{ num }}{% if selected_type %}&type={{ selected_type }}{% endif %}">{{ num }}</a>
+            <a href="?page={{ num }}{% if selected_type %}&type={{ selected_type }}{% endif %}{% if selected_country %}&country={{ selected_country }}{% endif %}{% if selected_region %}&region={{ selected_region }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}">{{ num }}</a>
             {% endif %}
             {% endfor %}
             {% if wines.has_next %}
-            <a href="?page={{ wines.next_page_number }}{% if selected_type %}&type={{ selected_type }}{% endif %}">
+            <a href="?page={{ wines.next_page_number }}{% if selected_type %}&type={{ selected_type }}{% endif %}{% if selected_country %}&country={{ selected_country }}{% endif %}{% if selected_region %}&region={{ selected_region }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}">
                 <i class="bi bi-chevron-right"></i>
             </a>
             {% endif %}

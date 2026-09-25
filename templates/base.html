@@ -23,10 +23,12 @@
                 <button class="nav__hamburger" aria-label="Menu" aria-expanded="false" aria-controls="navCategories">
                     <i class="bi bi-list"></i>
                 </button>
-                <div class="nav__search-mobile">
-                    <input type="text" placeholder="Search">
-                    <i class="bi bi-search"></i>
-                </div>
+                <form class="nav__search-mobile" method="GET" action="{% url 'wine_list' %}">
+                    <input type="text" name="q" placeholder="Search" value="{{ request.GET.q }}">
+                    <button type="submit" class="nav__search-btn" aria-label="Search">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </form>
                 <a href="{% url 'homepage' %}" class="nav__logo">Uncorked</a>
                 <div class="nav__icons">
                     <a href="{% url 'wishlist_detail' %}" class="nav__icon nav__icon--wishlist">

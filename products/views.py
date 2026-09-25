@@ -10,6 +10,7 @@ def wine_list(request):
     wine_type = request.GET.get("type")
     region = request.GET.get("region")
     country = request.GET.get("country")
+    search_query = request.GET.get("q", "").strip()
 
     if wine_type:
         wines = wines.filter(wine_type=wine_type)
@@ -18,17 +19,27 @@ def wine_list(request):
     if country:
         wines = wines.filter(region__country__iexact=country)
 
+    if search_query:
+        wines = wines.filter(
+            Q(name__icontains=search_query) |
+            Q(producer__icontains=search_query) |
+            Q(region__name__icontains=search_query) |
+            Q(region__country__icontains=search_query)
+        )
+
     paginator = Paginator(wines, 12)
     page_number = request.GET.get("page")
-    wines = paginator.get_page(page_number)
+    wines_page = paginator.get_page(page_number)
 
     regions = Region.objects.all()
     context = {
-        "wines": wines,
+        "wines": wines_page,
         "regions": regions,
         "selected_type": wine_type,
         "selected_region": region,
         "selected_country": country,
+        "search_query": search_query,
+        "total_wines": wines.count(),
     }
     return render(request, "products/wine_list.html", context)
 

@@ -25,11 +25,7 @@
         <div class="countries-grid">
             {% for country in countries %}
             <a href="{% url 'wine_list' %}?country={{ country.name }}" class="country-card">
-                <div class="country-card__content">
-                    <h3 class="country-card__name">{{ country.name }}</h3>
-                    <span class="country-card__count">{{ country.wine_count }} wine{% if country.wine_count != 1 %}s{% endif %}</span>
-                </div>
-                <div class="country-card__iso">{{ country.iso_code }}</div>
+                <span class="country-card__name">{{ country.name }}</span>
             </a>
             {% endfor %}
         </div>
