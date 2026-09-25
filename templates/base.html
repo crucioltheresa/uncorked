@@ -20,7 +20,7 @@
     <header>
         <nav class="nav">
             <div class="nav__top">
-                <button class="nav__hamburger" aria-label="Menu">
+                <button class="nav__hamburger" aria-label="Menu" aria-expanded="false" aria-controls="navCategories">
                     <i class="bi bi-list"></i>
                 </button>
                 <div class="nav__search-mobile">
@@ -51,14 +51,14 @@
             </div>
             
 
-            <div class="nav__categories">
+            <div class="nav__categories" id="navCategories">
                 <a href="{% url 'wine_list' %}" class="nav__category {% if not request.GET.type %}nav__category--active{% endif %}">All</a>
                 <a href="{% url 'wine_list' %}?type=sparkling" class="nav__category {% if request.GET.type == 'sparkling' %}nav__category--active{% endif %}">Sparkling Wine</a>
                 <a href="{% url 'wine_list' %}?type=white" class="nav__category {% if request.GET.type == 'white' %}nav__category--active{% endif %}">White Wine</a>
                 <a href="{% url 'wine_list' %}?type=rose" class="nav__category {% if request.GET.type == 'rose' %}nav__category--active{% endif %}">Rosé Wine</a>
                 <a href="{% url 'wine_list' %}?type=red" class="nav__category {% if request.GET.type == 'red' %}nav__category--active{% endif %}">Red Wine</a>
                 <a href="{% url 'wine_list' %}?type=natural" class="nav__category {% if request.GET.type == 'natural' %}nav__category--active{% endif %}">Natural Wine</a>
-                <a href="{% url 'wine_list' %}?region=country" class="nav__category {% if request.GET.region == 'country' %}nav__category--active{% endif %}">Country</a>
+                <a href="{% url 'wine_list' %}?region=country" class="nav__category nav__category--highlight {% if request.GET.region == 'country' %}nav__category--active{% endif %}">Country</a>
             </div>
 
             <div class="promo-bar">
@@ -115,6 +115,7 @@
 
     {% block scripts %}
     <script>
+        // Promo bar slider: Rotates between promotional messages every 3 seconds
         const promoMessages = [
             "10% off if you buy 8 Bottles Of Wine or More!",
             "Free National Delivery on orders of €100+"
@@ -135,11 +136,73 @@
             }, 400);
         }
 
-        // Set initial message
+        // Set initial message with visible opacity
         promoEl.textContent = promoMessages[0];
+        promoEl.style.opacity = '1';
+        promoEl.style.transform = 'translateX(0)';
         setInterval(updatePromo, 3000);
-    {% endblock %}
+
+        // Mobile hamburger menu: Toggles category menu open/closed
+        const hamburgerBtn = document.querySelector('.nav__hamburger');
+        const categoryMenu = document.getElementById('navCategories');
+        const categoryLinks = document.querySelectorAll('.nav__category');
+
+        // Toggle menu open/closed
+        function toggleMenu() {
+            const isOpen = categoryMenu.classList.contains('nav__categories--open');
+
+            if (isOpen) {
+                closeMenu();
+            } else {
+                openMenu();
+            }
+        }
+
+        // Open menu: add open class and update icon/aria
+        function openMenu() {
+            categoryMenu.classList.add('nav__categories--open');
+            hamburgerBtn.setAttribute('aria-expanded', 'true');
+
+            // Replace list icon with X icon
+            const icon = hamburgerBtn.querySelector('i');
+            icon.classList.remove('bi-list');
+            icon.classList.add('bi-x');
+        }
+
+        // Close menu: remove open class and update icon/aria
+        function closeMenu() {
+            categoryMenu.classList.remove('nav__categories--open');
+            hamburgerBtn.setAttribute('aria-expanded', 'false');
+
+            // Replace X icon with list icon
+            const icon = hamburgerBtn.querySelector('i');
+            icon.classList.remove('bi-x');
+            icon.classList.add('bi-list');
+        }
+
+        // Click hamburger to toggle menu
+        hamburgerBtn?.addEventListener('click', toggleMenu);
+
+        // Close menu when category link is clicked
+        categoryLinks.forEach(link => {
+            link.addEventListener('click', closeMenu);
+        });
+
+        // Close menu on Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && categoryMenu.classList.contains('nav__categories--open')) {
+                closeMenu();
+            }
+        });
+
+        // Close menu on window resize past tablet breakpoint (768px)
+        window.addEventListener('resize', () => {
+            if (window.innerWidth >= 768) {
+                closeMenu();
+            }
+        });
     </script>
+    {% endblock %}
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

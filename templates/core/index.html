@@ -11,9 +11,9 @@
 <section class="hero">
     <img src="{% static 'img/hero.jpg' %}" alt="Uncorked wine selection" class="hero__img">
     <div class="hero__content">
-        <span class="hero__tag">Natural, classic, and everything in between.</span>
         <h1 class="hero__title">Wine with a<br>point of view.</h1>
-        <a href="{% url 'wine_list' %}" class="btn btn--accent">SHOP HERE →</a>
+        <p class="hero__subtitle">Natural, classic, and everything in between.</p>
+        <a href="{% url 'wine_list' %}" class="btn btn--primary">SHOP HERE →</a>
     </div>
 </section>
 
@@ -127,9 +127,17 @@
             <span class="verified"><i class="bi bi-patch-check-fill"></i> Verified</span>
         </div>
     </div>
-    <div class="carousel-dots">
-        <span class="dot dot--active"></span>
-        <span class="dot"></span>
+    <div class="carousel-controls">
+        <button class="carousel-btn carousel-btn--prev" id="reviewsPrevBtn" aria-label="Previous review">
+            <i class="bi bi-chevron-left"></i>
+        </button>
+        <div class="carousel-dots">
+            <span class="dot dot--active"></span>
+            <span class="dot"></span>
+        </div>
+        <button class="carousel-btn carousel-btn--next" id="reviewsNextBtn" aria-label="Next review">
+            <i class="bi bi-chevron-right"></i>
+        </button>
     </div>
 </section>
 
@@ -144,4 +152,88 @@
     </form>
 </section>
 
+{% endblock %}
+
+{% block scripts %}
+{{ block.super }}
+<script>
+    // Reviews Carousel: Handle scroll-snap synchronization, dot navigation, and prev/next buttons
+    const reviewsCarousel = document.getElementById('reviewsCarousel');
+    const carouselDots = document.querySelectorAll('.dot');
+    const reviewCards = document.querySelectorAll('.review-card');
+    const prevBtn = document.getElementById('reviewsPrevBtn');
+    const nextBtn = document.getElementById('reviewsNextBtn');
+
+    // Calculate card width (card + gap)
+    const getCardWidth = () => reviewCards[0].offsetWidth + 16;
+
+    // Get current card index based on scroll position
+    function getCurrentIndex() {
+        const scrollPosition = reviewsCarousel.scrollLeft;
+        const cardWidth = getCardWidth();
+        return Math.round(scrollPosition / cardWidth);
+    }
+
+    // Update active dot and button states based on carousel scroll position
+    function updateCarouselState() {
+        if (!reviewsCarousel) return;
+
+        const currentIndex = getCurrentIndex();
+        const isFirst = currentIndex === 0;
+        const isLast = currentIndex === carouselDots.length - 1;
+
+        // Update dot states
+        carouselDots.forEach((dot, index) => {
+            dot.classList.toggle('dot--active', index === currentIndex);
+        });
+
+        // Disable/enable prev and next buttons
+        prevBtn.disabled = isFirst;
+        nextBtn.disabled = isLast;
+    }
+
+    // Scroll to review card at given index
+    function scrollToCard(index) {
+        const cardWidth = getCardWidth();
+        const scrollPosition = index * cardWidth;
+        reviewsCarousel.scrollLeft = scrollPosition;
+    }
+
+    // Scroll to next card
+    function nextCard() {
+        const currentIndex = getCurrentIndex();
+        if (currentIndex < carouselDots.length - 1) {
+            scrollToCard(currentIndex + 1);
+        }
+    }
+
+    // Scroll to previous card
+    function prevCard() {
+        const currentIndex = getCurrentIndex();
+        if (currentIndex > 0) {
+            scrollToCard(currentIndex - 1);
+        }
+    }
+
+    // Set up dot click listeners
+    carouselDots.forEach((dot, index) => {
+        dot.addEventListener('click', () => {
+            scrollToCard(index);
+        });
+    });
+
+    // Set up prev/next button listeners
+    prevBtn?.addEventListener('click', prevCard);
+    nextBtn?.addEventListener('click', nextCard);
+
+    // Update carousel state on scroll (debounced)
+    let scrollTimeout;
+    reviewsCarousel?.addEventListener('scroll', () => {
+        clearTimeout(scrollTimeout);
+        scrollTimeout = setTimeout(updateCarouselState, 100);
+    });
+
+    // Initialize carousel state on page load
+    updateCarouselState();
+</script>
 {% endblock %}
