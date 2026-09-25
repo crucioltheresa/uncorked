@@ -2361,8 +2361,7 @@ p {
 .page-header {
     text-align: center;
     padding: var(--space-lg) var(--container-pad);
-    background: var(--color-surface);
-}
+    background: var(--color-surface);}
 
 .page-header__title {
     font-family: var(--font-display);
