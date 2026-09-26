@@ -70,6 +70,22 @@
     </div>
 </section>
 
+<!-- EXPLORE BY COUNTRY -->
+<section class="homepage-section">
+    <div class="section-header">
+        <h2 class="section-title--caps section-title--center">Explore by Country</h2>
+    </div>
+
+    <!-- INSTRUCTION LINE -->
+    <p class="explore-instruction explore-instruction--hover">Hover over a country to see how many wines we have, then click to explore.</p>
+    <p class="explore-instruction explore-instruction--touch">Tap a country to explore its wines.</p>
+
+    <!-- WORLD MAP -->
+    <div class="world-map-container">
+        {% include "includes/world-map.svg" %}
+    </div>
+</section>
+
 <!-- SOCIAL PROOF -->
 <section class="social-proof">
     <p class="social-proof__quote">"We see wine as more than just a drink. It's about curiosity, connection, and finding something that surprises you."</p>
@@ -156,6 +172,8 @@
 
 {% block scripts %}
 {{ block.super }}
+{{ countries|json_script:"countriesData" }}
+<script src="{% static 'js/country_map.js' %}"></script>
 <script>
     // Reviews Carousel: Handle scroll-snap synchronization, dot navigation, and prev/next buttons
     const reviewsCarousel = document.getElementById('reviewsCarousel');

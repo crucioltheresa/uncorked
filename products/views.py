@@ -2,7 +2,6 @@ from django.core.paginator import Paginator
 from django.shortcuts import render, get_object_or_404
 from django.db.models import Q
 from .models import Wine, Region
-from .utils import get_countries_with_wine_counts
 
 
 def wine_list(request):
@@ -56,9 +55,3 @@ def wine_detail(request, slug):
     return render(request, "products/wine_detail.html", context)
 
 
-def explore_countries(request):
-    countries = get_countries_with_wine_counts()
-    context = {
-        "countries": countries,
-    }
-    return render(request, "products/explore_countries.html", context)

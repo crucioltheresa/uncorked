@@ -60,7 +60,21 @@
                 <a href="{% url 'wine_list' %}?type=rose" class="nav__category {% if request.GET.type == 'rose' %}nav__category--active{% endif %}">Rosé Wine</a>
                 <a href="{% url 'wine_list' %}?type=red" class="nav__category {% if request.GET.type == 'red' %}nav__category--active{% endif %}">Red Wine</a>
                 <a href="{% url 'wine_list' %}?type=natural" class="nav__category {% if request.GET.type == 'natural' %}nav__category--active{% endif %}">Natural Wine</a>
-                <a href="{% url 'explore_countries' %}" class="nav__category nav__category--highlight {% if request.resolver_match.url_name == 'explore_countries' %}nav__category--active{% endif %}">Country</a>
+
+                <!-- Country Dropdown -->
+                <div class="nav__country-group">
+                    <button class="nav__category nav__category--highlight nav__country-toggle" id="countryToggle" aria-expanded="false" aria-controls="countryDropdown">
+                        Country
+                        <i class="bi bi-chevron-down nav__country-chevron"></i>
+                    </button>
+                    <div class="nav__country-dropdown" id="countryDropdown">
+                        <div class="nav__country-grid">
+                            {% for country in countries %}
+                            <a href="{% url 'wine_list' %}?country={{ country.name }}" class="nav__country-link">{{ country.name }}</a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div class="promo-bar">
@@ -201,6 +215,59 @@
         window.addEventListener('resize', () => {
             if (window.innerWidth >= 768) {
                 closeMenu();
+            }
+        });
+
+        // Country dropdown: Toggle, keyboard, and outside click handling
+        const countryToggle = document.getElementById('countryToggle');
+        const countryDropdown = document.getElementById('countryDropdown');
+        const countryLinks = document.querySelectorAll('.nav__country-link');
+
+        // Toggle dropdown
+        function toggleCountryDropdown() {
+            const isOpen = countryToggle.getAttribute('aria-expanded') === 'true';
+            if (isOpen) {
+                closeCountryDropdown();
+            } else {
+                openCountryDropdown();
+            }
+        }
+
+        // Open dropdown
+        function openCountryDropdown() {
+            countryToggle.setAttribute('aria-expanded', 'true');
+            countryDropdown.classList.add('nav__country-dropdown--open');
+        }
+
+        // Close dropdown
+        function closeCountryDropdown() {
+            countryToggle.setAttribute('aria-expanded', 'false');
+            countryDropdown.classList.remove('nav__country-dropdown--open');
+        }
+
+        // Toggle on button click
+        countryToggle?.addEventListener('click', (e) => {
+            e.stopPropagation();
+            toggleCountryDropdown();
+        });
+
+        // Close when a country is clicked
+        countryLinks.forEach(link => {
+            link.addEventListener('click', closeCountryDropdown);
+        });
+
+        // Close on Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && countryToggle.getAttribute('aria-expanded') === 'true') {
+                closeCountryDropdown();
+            }
+        });
+
+        // Close on outside click
+        document.addEventListener('click', (e) => {
+            const isClickInside = countryToggle.contains(e.target) || countryDropdown.contains(e.target);
+            if (!isClickInside && countryToggle.getAttribute('aria-expanded') === 'true') {
+                closeCountryDropdown();
             }
         });
     </script>

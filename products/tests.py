@@ -4,7 +4,7 @@ from .models import Wine, Region
 from .utils import COUNTRY_ISO_CODE_MAP, get_countries_with_wine_counts
 
 
-class ExploreCountriesViewTest(TestCase):
+class CountriesContextTest(TestCase):
     def setUp(self):
         self.client = Client()
         # Create test regions and wines
@@ -43,23 +43,31 @@ class ExploreCountriesViewTest(TestCase):
             producer="Producer 4", abv=14.0
         )
 
-    def test_explore_countries_returns_200(self):
-        """Test that /countries/ returns 200 status code."""
-        response = self.client.get(reverse('explore_countries'))
+    def test_homepage_includes_world_map_and_countries(self):
+        """Test that homepage includes world map and countries data."""
+        response = self.client.get(reverse('homepage'))
         self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'core/index.html')
 
-    def test_explore_countries_uses_correct_template(self):
-        """Test that explore_countries view uses correct template."""
-        response = self.client.get(reverse('explore_countries'))
-        self.assertTemplateUsed(response, 'products/explore_countries.html')
+        # Check that countries are in context
+        self.assertIn('countries', response.context)
+        countries = response.context['countries']
+        self.assertEqual(len(countries), 3)
 
-    def test_only_countries_with_wines_passed_to_template(self):
-        """Test that only countries with wines are passed, with correct counts."""
-        response = self.client.get(reverse('explore_countries'))
+        # Check that map SVG is included in the response
+        self.assertContains(response, 'world-map')
+
+    def test_context_processor_provides_countries(self):
+        """Test that countries context processor provides only countries with wines, alphabetically."""
+        response = self.client.get(reverse('wine_list'))
         countries = response.context['countries']
 
         # Check that we have 3 countries (France, Spain, Italy - not Atlantis)
         self.assertEqual(len(countries), 3)
+
+        # Check they are alphabetical
+        country_names = [c['name'] for c in countries]
+        self.assertEqual(country_names, sorted(country_names))
 
         # Check counts
         country_dict = {c['name']: c['wine_count'] for c in countries}
@@ -68,8 +76,7 @@ class ExploreCountriesViewTest(TestCase):
         self.assertEqual(country_dict['Italy'], 1)
 
         # Check that Atlantis is not included
-        names = [c['name'] for c in countries]
-        self.assertNotIn('Atlantis', names)
+        self.assertNotIn('Atlantis', country_names)
 
     def test_country_filter_returns_correct_wines(self):
         """Test that country filter returns the right wines."""
