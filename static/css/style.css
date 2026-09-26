@@ -2361,7 +2361,7 @@ p {
 .page-header {
     text-align: center;
     padding: var(--space-lg) var(--container-pad);
-    background: var(--color-surface);}
+}
 
 .page-header__title {
     font-family: var(--font-display);
@@ -2375,10 +2375,12 @@ p {
 }
 
 .world-map-container {
-    width: 100%;
-    max-width: 1000px;
-    margin: 0 auto var(--space-xl);
+    width: 100vw;
+    margin-left: calc(-50vw + 50%);
+    margin-right: calc(-50vw + 50%);
+    margin-bottom: var(--space-xl);
     padding: 0;
+    overflow: hidden;
 }
 
 .world-map-container svg {
@@ -2465,10 +2467,6 @@ p {
 
     .page-header__title {
         font-size: var(--text-3xl);
-    }
-
-    .world-map-container {
-        padding: 0 var(--container-pad) var(--space-xl);
     }
 
     .countries-list {
