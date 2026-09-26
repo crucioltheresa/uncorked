@@ -25,6 +25,12 @@
             <input type="password" name="password" placeholder="Password" required id="id_password" class="form-input">
         </div>
 
+        {% if form.non_field_errors %}
+        <div class="form-error" role="alert">
+            {% for error in form.non_field_errors %}{{ error }}<br>{% endfor %}
+        </div>
+        {% endif %}
+
         {% if redirect_field_value %}
         <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
         {% endif %}

@@ -3,12 +3,102 @@ from importlib import import_module
 from django.test import TestCase, Client
 from django.urls import reverse
 from django.contrib.auth import get_user_model
+from django.core import mail
 from allauth.account.models import EmailAddress
 from .models import UserProfile
 from orders.models import Order, OrderItem
 from products.models import Wine, Region
 
 User = get_user_model()
+
+
+class RegistrationTests(TestCase):
+    """US-01: Registration."""
+
+    def setUp(self):
+        self.client = Client()
+        self.signup_url = reverse("account_signup")
+        User.objects.create_user(
+            email="taken@example.com",
+            username="taken",
+            password="Str0ngPass!23",
+        )
+
+    def test_valid_signup_creates_user(self):
+        """US-01: valid signup creates a user and asks for email confirmation."""
+        response = self.client.post(self.signup_url, {
+            "email": "new@example.com",
+            "password1": "Str0ngPass!23",
+            "password2": "Str0ngPass!23",
+        })
+        self.assertRedirects(
+            response, reverse("account_email_verification_sent")
+        )
+        self.assertTrue(User.objects.filter(email="new@example.com").exists())
+
+    def test_duplicate_email_does_not_create_second_account(self):
+        """US-01: duplicate email creates no new account and notifies the owner."""
+        self.client.post(self.signup_url, {
+            "email": "taken@example.com",
+            "password1": "Str0ngPass!23",
+            "password2": "Str0ngPass!23",
+        })
+        self.assertEqual(
+            User.objects.filter(email="taken@example.com").count(), 1
+        )
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(mail.outbox[0].to, ["taken@example.com"])
+
+    def test_passwords_not_matching_shows_error(self):
+        """US-01: mismatched passwords show an error and create no user."""
+        response = self.client.post(self.signup_url, {
+            "email": "new@example.com",
+            "password1": "Str0ngPass!23",
+            "password2": "Different!456",
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response, "You must type the same password each time."
+        )
+        self.assertFalse(User.objects.filter(email="new@example.com").exists())
+
+
+class LoginLogoutTests(TestCase):
+    """US-02: Login and logout."""
+
+    def setUp(self):
+        self.client = Client()
+        self.user = User.objects.create_user(
+            email="test@example.com",
+            username="testuser",
+            password="Str0ngPass!23",
+        )
+        EmailAddress.objects.filter(user=self.user).update(verified=True)
+
+    def test_wrong_password_shows_error(self):
+        """US-02: wrong password shows an error and does not log in."""
+        response = self.client.post(reverse("account_login"), {
+            "login": "test@example.com",
+            "password": "WrongPass!99",
+        })
+        self.assertContains(
+            response,
+            "The email address and/or password you specified are not correct.",
+        )
+        self.assertNotIn("_auth_user_id", self.client.session)
+
+    def test_logged_in_user_redirected_from_login_page(self):
+        """US-02: logged-in user cannot access the login page."""
+        self.client.login(username="test@example.com", password="Str0ngPass!23")
+        response = self.client.get(reverse("account_login"))
+        self.assertRedirects(response, "/", fetch_redirect_response=False)
+
+    def test_logout_logs_user_out(self):
+        """US-02: logout ends the session and redirects home."""
+        self.client.login(username="test@example.com", password="Str0ngPass!23")
+        response = self.client.post(reverse("account_logout"))
+        self.assertRedirects(response, "/", fetch_redirect_response=False)
+        self.assertNotIn("_auth_user_id", self.client.session)
 
 
 class UserProfileModelTests(TestCase):
