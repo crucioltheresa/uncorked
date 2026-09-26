@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 from django.test import TestCase, Client
 from django.urls import reverse
 from django.contrib.auth import get_user_model
@@ -234,24 +236,102 @@ class GuestOrderAccessTests(TestCase):
         self.assertEqual(response.status_code, 404)
 
 
-class PaymentProcessingTests(TestCase):
-    """US-13: Order status and stock after payment."""
+class StripeWebhookTests(TestCase):
+    """US-13: Payment confirmation via the Stripe webhook."""
 
     def setUp(self):
-        self.region = Region.objects.create(name="Test", country="USA")
+        self.client = Client()
+        self.url = reverse("stripe_webhook")
+        region = Region.objects.create(name="Test", country="USA")
         self.wine = Wine.objects.create(
             name="Test Wine",
             producer="Test",
-            region=self.region,
+            region=region,
             wine_type="red",
             abv=13.5,
             price=30.00,
-            stock=100,
+            stock=10,
+        )
+        self.order = Order.objects.create(
+            full_name="Customer",
+            email="customer@example.com",
+            address_line1="123 Main",
+            city="City",
+            postcode="12345",
+            country="USA",
+            total_price=90.00,
+            status="pending",
+        )
+        OrderItem.objects.create(
+            order=self.order,
+            wine=self.wine,
+            quantity=3,
+            price_at_purchase=30.00,
+        )
+        self.event = {
+            "type": "payment_intent.succeeded",
+            "data": {"object": {
+                "metadata": {"order_number": str(self.order.order_number)},
+            }},
+        }
+
+    def post_webhook(self):
+        return self.client.post(
+            self.url, data="{}", content_type="application/json",
+            HTTP_STRIPE_SIGNATURE="test-signature",
         )
 
-    def test_order_status_can_be_marked_paid(self):
-        """US-13: order status can transition to paid."""
-        order = Order.objects.create(
+    @patch("orders.views.stripe.Webhook.construct_event")
+    def test_webhook_marks_order_paid(self, mock_construct):
+        """US-13: successful payment webhook marks the order as paid."""
+        mock_construct.return_value = self.event
+        response = self.post_webhook()
+        self.assertEqual(response.status_code, 200)
+        self.order.refresh_from_db()
+        self.assertEqual(self.order.status, "paid")
+
+    @patch("orders.views.stripe.Webhook.construct_event")
+    def test_webhook_reduces_stock(self, mock_construct):
+        """US-13: successful payment webhook reduces wine stock."""
+        mock_construct.return_value = self.event
+        self.post_webhook()
+        self.wine.refresh_from_db()
+        self.assertEqual(self.wine.stock, 7)
+
+    @patch("orders.views.stripe.Webhook.construct_event")
+    def test_webhook_sends_confirmation_email(self, mock_construct):
+        """US-30: successful payment webhook emails the customer."""
+        mock_construct.return_value = self.event
+        self.post_webhook()
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(mail.outbox[0].to, ["customer@example.com"])
+
+    @patch("orders.views.stripe.Webhook.construct_event")
+    def test_invalid_signature_returns_400(self, mock_construct):
+        """US-13: webhook with an invalid payload returns 400."""
+        mock_construct.side_effect = ValueError("bad payload")
+        response = self.post_webhook()
+        self.assertEqual(response.status_code, 400)
+        self.order.refresh_from_db()
+        self.assertEqual(self.order.status, "pending")
+
+
+class PaymentFailureTests(TestCase):
+    """US-14: Payment failure."""
+
+    def setUp(self):
+        self.client = Client()
+        region = Region.objects.create(name="Test", country="USA")
+        self.wine = Wine.objects.create(
+            name="Test Wine",
+            producer="Test",
+            region=region,
+            wine_type="red",
+            abv=13.5,
+            price=30.00,
+            stock=10,
+        )
+        self.order = Order.objects.create(
             full_name="Customer",
             email="customer@example.com",
             address_line1="123 Main",
@@ -261,37 +341,95 @@ class PaymentProcessingTests(TestCase):
             total_price=30.00,
             status="pending",
         )
-        order.status = "paid"
-        order.save()
-        order.refresh_from_db()
-        self.assertEqual(order.status, "paid")
-
-    def test_stock_can_be_reduced_after_payment(self):
-        """US-13: stock is reduced when an order is paid."""
-        wine = self.wine
-        wine.stock = 10
-        wine.save()
-
         OrderItem.objects.create(
-            order=Order.objects.create(
-                full_name="Customer",
-                email="customer@example.com",
-                address_line1="123 Main",
-                city="City",
-                postcode="12345",
-                country="USA",
-                total_price=30.00,
-                status="paid",
-            ),
-            wine=wine,
-            quantity=3,
+            order=self.order,
+            wine=self.wine,
+            quantity=1,
             price_at_purchase=30.00,
         )
+        self.event = {
+            "type": "payment_intent.payment_failed",
+            "data": {"object": {
+                "metadata": {"order_number": str(self.order.order_number)},
+            }},
+        }
 
-        wine.stock -= 3
-        wine.save()
-        wine.refresh_from_db()
-        self.assertEqual(wine.stock, 7)
+    @patch("orders.views.stripe.Webhook.construct_event")
+    def test_failed_payment_keeps_order_pending(self, mock_construct):
+        """US-14: failed payment leaves the order pending."""
+        mock_construct.return_value = self.event
+        self.client.post(
+            reverse("stripe_webhook"), data="{}",
+            content_type="application/json",
+            HTTP_STRIPE_SIGNATURE="test-signature",
+        )
+        self.order.refresh_from_db()
+        self.assertEqual(self.order.status, "pending")
+
+    @patch("orders.views.stripe.Webhook.construct_event")
+    def test_failed_payment_keeps_stock(self, mock_construct):
+        """US-14: failed payment does not reduce stock or send an email."""
+        mock_construct.return_value = self.event
+        self.client.post(
+            reverse("stripe_webhook"), data="{}",
+            content_type="application/json",
+            HTTP_STRIPE_SIGNATURE="test-signature",
+        )
+        self.wine.refresh_from_db()
+        self.assertEqual(self.wine.stock, 10)
+        self.assertEqual(len(mail.outbox), 0)
+
+
+class AdminOrdersTests(TestCase):
+    """US-15: Admin order management is staff-only."""
+
+    def setUp(self):
+        self.client = Client()
+        self.customer = User.objects.create_user(
+            email="customer@example.com",
+            username="customer",
+            password="testpass123",
+        )
+        self.admin = User.objects.create_superuser(
+            email="admin@example.com",
+            username="admin",
+            password="adminpass123",
+        )
+        Order.objects.create(
+            full_name="Customer Name",
+            email="customer@example.com",
+            address_line1="123 Main",
+            city="City",
+            postcode="12345",
+            country="USA",
+            total_price=30.00,
+            status="paid",
+        )
+        self.orders_url = reverse("admin:orders_order_changelist")
+
+    def test_non_staff_cannot_access_admin(self):
+        """US-15: non-staff users are sent to the admin login page."""
+        self.client.login(
+            username="customer@example.com", password="testpass123"
+        )
+        response = self.client.get("/admin/")
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(response.url.startswith("/admin/login/"))
+
+    def test_non_staff_cannot_access_order_admin(self):
+        """US-15: non-staff users cannot open the admin order list."""
+        self.client.login(
+            username="customer@example.com", password="testpass123"
+        )
+        response = self.client.get(self.orders_url)
+        self.assertEqual(response.status_code, 302)
+
+    def test_staff_can_see_orders_in_admin(self):
+        """US-15: staff can see orders in the admin order list."""
+        self.client.login(username="admin@example.com", password="adminpass123")
+        response = self.client.get(self.orders_url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Customer Name")
 
 
 class OrderConfirmationEmailTests(TestCase):

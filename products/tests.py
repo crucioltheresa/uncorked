@@ -37,6 +37,70 @@ def create_test_wines():
     )
 
 
+class CatalogueTests(TestCase):
+    """US-05: Browse the catalogue."""
+
+    def setUp(self):
+        self.client = Client()
+        create_test_wines()
+        Wine.objects.filter(name="Wine 4").update(is_available=False)
+
+    def test_catalogue_loads(self):
+        """US-05: catalogue returns 200 with the wine list template."""
+        response = self.client.get(reverse('wine_list'))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'products/wine_list.html')
+
+    def test_unavailable_wine_not_in_catalogue(self):
+        """US-05: unavailable wines are not listed in the catalogue."""
+        response = self.client.get(reverse('wine_list'))
+        self.assertEqual(response.context['wines'].paginator.count, 3)
+        self.assertNotContains(response, 'Wine 4')
+
+
+class FilterByTypeTests(TestCase):
+    """US-06: Filter the catalogue by wine type."""
+
+    def setUp(self):
+        self.client = Client()
+        create_test_wines()
+
+    def test_type_filter_returns_only_that_type(self):
+        """US-06: ?type=red returns only red wines."""
+        response = self.client.get(reverse('wine_list'), {'type': 'red'})
+        wines = response.context['wines']
+        self.assertEqual(wines.paginator.count, 3)
+        for wine in wines:
+            self.assertEqual(wine.wine_type, 'red')
+
+    def test_invalid_type_returns_all_wines(self):
+        """US-06: an unknown ?type= value shows all wines."""
+        response = self.client.get(reverse('wine_list'), {'type': 'beer'})
+        self.assertEqual(response.context['wines'].paginator.count, 4)
+        self.assertIsNone(response.context['selected_type'])
+
+
+class WineDetailTests(TestCase):
+    """US-07: Wine detail page."""
+
+    def setUp(self):
+        self.client = Client()
+        create_test_wines()
+
+    def test_wine_detail_loads(self):
+        """US-07: wine detail returns 200 with the wine's details."""
+        response = self.client.get(reverse('wine_detail', args=['wine-1']))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'products/wine_detail.html')
+        self.assertContains(response, 'Wine 1')
+
+    def test_unavailable_wine_returns_404(self):
+        """US-07: unavailable wine detail returns 404."""
+        Wine.objects.filter(slug='wine-1').update(is_available=False)
+        response = self.client.get(reverse('wine_detail', args=['wine-1']))
+        self.assertEqual(response.status_code, 404)
+
+
 class HomepageWorldMapTests(TestCase):
     """US-29: World map on the homepage."""
 

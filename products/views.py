@@ -5,14 +5,17 @@ from .models import Wine, Region
 
 
 def wine_list(request):
-    wines = Wine.objects.filter(is_available=True)
+    wines = Wine.objects.filter(is_available=True).order_by("id")
     wine_type = request.GET.get("type")
     region = request.GET.get("region")
     country = request.GET.get("country")
     search_query = request.GET.get("q", "").strip()
 
-    if wine_type:
+    valid_types = [value for value, _ in Wine.TYPE_CHOICES]
+    if wine_type in valid_types:
         wines = wines.filter(wine_type=wine_type)
+    else:
+        wine_type = None
     if region:
         wines = wines.filter(region__slug=region)
     if country:

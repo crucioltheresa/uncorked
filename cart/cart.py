@@ -26,6 +26,9 @@ class Cart:
             self.cart[wine_id]["quantity"] += quantity
         self.save()
 
+    def get_quantity(self, wine):
+        return self.cart.get(str(wine.id), {}).get("quantity", 0)
+
     def remove(self, wine):
         wine_id = str(wine.id)
         if wine_id in self.cart:

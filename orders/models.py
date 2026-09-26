@@ -12,7 +12,7 @@ class Order(models.Model):
         ("cancelled", "Cancelled"),
     ]
 
-    order_number = models.UUIDField(default=uuid.uuid4, unique=True, editable=False, null=True)
+    order_number = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,

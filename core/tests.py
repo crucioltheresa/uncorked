@@ -46,6 +46,16 @@ class NewsletterSignupTests(TestCase):
         self.assertEqual(subscribers.count(), 1)
         self.assertContains(response, "already subscribed")
 
+    def test_invalid_email_shows_error(self):
+        """US-23: invalid email shows an error and is not saved."""
+        response = self.client.post(
+            self.url, {"email": "notanemail"}, follow=True
+        )
+        self.assertFalse(
+            NewsletterSubscriber.objects.filter(email="notanemail").exists()
+        )
+        self.assertContains(response, "Please enter a valid email address.")
+
     def test_signup_redirects_to_homepage(self):
         """US-23: newsletter signup redirects back to the homepage."""
         response = self.client.post(self.url, {"email": "new@example.com"})
