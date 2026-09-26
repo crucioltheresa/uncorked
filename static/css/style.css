@@ -246,6 +246,14 @@ p {
     padding-right: var(--container-pad);
 }
 
+.content-container {
+    width: 100%;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding-left: var(--container-pad);
+    padding-right: var(--container-pad);
+}
+
 .section {
     padding: var(--space-lg) 0;
 }
@@ -1051,7 +1059,9 @@ p {
     min-height: 480px;
     overflow: hidden;
     display: flex;
+    flex-direction: column;
     align-items: flex-end;
+    justify-content: flex-end;
     padding: var(--space-lg) var(--container-pad);
 }
 
@@ -1087,6 +1097,23 @@ p {
     margin-bottom: var(--space-md);
     max-width: 340px;
     text-shadow: var(--shadow-text);
+}
+
+@media (min-width: 768px) {
+    .hero {
+        align-items: center;
+        justify-content: center;
+    }
+
+    .hero__content {
+        text-align: center;
+    }
+
+    .hero__subtitle {
+        max-width: 500px;
+        margin-left: auto;
+        margin-right: auto;
+    }
 }
 
 @media (min-width: 1280px) {
@@ -1246,6 +1273,11 @@ p {
     background: var(--color-accent);
 }
 
+/* Hide wine cards 5-8 on mobile, show all on tablet+ */
+.wine-grid--carousel .wine-card:nth-child(n+5) {
+    display: none;
+}
+
 /* Mobile: center the "See All" button, hide arrows */
 .carousel-controls--wines {
     display: flex;
@@ -1265,6 +1297,12 @@ p {
 }
 
 @media (min-width: 768px) {
+    /* Show all wine cards on tablet and up */
+    .wine-grid--carousel .wine-card:nth-child(n+5) {
+        display: flex;
+        flex-direction: column;
+    }
+
     /* Convert wine-grid to carousel on tablet and up */
     .wine-grid--carousel {
         display: flex;
@@ -1596,6 +1634,12 @@ p {
     scroll-snap-stop: always;
 }
 
+@media (min-width: 768px) {
+    .review-card {
+        flex: 0 0 calc(50% - var(--space-sm));
+    }
+}
+
 .review__stars {
     color: var(--color-accent);
     font-size: var(--text-base);
@@ -1681,6 +1725,99 @@ p {
     background: var(--color-accent);
 }
 
+
+/* 9.8 Desktop Grid Layout (1280px+) */
+
+@media (min-width: 1280px) {
+    main {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: var(--space-lg);
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 0 var(--container-pad);
+    }
+
+    /* Hero - full width of grid container */
+    main > .hero {
+        grid-column: 1 / -1;
+    }
+
+    /* New Arrivals - full width */
+    main > .homepage-section:has(.wine-grid--carousel) {
+        grid-column: 1 / -1;
+    }
+
+    /* Editorial 1 - 1/3 width */
+    main > .editorial-strip:first-of-type {
+        grid-column: 1;
+        grid-row: 3;
+    }
+
+    /* Social Proof - 1/3 width, centered */
+    main > .social-proof {
+        grid-column: 2;
+        grid-row: 3;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding: var(--space-lg) var(--space-md);
+    }
+
+    /* Editorial 2 - 1/3 width */
+    main > .editorial-strip:last-of-type {
+        grid-column: 3;
+        grid-row: 3;
+    }
+
+    /* Explore by Country - full width */
+    main > .homepage-section:has(.world-map-container) {
+        grid-column: 1 / -1;
+    }
+
+    /* About - 1/3 width */
+    main > .about-section {
+        grid-column: 1;
+        grid-row: 5;
+    }
+
+    /* Sommelier CTA - 2/3 width */
+    main > .sommelier-cta {
+        grid-column: 2 / -1;
+        grid-row: 5;
+    }
+
+    /* Reviews - 2/3 width */
+    main > .homepage-section.homepage-section--surface {
+        grid-column: 1 / 3;
+        grid-row: 6;
+    }
+
+    /* Newsletter - 1/3 width */
+    main > .newsletter-section {
+        grid-column: 3;
+        grid-row: 6;
+    }
+
+    /* Update editorial strips to be image tiles with fixed aspect ratio */
+    .editorial-strip {
+        min-height: 400px;
+        position: relative;
+    }
+
+    .editorial-strip__content {
+        padding: var(--space-lg);
+    }
+
+    .editorial-strip__title {
+        font-size: var(--text-lg);
+    }
+
+    /* Constrain map width */
+    .world-map-container {
+        max-width: 100%;
+    }
+}
 
 /* 9.8 Newsletter */
 

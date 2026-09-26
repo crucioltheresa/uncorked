@@ -6,7 +6,7 @@ from .models import NewsletterSubscriber
 
 
 def homepage(request):
-    featured_wines = Wine.objects.filter(is_featured=True, is_available=True)[:4]
+    featured_wines = Wine.objects.filter(is_featured=True, is_available=True)[:8]
     countries = get_countries_with_wine_counts()
 
     return render(
