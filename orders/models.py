@@ -1,3 +1,4 @@
+import uuid
 from django.db import models
 from django.conf import settings
 from products.models import Wine
@@ -11,6 +12,7 @@ class Order(models.Model):
         ("cancelled", "Cancelled"),
     ]
 
+    order_number = models.UUIDField(default=uuid.uuid4, unique=True, editable=False, null=True)
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,

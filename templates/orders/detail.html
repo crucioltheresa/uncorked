@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Order #{{ order.id }} — Uncorked{% endblock %}
+{% block title %}Order #{{ order.order_number }} — Uncorked{% endblock %}
 
 {% block content %}
 
@@ -9,7 +9,7 @@
     <div class="content-container">
         <div class="order-success__header">
             <div class="order-success__icon">📦</div>
-            <h1>Order #{{ order.id }}</h1>
+            <h1>Order #{{ order.order_number }}</h1>
             <p class="order-success__subtitle">Placed on {{ order.created_at|date:"F j, Y" }}</p>
         </div>
 

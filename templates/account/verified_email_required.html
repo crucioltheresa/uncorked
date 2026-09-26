@@ -1,0 +1,23 @@
+{% extends "account/base.html" %}
+
+{% block head_title %}Email Verification Required{% endblock %}
+
+{% block account_content %}
+    <h1 class="account__heading">Verify Your Email</h1>
+
+    <p>You must verify your email address to log in. We've sent a confirmation email to your address.</p>
+
+    <div class="account-message">
+        <p><strong>Didn't receive the email?</strong></p>
+        <form method="post" action="{% url 'account_email' %}" class="account__form">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-primary" style="width: 100%;">Resend Confirmation Email</button>
+        </form>
+    </div>
+
+    <div class="account__links">
+        <p>
+            <a href="{% url 'account_logout' %}" class="account__link">Log Out</a>
+        </p>
+    </div>
+{% endblock %}

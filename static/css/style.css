@@ -3448,7 +3448,106 @@ body:has(.sommelier-dialog:not([hidden])) {
 
 
 /* ============================================================
-   20. UTILITIES
+   20. ACCOUNT PAGES
+   ============================================================ */
+
+.account-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: calc(100vh - 200px);
+    padding: var(--space-lg) var(--container-pad);
+}
+
+.account-card {
+    width: 100%;
+    max-width: 420px;
+    background: var(--color-card);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: var(--space-lg);
+    box-shadow: 0 2px 8px rgba(28, 22, 18, 0.08);
+}
+
+.account__heading {
+    font-family: var(--font-display);
+    font-size: var(--text-2xl);
+    margin-bottom: var(--space-md);
+    text-align: center;
+    color: var(--color-dark);
+}
+
+.account__form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+    margin-bottom: var(--space-md);
+}
+
+.account__links {
+    text-align: center;
+    padding-top: var(--space-md);
+    border-top: 1px solid var(--color-border);
+}
+
+.account__link {
+    color: var(--color-accent);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color var(--transition);
+}
+
+.account__link:hover,
+.account__link:focus {
+    color: var(--color-dark);
+    text-decoration: underline;
+}
+
+.account-message {
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: var(--space-md);
+    margin-bottom: var(--space-md);
+}
+
+.account-message p {
+    margin: 0 0 var(--space-sm);
+    font-weight: 500;
+}
+
+.account-message ul {
+    margin: 0;
+    padding-left: var(--space-md);
+}
+
+.account-message li {
+    margin-bottom: var(--space-xs);
+}
+
+.account-message a {
+    color: var(--color-accent);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .account-container {
+        min-height: auto;
+        padding: var(--space-md) var(--container-pad);
+    }
+
+    .account-card {
+        padding: var(--space-md);
+    }
+
+    .account__heading {
+        font-size: var(--text-xl);
+    }
+}
+
+
+/* ============================================================
+   21. UTILITIES
    ============================================================ */
 
 .mt-sm { margin-top: var(--space-sm); }

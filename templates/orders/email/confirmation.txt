@@ -1,0 +1,21 @@
+Order Confirmation - Order #{{ order_number }}
+
+Hi {{ full_name }},
+
+Thank you for your order! We've received your payment and your wines are being prepared for shipment.
+
+ORDER ITEMS:
+{% for item in items %}
+{{ item.wine.name }} ({{ item.wine.producer }}) - {{ item.quantity }}x @ €{{ item.price_at_purchase }} = €{{ item.get_total|floatformat:2 }}
+{% endfor %}
+
+Total: €{{ total|floatformat:2 }}
+
+DELIVERY ADDRESS:
+{{ full_name }}
+{{ address_line1 }}{% if address_line2 %}
+{{ address_line2 }}{% endif %}
+{{ postcode }} {{ city }}
+{{ country }}
+
+If you have any questions about your order, please reply to this email.

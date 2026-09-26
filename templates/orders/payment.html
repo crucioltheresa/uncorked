@@ -35,7 +35,7 @@
         if (error) {
             document.getElementById('card-errors').textContent = error.message;
         } else if (paymentIntent.status === 'succeeded') {
-            window.location.href = '{% url "order_success" order.id %}';
+            window.location.href = '{% url "order_success" order.order_number %}';
         }
     });
 </script>

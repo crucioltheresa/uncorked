@@ -6,6 +6,8 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
+from django.core.mail import send_mail
+from django.template.loader import render_to_string
 from cart.cart import Cart
 from .models import Order, OrderItem
 from .forms import CheckoutForm
@@ -13,7 +15,6 @@ from .forms import CheckoutForm
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
 
-@login_required
 def checkout(request):
     cart = Cart(request)
     if len(cart) == 0:
@@ -22,11 +23,14 @@ def checkout(request):
 
     if request.method == "POST":
         form = CheckoutForm(request.POST)
-        save_to_profile = request.POST.get("save_to_profile") == "on"
+        save_to_profile = (
+            request.user.is_authenticated
+            and request.POST.get("save_to_profile") == "on"
+        )
         if form.is_valid():
             # Create order
             order = Order.objects.create(
-                user=request.user,
+                user=request.user if request.user.is_authenticated else None,
                 full_name=form.cleaned_data["full_name"],
                 email=form.cleaned_data["email"],
                 address_line1=form.cleaned_data["address_line1"],
@@ -62,10 +66,14 @@ def checkout(request):
             intent = stripe.PaymentIntent.create(
                 amount=int(cart.get_total_price() * 100),
                 currency="eur",
-                metadata={"order_id": order.id},
+                metadata={"order_number": str(order.order_number)},
             )
             order.stripe_payment_intent = intent.id
             order.save()
+
+            # Store order number in session for guests
+            if not request.user.is_authenticated:
+                request.session["guest_order_number"] = str(order.order_number)
 
             return render(
                 request,
@@ -103,17 +111,23 @@ def checkout(request):
     )
 
 
-@login_required
-def order_success(request, order_id):
-    order = get_object_or_404(Order, id=order_id, user=request.user)
+def order_success(request, order_number):
+    """Show order success page. Access controlled by user ownership or session."""
+    if request.user.is_authenticated:
+        order = get_object_or_404(Order, order_number=order_number, user=request.user)
+    else:
+        # Guest can only view if order_number is in their session
+        if request.session.get("guest_order_number") != str(order_number):
+            return get_object_or_404(Order, order_number=None)  # Force 404
+        order = get_object_or_404(Order, order_number=order_number)
     Cart(request).clear()
     return render(request, "orders/success.html", {"order": order})
 
 
 @login_required
-def order_detail(request, order_id):
+def order_detail(request, order_number):
     """View order details. User can only see their own orders."""
-    order = get_object_or_404(Order, id=order_id, user=request.user)
+    order = get_object_or_404(Order, order_number=order_number, user=request.user)
     return render(request, "orders/detail.html", {"order": order})
 
 
@@ -130,16 +144,46 @@ def stripe_webhook(request):
 
     if event["type"] == "payment_intent.succeeded":
         intent = event["data"]["object"]
-        order_id = intent["metadata"].get("order_id")
+        order_number = intent["metadata"].get("order_number")
         try:
-            order = Order.objects.get(id=order_id)
+            order = Order.objects.get(order_number=order_number)
             order.status = "paid"
             order.save()
             # Reduce stock
             for item in order.items.all():
                 item.wine.stock -= item.quantity
                 item.wine.save()
+            # Send order confirmation email
+            _send_order_confirmation_email(order)
         except Order.DoesNotExist:
             pass
 
     return HttpResponse(status=200)
+
+
+def _send_order_confirmation_email(order):
+    """Send order confirmation email to customer."""
+    context = {
+        "order_number": order.order_number,
+        "order": order,
+        "items": order.items.all(),
+        "total": order.total_price,
+        "full_name": order.full_name,
+        "address_line1": order.address_line1,
+        "address_line2": order.address_line2,
+        "city": order.city,
+        "postcode": order.postcode,
+        "country": order.country,
+    }
+    subject = f"Order Confirmation #{order.order_number}"
+    html_message = render_to_string(
+        "orders/email/confirmation.html", context
+    )
+    from_email = settings.DEFAULT_FROM_EMAIL or "noreply@uncorked.local"
+    send_mail(
+        subject,
+        render_to_string("orders/email/confirmation.txt", context),
+        from_email,
+        [order.email],
+        html_message=html_message,
+    )

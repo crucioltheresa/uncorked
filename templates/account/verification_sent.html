@@ -1,0 +1,25 @@
+{% extends "account/base.html" %}
+{% load i18n %}
+
+{% block head_title %}Email Verification Required{% endblock %}
+
+{% block account_content %}
+    <h1 class="account__heading">Verify Your Email</h1>
+
+    <p>We've sent a confirmation email to <strong>{{ email }}</strong>. Click the link in the email to verify your address and complete your signup.</p>
+
+    <div class="account-message">
+        <p><strong>Didn't receive the email?</strong></p>
+        <ul>
+            <li>Check your spam or junk folder</li>
+            <li>Make sure you used the correct email address</li>
+            <li><a href="{% url 'account_email' %}" class="account__link">Request a new confirmation email</a></li>
+        </ul>
+    </div>
+
+    <div class="account__links">
+        <p>
+            <a href="{% url 'account_login' %}" class="account__link">Back to Log In</a>
+        </p>
+    </div>
+{% endblock %}
