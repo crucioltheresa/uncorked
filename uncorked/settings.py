@@ -131,21 +131,25 @@ if not os.environ.get("USE_AWS"):
 
 # Email
 if os.environ.get("EMAIL_HOST_PASS"):
-    EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-    EMAIL_HOST = "smtp.gmail.com"
-    EMAIL_PORT = 587
-    EMAIL_USE_TLS = True
-    EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")
-    EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASS")
-    DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+    MAILERS = {
+        "default": {
+            "BACKEND": "django.core.mail.backends.smtp.EmailBackend",
+            "OPTIONS": {
+                "host": "smtp.gmail.com",
+                "port": 587,
+                "use_tls": True,
+                "username": os.environ.get("EMAIL_HOST_USER"),
+                "password": os.environ.get("EMAIL_HOST_PASS"),
+            },
+        },
+    }
+    DEFAULT_FROM_EMAIL = os.environ.get("EMAIL_HOST_USER")
 else:
-    EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
-
-MAILERS = {
-    "default": {
-        "BACKEND": EMAIL_BACKEND,
-    },
-}
+    MAILERS = {
+        "default": {
+            "BACKEND": "django.core.mail.backends.console.EmailBackend",
+        },
+    }
 
 AUTH_USER_MODEL = "accounts.CustomUser"
 
