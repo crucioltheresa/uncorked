@@ -5,6 +5,8 @@ from products.models import Wine, Region
 
 
 class SommelierQuizTests(TestCase):
+    """US-20 / US-21: Wine quiz and recommendations."""
+
     def setUp(self):
         self.client = Client()
         self.quiz_submit_url = reverse('quiz_submit')
@@ -62,11 +64,13 @@ class SommelierQuizTests(TestCase):
         )
 
     def test_quiz_page_loads(self):
+        """US-20: quiz page loads with the quiz template."""
         response = self.client.get(reverse('quiz_start'))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'sommelier/quiz.html')
 
     def test_quiz_submit_with_valid_answers(self):
+        """US-21: valid answers return matching wine recommendations."""
         answers = {
             'type': 'red',
             'occasion': 'dinner',
@@ -88,6 +92,7 @@ class SommelierQuizTests(TestCase):
         self.assertIn('Red Wine Test', wine_names)
 
     def test_quiz_submit_handles_budget_filter(self):
+        """US-21: under-20 budget returns only wines up to 20."""
         # With budget under €20, should exclude wines over €20
         answers = {
             'type': 'white',
@@ -110,6 +115,7 @@ class SommelierQuizTests(TestCase):
             self.assertLessEqual(price, 20)
 
     def test_quiz_submit_missing_answers(self):
+        """US-20: a missing answer returns a 400 error naming it."""
         # Missing 'budget' answer
         answers = {
             'type': 'red',
@@ -128,6 +134,7 @@ class SommelierQuizTests(TestCase):
         self.assertIn('budget', data['error'])
 
     def test_quiz_submit_invalid_json(self):
+        """US-20: invalid JSON returns a 400 error."""
         response = self.client.post(
             self.quiz_submit_url,
             data='invalid json',
@@ -138,6 +145,7 @@ class SommelierQuizTests(TestCase):
         self.assertIn('error', data)
 
     def test_quiz_submit_empty_answers(self):
+        """US-20: empty answers return a 400 error."""
         response = self.client.post(
             self.quiz_submit_url,
             data=json.dumps({'answers': {}}),
@@ -148,10 +156,12 @@ class SommelierQuizTests(TestCase):
         self.assertIn('error', data)
 
     def test_quiz_submit_rejects_get_request(self):
+        """US-20: GET on the submit endpoint is not allowed."""
         response = self.client.get(self.quiz_submit_url)
         self.assertEqual(response.status_code, 405)  # Method Not Allowed
 
     def test_quiz_submit_never_returns_unavailable_wines(self):
+        """US-21: unavailable wines are never recommended."""
         # Make all wines unavailable and answer comprehensively
         self.wine_red.is_available = False
         self.wine_red.save()
@@ -179,6 +189,7 @@ class SommelierQuizTests(TestCase):
         self.assertEqual(len(data['wines']), 0)
 
     def test_quiz_submit_returns_correct_wine_format(self):
+        """US-21: each recommendation includes all fields the page needs."""
         answers = {
             'type': 'red',
             'occasion': 'dinner',
@@ -205,6 +216,7 @@ class SommelierQuizTests(TestCase):
             self.assertIn('cart_url', wine)
 
     def test_quiz_submit_respects_budget_constraints(self):
+        """US-21: 35-plus budget returns only wines over 35."""
         # Budget 35+ should only include wine_expensive
         answers = {
             'type': 'red',
@@ -225,6 +237,7 @@ class SommelierQuizTests(TestCase):
             self.assertGreater(price, 35)
 
     def test_quiz_submit_surprise_me_returns_random_wines(self):
+        """US-21: surprise me returns available wines within budget."""
         # Surprise me should return any available wine (within budget)
         answers = {
             'type': 'surprise',
