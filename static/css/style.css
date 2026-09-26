@@ -767,13 +767,15 @@ p {
     display: none;
     position: absolute;
     top: 100%;
-    left: 0;
+    left: var(--container-pad);
+    right: var(--container-pad);
     background: var(--color-bg);
     border-radius: var(--radius-md);
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-    z-index: 100;
+    z-index: 1001;
     margin-top: var(--space-sm);
     padding: var(--space-md);
+    width: auto;
 }
 
 .nav__country-dropdown--open {
@@ -854,19 +856,25 @@ p {
         justify-content: space-between;
     }
 
+    .nav__category {
+        font-size: var(--text-base);
+    }
+
     /* Country dropdown on tablet+: overlay panel, 3 columns */
     .nav__country-dropdown {
         position: absolute;
         top: 100%;
         left: 50%;
+        right: auto;
         transform: translateX(-50%);
         background: var(--color-bg);
         border: 1px solid var(--color-border);
         border-radius: var(--radius-md);
         box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-        z-index: 100;
+        z-index: 1001;
         margin-top: 8px;
         padding: var(--space-md);
+        width: auto;
     }
 
     .nav__country-grid {
@@ -908,6 +916,10 @@ p {
         gap: 48px;
         height: 48px;
     }
+
+    .nav__category {
+        font-size: clamp(var(--text-base), 1.1vw, var(--text-lg));
+    }
 }
 
 
@@ -946,7 +958,11 @@ p {
 
 @media (min-width: 1280px) {
     .promo-bar {
-        justify-content: space-between;
+        justify-content: center;
+    }
+
+    .promo-bar__text {
+        font-size: var(--text-sm);
     }
 }
 
@@ -956,7 +972,7 @@ p {
    ============================================================ */
 
 .footer {
-    background: var(--color-bg);
+    background: var(--color-dark);
     border-top: 0.5px solid var(--color-border);
     padding: var(--space-md) var(--container-pad);
     text-align: center;
