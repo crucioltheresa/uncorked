@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Profile — Uncorked{% endblock %}
+
+{% block content %}
+
+<div class="profile">
+    <div class="content-container">
+        <div class="profile__header">
+            <h1>My Profile</h1>
+            <a href="{% url 'account_logout' %}" class="btn btn--outline">Sign Out</a>
+        </div>
+
+        <div class="profile__layout">
+            <!-- Delivery Details Section -->
+            <section class="profile__section">
+                <h2 class="profile__section-title">Delivery Details</h2>
+                <form method="POST" class="profile__form">
+                    {% csrf_token %}
+
+                    <div class="form-group">
+                        {{ form.full_name }}
+                        {% if form.full_name.errors %}<span class="form-error">{{ form.full_name.errors }}</span>{% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        {{ form.email }}
+                        {% if form.email.errors %}<span class="form-error">{{ form.email.errors }}</span>{% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        {{ form.address_line1 }}
+                        {% if form.address_line1.errors %}<span class="form-error">{{ form.address_line1.errors }}</span>{% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        {{ form.address_line2 }}
+                        {% if form.address_line2.errors %}<span class="form-error">{{ form.address_line2.errors }}</span>{% endif %}
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            {{ form.city }}
+                            {% if form.city.errors %}<span class="form-error">{{ form.city.errors }}</span>{% endif %}
+                        </div>
+                        <div class="form-group">
+                            {{ form.postcode }}
+                            {% if form.postcode.errors %}<span class="form-error">{{ form.postcode.errors }}</span>{% endif %}
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        {{ form.country }}
+                        {% if form.country.errors %}<span class="form-error">{{ form.country.errors }}</span>{% endif %}
+                    </div>
+
+                    <button type="submit" class="btn btn--primary">Save Changes</button>
+                </form>
+            </section>
+
+            <!-- Order History Section -->
+            <section class="profile__section">
+                <h2 class="profile__section-title">Order History</h2>
+
+                {% if orders %}
+                    <div class="orders-list">
+                        {% for order in orders %}
+                            <div class="order-card">
+                                <div class="order-card__header">
+                                    <div class="order-card__info">
+                                        <h3 class="order-card__number">Order #{{ order.id }}</h3>
+                                        <p class="order-card__date">{{ order.created_at|date:"M d, Y" }}</p>
+                                    </div>
+                                    <div class="order-card__status">
+                                        <span class="order-card__status-badge order-card__status--{{ order.status }}">
+                                            {{ order.get_status_display }}
+                                        </span>
+                                        <p class="order-card__total">€{{ order.total_price }}</p>
+                                    </div>
+                                </div>
+                                <div class="order-card__footer">
+                                    <a href="{% url 'order_detail' order.id %}" class="btn btn--outline btn--small">View Details</a>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="empty-state">
+                        <p>You haven't placed any orders yet.</p>
+                        <a href="{% url 'wine_list' %}" class="btn btn--primary">Shop Wines</a>
+                    </div>
+                {% endif %}
+            </section>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

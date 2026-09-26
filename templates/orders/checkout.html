@@ -19,6 +19,16 @@
                     {% endif %}
                 </div>
                 {% endfor %}
+
+                {% if user.is_authenticated %}
+                <div class="form-group form-group--checkbox">
+                    <label for="id_save_to_profile">
+                        <input type="checkbox" id="id_save_to_profile" name="save_to_profile">
+                        Save this delivery information to my profile
+                    </label>
+                </div>
+                {% endif %}
+
                 <button type="submit" class="btn btn--primary">Continue to Payment</button>
             </form>
         </div>

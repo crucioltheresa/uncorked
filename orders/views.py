@@ -22,6 +22,7 @@ def checkout(request):
 
     if request.method == "POST":
         form = CheckoutForm(request.POST)
+        save_to_profile = request.POST.get("save_to_profile") == "on"
         if form.is_valid():
             # Create order
             order = Order.objects.create(
@@ -45,6 +46,18 @@ def checkout(request):
                     price_at_purchase=item["price"],
                 )
 
+            # Save to profile if requested
+            if save_to_profile:
+                profile = request.user.profile
+                profile.full_name = form.cleaned_data["full_name"]
+                profile.email = form.cleaned_data["email"]
+                profile.address_line1 = form.cleaned_data["address_line1"]
+                profile.address_line2 = form.cleaned_data["address_line2"]
+                profile.city = form.cleaned_data["city"]
+                profile.postcode = form.cleaned_data["postcode"]
+                profile.country = form.cleaned_data["country"]
+                profile.save()
+
             # Create Stripe payment intent
             intent = stripe.PaymentIntent.create(
                 amount=int(cart.get_total_price() * 100),
@@ -65,10 +78,19 @@ def checkout(request):
                 },
             )
     else:
-        # Pre-fill email if logged in
+        # Pre-fill from profile if logged in
         initial = {}
         if request.user.is_authenticated:
-            initial["email"] = request.user.email
+            profile = request.user.profile
+            initial = {
+                "full_name": profile.full_name,
+                "email": profile.email or request.user.email,
+                "address_line1": profile.address_line1,
+                "address_line2": profile.address_line2,
+                "city": profile.city,
+                "postcode": profile.postcode,
+                "country": profile.country,
+            }
         form = CheckoutForm(initial=initial)
 
     return render(
@@ -86,6 +108,13 @@ def order_success(request, order_id):
     order = get_object_or_404(Order, id=order_id, user=request.user)
     Cart(request).clear()
     return render(request, "orders/success.html", {"order": order})
+
+
+@login_required
+def order_detail(request, order_id):
+    """View order details. User can only see their own orders."""
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+    return render(request, "orders/detail.html", {"order": order})
 
 
 @csrf_exempt

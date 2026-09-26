@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Order #{{ order.id }} — Uncorked{% endblock %}
+
+{% block content %}
+
+<div class="order-success">
+    <div class="content-container">
+        <div class="order-success__header">
+            <div class="order-success__icon">📦</div>
+            <h1>Order #{{ order.id }}</h1>
+            <p class="order-success__subtitle">Placed on {{ order.created_at|date:"F j, Y" }}</p>
+        </div>
+
+        <div class="order-card">
+            <div class="order-card__status-row">
+                <h3>Status</h3>
+                <span class="order-card__status-badge order-card__status--{{ order.status }}">
+                    {{ order.get_status_display }}
+                </span>
+            </div>
+
+            <hr>
+
+            <div class="order-details">
+                <h3>Order Items</h3>
+                <div class="order-items">
+                    {% for item in order.items.all %}
+                        <div class="order-item">
+                            <div class="order-item__info">
+                                <h4>{{ item.wine.name }}</h4>
+                                <p>{{ item.wine.region }} · Qty: {{ item.quantity }}</p>
+                            </div>
+                            <div class="order-item__price">
+                                <p class="order-item__unit">€{{ item.price_at_purchase }}</p>
+                                <p class="order-item__total">€{{ item.get_total|floatformat:2 }}</p>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <hr>
+
+                <div class="order-summary">
+                    <div class="order-summary__row">
+                        <span>Subtotal</span>
+                        <span>€{{ order.total_price|floatformat:2 }}</span>
+                    </div>
+                    <div class="order-summary__row order-summary__row--total">
+                        <span>Total</span>
+                        <span>€{{ order.total_price|floatformat:2 }}</span>
+                    </div>
+                </div>
+
+                <hr>
+
+                <h3>Delivery Address</h3>
+                <div class="order-address">
+                    <p>{{ order.full_name }}</p>
+                    <p>{{ order.address_line1 }}</p>
+                    {% if order.address_line2 %}<p>{{ order.address_line2 }}</p>{% endif %}
+                    <p>{{ order.city }}, {{ order.postcode }}</p>
+                    <p>{{ order.country }}</p>
+                </div>
+
+                <hr>
+
+                <h3>Contact</h3>
+                <p>{{ order.email }}</p>
+            </div>
+
+            <div class="order-success__actions">
+                <a href="{% url 'profile' %}" class="btn btn--outline">Back to Orders</a>
+                <a href="{% url 'wine_list' %}" class="btn btn--primary">Continue Shopping</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
