@@ -1,5 +1,5 @@
 // Promo bar slider: Rotates between promotional messages every 3 seconds
-(function() {
+function initPromoBar() {
     const promoEl = document.getElementById('promoText');
     if (!promoEl) return;
 
@@ -27,7 +27,14 @@
     promoEl.style.opacity = '1';
     promoEl.style.transform = 'translateX(0)';
     setInterval(updatePromo, 3000);
-})();
+}
+
+// Initialize on DOM ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initPromoBar);
+} else {
+    initPromoBar();
+}
 
 // Mobile hamburger menu: Toggles category menu open/closed
 (function() {

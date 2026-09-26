@@ -1728,43 +1728,52 @@ p {
 
 /* 9.8 Desktop Grid Layout (1280px+) */
 
-@media (min-width: 1280px) {
+@media (min-width: 1024px) {
+    body {
+        overflow-x: clip;
+    }
+
     main {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
         gap: var(--space-lg);
-        max-width: 1280px;
-        margin: 0 auto;
         padding: 0 var(--container-pad);
+        max-width: calc(1280px + 2 * var(--container-pad));
+        margin: 0 auto;
     }
 
-    /* Hero - full width of grid container */
+    /* Hero - full viewport width, spans all columns */
     main > .hero {
         grid-column: 1 / -1;
+        width: 100vw;
+        margin-left: calc(-50vw + 50%);
+        margin-right: calc(-50vw + 50%);
+        padding-left: calc(50vw - 50% - var(--container-pad));
+        padding-right: calc(50vw - 50% - var(--container-pad));
     }
 
-    /* New Arrivals - full width */
+    /* New Arrivals - full width, constrained content inside */
     main > .homepage-section:has(.wine-grid--carousel) {
         grid-column: 1 / -1;
+        padding: 0;
     }
 
-    /* Editorial 1 - 1/3 width */
+    /* Editorial row: 3 equal columns */
     main > .editorial-strip:first-of-type {
         grid-column: 1;
         grid-row: 3;
     }
 
-    /* Social Proof - 1/3 width, centered */
     main > .social-proof {
         grid-column: 2;
         grid-row: 3;
         display: flex;
         flex-direction: column;
         justify-content: center;
-        padding: var(--space-lg) var(--space-md);
+        padding: var(--space-lg);
+        border-top: none;
     }
 
-    /* Editorial 2 - 1/3 width */
     main > .editorial-strip:last-of-type {
         grid-column: 3;
         grid-row: 3;
@@ -1773,33 +1782,58 @@ p {
     /* Explore by Country - full width */
     main > .homepage-section:has(.world-map-container) {
         grid-column: 1 / -1;
+        padding: 0;
     }
 
-    /* About - 1/3 width */
+    /* About | Sommelier row */
     main > .about-section {
         grid-column: 1;
         grid-row: 5;
     }
 
-    /* Sommelier CTA - 2/3 width */
     main > .sommelier-cta {
         grid-column: 2 / -1;
         grid-row: 5;
     }
 
-    /* Reviews - 2/3 width */
+    /* Reviews - full width alone, 2 cards visible */
     main > .homepage-section.homepage-section--surface {
-        grid-column: 1 / 3;
-        grid-row: 6;
+        grid-column: 1 / -1;
+        padding: 0;
+        border-top: none;
     }
 
-    /* Newsletter - 1/3 width */
+    /* Newsletter - full width alone, centered content */
     main > .newsletter-section {
-        grid-column: 3;
-        grid-row: 6;
+        grid-column: 1 / -1;
+        padding: var(--space-lg) 0;
+        text-align: center;
+        border-top: none;
     }
 
-    /* Update editorial strips to be image tiles with fixed aspect ratio */
+    .newsletter-section h2 {
+        max-width: 500px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .newsletter-section p {
+        max-width: 500px;
+        margin: 0 auto var(--space-md);
+    }
+
+    .newsletter-form {
+        max-width: 500px;
+        margin: 0 auto;
+        display: flex;
+        gap: var(--space-xs);
+    }
+
+    .newsletter-form input {
+        flex: 1;
+    }
+
+    /* Editorial strips - fixed height tiles */
     .editorial-strip {
         min-height: 400px;
         position: relative;
@@ -1811,11 +1845,6 @@ p {
 
     .editorial-strip__title {
         font-size: var(--text-lg);
-    }
-
-    /* Constrain map width */
-    .world-map-container {
-        max-width: 100%;
     }
 }
 
