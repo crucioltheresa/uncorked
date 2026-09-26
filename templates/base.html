@@ -87,6 +87,17 @@
         </nav>
     </header>
 
+    {% block back_button %}
+    {% if request.resolver_match.url_name != 'homepage' %}
+    <div class="back-button-wrapper">
+        <a href="#" class="back-button" aria-label="Go back to the previous page" onclick="goBack()">
+            <i class="bi bi-chevron-left"></i>
+            <span>Back</span>
+        </a>
+    </div>
+    {% endif %}
+    {% endblock %}
+
     <!-- MESSAGES -->
     {% if messages %}
     <div class="messages">
@@ -128,6 +139,28 @@
         <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/mastercard.svg" alt="Mastercard">
     </div>
     </footer>
+
+    <!-- Sommelier Chat Widget -->
+    <button class="sommelier-float" id="sommelierFloatBtn" aria-label="Chat with our sommelier">
+        <i class="bi bi-chat-dots"></i>
+    </button>
+
+    <div class="sommelier-dialog" id="sommelierDialog" role="dialog" aria-labelledby="sommelierDialogTitle" aria-modal="true" hidden>
+        <div class="sommelier-dialog__panel">
+            <div class="sommelier-dialog__header">
+                <h2 id="sommelierDialogTitle">Uncorked Sommelier</h2>
+                <div class="sommelier-dialog__controls">
+                    <button class="sommelier-dialog__restart" id="sommelierRestartBtn" aria-label="Start over">
+                        <i class="bi bi-arrow-counterclockwise"></i>
+                    </button>
+                    <button class="sommelier-dialog__close" id="sommelierCloseBtn" aria-label="Close">
+                        <i class="bi bi-x"></i>
+                    </button>
+                </div>
+            </div>
+            {% include "sommelier/chat.html" with chat_id="sommelier-dialog-chat" %}
+        </div>
+    </div>
 
     {% block scripts %}
     <script src="{% static 'js/main.js' %}"></script>

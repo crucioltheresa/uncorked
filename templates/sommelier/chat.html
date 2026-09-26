@@ -1,0 +1,21 @@
+{# Reusable sommelier chat component #}
+{% load static %}
+
+<script>
+    window.SOMMELIER_QUESTIONS = {{ sommelier_questions_json | safe }};
+</script>
+
+<div class="sommelier-chat" id="{{ chat_id | default:'sommelier-chat' }}">
+    <!-- Chat messages appear here -->
+</div>
+
+{% if chat_id == 'quiz-chat' %}
+<script src="{% static 'js/sommelier_chat.js' %}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        if (window.initSommelierChat) {
+            window.initSommelierChat('quiz-chat', window.SOMMELIER_QUESTIONS);
+        }
+    });
+</script>
+{% endif %}

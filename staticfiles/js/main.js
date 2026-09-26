@@ -148,3 +148,69 @@
         }
     });
 })();
+
+// Back button: Navigate to previous page or homepage
+function goBack() {
+    if (document.referrer && new URL(document.referrer).host === window.location.host) {
+        window.history.back();
+    } else {
+        window.location.href = '/';
+    }
+    return false;
+}
+
+// Sommelier chat widget: Floating button, dialog, and page integration
+(function() {
+    const floatBtn = document.getElementById('sommelierFloatBtn');
+    const dialog = document.getElementById('sommelierDialog');
+    const closeBtn = document.getElementById('sommelierCloseBtn');
+    const restartBtn = document.getElementById('sommelierRestartBtn');
+
+    if (!floatBtn || !dialog) return;
+
+    let chatController = null;
+
+    function openDialog() {
+        dialog.hidden = false;
+        dialog.focus();
+        // Give focus to first button or element in chat
+        setTimeout(() => {
+            const firstButton = dialog.querySelector('.chat-option');
+            if (firstButton) firstButton.focus();
+        }, 100);
+    }
+
+    function closeDialog() {
+        dialog.hidden = true;
+        floatBtn.focus();
+    }
+
+    floatBtn.addEventListener('click', openDialog);
+    closeBtn.addEventListener('click', closeDialog);
+
+    // Handle Escape key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && !dialog.hidden) {
+            closeDialog();
+        }
+    });
+
+    // Load sommelier_chat.js and initialize
+    const script = document.createElement('script');
+    script.src = '/static/js/sommelier_chat.js';
+    script.onload = function() {
+        chatController = window.initSommelierChat('sommelier-dialog-chat', window.SOMMELIER_QUESTIONS);
+        restartBtn.addEventListener('click', () => {
+            chatController.restartQuiz();
+        });
+    };
+    document.head.appendChild(script);
+
+    // Progressive enhancement: intercept "Ask the Sommelier" button
+    document.addEventListener('click', (e) => {
+        if (e.target.closest('a[href="/sommelier/"]')) {
+            e.preventDefault();
+            openDialog();
+        }
+    });
+})();

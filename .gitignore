@@ -10,3 +10,4 @@ media/
 .DS_Store
 *.log
 local_settings.py
+.claude/
