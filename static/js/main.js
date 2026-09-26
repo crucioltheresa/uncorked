@@ -79,8 +79,17 @@ if (document.readyState === 'loading') {
     // Click hamburger to toggle menu
     hamburgerBtn.addEventListener('click', toggleMenu);
 
-    // Close menu when category link is clicked
+    // Close menu when category link is clicked (but not summary elements)
     categoryLinks.forEach(link => {
+        // Skip summary elements - they're handled by details/summary native behavior
+        if (link.tagName !== 'SUMMARY') {
+            link.addEventListener('click', closeMenu);
+        }
+    });
+
+    // Close menu when a country link inside details is clicked
+    const countryLinks = document.querySelectorAll('.nav__country-group--mobile .nav__country-link');
+    countryLinks.forEach(link => {
         link.addEventListener('click', closeMenu);
     });
 
@@ -99,11 +108,11 @@ if (document.readyState === 'loading') {
     });
 })();
 
-// Country dropdown: Toggle, keyboard, and outside click handling
+// Desktop Country dropdown: Toggle, keyboard, and outside click handling
 (function() {
     const countryToggle = document.getElementById('countryToggle');
     const countryDropdown = document.getElementById('countryDropdown');
-    const countryLinks = document.querySelectorAll('.nav__country-link');
+    const countryLinks = document.querySelectorAll('.nav__country-group--desktop .nav__country-link');
 
     if (!countryToggle || !countryDropdown) return;
 

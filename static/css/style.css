@@ -743,6 +743,19 @@ p {
     position: relative;
 }
 
+.nav__country-group--desktop {
+    display: none;
+}
+
+.nav__country-group--mobile {
+    display: block;
+    width: 100%;
+}
+
+.nav__country-group--mobile .nav__country-grid {
+    padding-top: var(--space-sm);
+}
+
 .nav__country-toggle {
     display: flex;
     align-items: center;
@@ -754,12 +767,32 @@ p {
     cursor: pointer;
 }
 
+.nav__country-summary {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    background: none;
+    border: none;
+    padding: 0;
+    font: inherit;
+    cursor: pointer;
+    list-style: none;
+}
+
+.nav__country-summary::-webkit-details-marker {
+    display: none;
+}
+
 .nav__country-chevron {
     font-size: var(--text-sm);
     transition: transform var(--transition);
 }
 
 .nav__country-toggle[aria-expanded="true"] .nav__country-chevron {
+    transform: rotate(180deg);
+}
+
+details[open] .nav__country-summary .nav__country-chevron {
     transform: rotate(180deg);
 }
 
@@ -858,6 +891,15 @@ p {
 
     .nav__category {
         font-size: var(--text-base);
+    }
+
+    /* Show desktop button version, hide mobile details version on tablet+ */
+    .nav__country-group--desktop {
+        display: block;
+    }
+
+    .nav__country-group--mobile {
+        display: none;
     }
 
     /* Country dropdown on tablet+: overlay panel, 3 columns */
