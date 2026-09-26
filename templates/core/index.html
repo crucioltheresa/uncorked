@@ -22,7 +22,19 @@
     <div class="section-header">
         <h2 class="section-title--caps section-title--center">New Arrivals</h2>
     </div>
-    <div class="wine-grid">
+
+    <!-- Carousel controls for tablet and above -->
+    <div class="carousel-controls carousel-controls--wines">
+        <button class="carousel-btn wine-carousel-prev" aria-label="Previous wines">
+            <i class="bi bi-chevron-left"></i>
+        </button>
+        <div class="carousel-dots"></div>
+        <button class="carousel-btn wine-carousel-next" aria-label="Next wines">
+            <i class="bi bi-chevron-right"></i>
+        </button>
+    </div>
+
+    <div class="wine-grid wine-grid--carousel">
         {% for wine in featured_wines %}
         <div class="wine-card">
             <div class="wine-card__image">
@@ -174,84 +186,5 @@
 {{ block.super }}
 {{ countries|json_script:"countriesData" }}
 <script src="{% static 'js/country_map.js' %}"></script>
-<script>
-    // Reviews Carousel: Handle scroll-snap synchronization, dot navigation, and prev/next buttons
-    const reviewsCarousel = document.getElementById('reviewsCarousel');
-    const carouselDots = document.querySelectorAll('.dot');
-    const reviewCards = document.querySelectorAll('.review-card');
-    const prevBtn = document.getElementById('reviewsPrevBtn');
-    const nextBtn = document.getElementById('reviewsNextBtn');
-
-    // Calculate card width (card + gap)
-    const getCardWidth = () => reviewCards[0].offsetWidth + 16;
-
-    // Get current card index based on scroll position
-    function getCurrentIndex() {
-        const scrollPosition = reviewsCarousel.scrollLeft;
-        const cardWidth = getCardWidth();
-        return Math.round(scrollPosition / cardWidth);
-    }
-
-    // Update active dot and button states based on carousel scroll position
-    function updateCarouselState() {
-        if (!reviewsCarousel) return;
-
-        const currentIndex = getCurrentIndex();
-        const isFirst = currentIndex === 0;
-        const isLast = currentIndex === carouselDots.length - 1;
-
-        // Update dot states
-        carouselDots.forEach((dot, index) => {
-            dot.classList.toggle('dot--active', index === currentIndex);
-        });
-
-        // Disable/enable prev and next buttons
-        prevBtn.disabled = isFirst;
-        nextBtn.disabled = isLast;
-    }
-
-    // Scroll to review card at given index
-    function scrollToCard(index) {
-        const cardWidth = getCardWidth();
-        const scrollPosition = index * cardWidth;
-        reviewsCarousel.scrollLeft = scrollPosition;
-    }
-
-    // Scroll to next card
-    function nextCard() {
-        const currentIndex = getCurrentIndex();
-        if (currentIndex < carouselDots.length - 1) {
-            scrollToCard(currentIndex + 1);
-        }
-    }
-
-    // Scroll to previous card
-    function prevCard() {
-        const currentIndex = getCurrentIndex();
-        if (currentIndex > 0) {
-            scrollToCard(currentIndex - 1);
-        }
-    }
-
-    // Set up dot click listeners
-    carouselDots.forEach((dot, index) => {
-        dot.addEventListener('click', () => {
-            scrollToCard(index);
-        });
-    });
-
-    // Set up prev/next button listeners
-    prevBtn?.addEventListener('click', prevCard);
-    nextBtn?.addEventListener('click', nextCard);
-
-    // Update carousel state on scroll (debounced)
-    let scrollTimeout;
-    reviewsCarousel?.addEventListener('scroll', () => {
-        clearTimeout(scrollTimeout);
-        scrollTimeout = setTimeout(updateCarouselState, 100);
-    });
-
-    // Initialize carousel state on page load
-    updateCarouselState();
-</script>
+<script src="{% static 'js/carousel.js' %}"></script>
 {% endblock %}
