@@ -74,22 +74,23 @@
     --font-body: 'DM Sans', sans-serif;
 
     /* Font sizes */
-    --text-xs: 10px;
-    --text-sm: 12px;
-    --text-base: 14px;
-    --text-md: 16px;
-    --text-lg: 20px;
-    --text-xl: 28px;
-    --text-2xl: 36px;
-    --text-3xl: 48px;
+    --text-xs: 0.625rem;
+    --text-sm: 0.75rem;
+    --text-base: 0.875rem;
+    --text-md: 1rem;
+    --text-lg: 1.25rem;
+    --text-xl: 1.75rem;
+    --text-2xl: clamp(2.25rem, 1.921rem + 1.348vw, 3rem);
+    --text-3xl: clamp(3rem, 2.343rem + 2.697vw, 4.5rem);
+    --text-logo-lg: clamp(3.25rem, 2.045rem + 4.944vw, 6rem);
 
     /* Spacing */
-    --space-xxs: 4px;
-    --space-xs: 8px;
-    --space-sm: 16px;
-    --space-md: 24px;
-    --space-lg: 40px;
-    --space-xl: 80px;
+    --space-xxs: 0.25rem;
+    --space-xs: 0.5rem;
+    --space-sm: 1rem;
+    --space-md: 1.5rem;
+    --space-lg: 2.5rem;
+    --space-xl: 5rem;
 
     /* Border radius */
     --radius-sm: 2px;
@@ -575,7 +576,7 @@ p {
 .nav__hamburger {
     order: 1;
     flex-shrink: 0;
-    font-size: 28px;
+    font-size: 1.75rem;
     color: var(--color-dark);
     background: none;
     border: none;
@@ -616,7 +617,7 @@ p {
     background: none;
     border: none;
     color: var(--color-mid);
-    font-size: 14px;
+    font-size: var(--text-base);
     flex-shrink: 0;
     cursor: pointer;
     padding: 0;
@@ -644,7 +645,7 @@ p {
     width: 100%;
     text-align: center;
     font-family: 'Plaster', serif;
-    font-size: 52px;
+    font-size: var(--text-logo-lg);
     color: var(--color-dark);
     text-shadow: 3px 3px 0px var(--color-accent), 4px 4px 0px var(--color-accent);
     display: block;
@@ -657,7 +658,7 @@ p {
 }
 
 .nav__icon {
-    font-size: 22px;
+    font-size: 1.375rem;
     color: var(--color-dark);
     position: relative;
     transition: color var(--transition);
@@ -673,7 +674,7 @@ p {
     right: -4px;
     background: var(--color-accent);
     color: var(--color-bg);
-    font-size: 9px;
+    font-size: 0.5625rem;
     font-weight: 500;
     width: 14px;
     height: 14px;
@@ -745,7 +746,7 @@ p {
 }
 
 .nav__country-chevron {
-    font-size: 12px;
+    font-size: var(--text-sm);
     transition: transform var(--transition);
 }
 
@@ -796,9 +797,7 @@ p {
 
 @media (min-width: 768px) {
     :root {
-        --container-pad: 40px;
-        --text-2xl: 42px;
-        --text-3xl: 56px;
+        --container-pad: 2.5rem;
     }
 
     .nav__top {
@@ -820,7 +819,6 @@ p {
         order: 2;
         flex: 1;
         width: auto;
-        font-size: 64px;
         padding: 0;
         border-bottom: none;
         text-shadow: 4px 4px 0px var(--color-accent), 5px 5px 0px var(--color-accent);
@@ -870,34 +868,31 @@ p {
 
 @media (min-width: 1280px) {
     :root {
-        --container-pad: 30px;
-        --text-2xl: 48px;
-        --text-3xl: 72px;
+        --container-pad: 1.875rem;
     }
 
     .nav__top {
         width: 100%;
         height: 160px;
-        padding: 20px;
+        padding: 1.25rem;
     }
 
     .nav__search-mobile {
         flex: 0 0 220px;
         width: 220px;
-        padding: 10px 16px;
+        padding: 0.625rem 1rem;
     }
 
     .nav__logo {
-        font-size: 96px;
         text-shadow: 5px 5px 0px var(--color-accent), 6px 6px 0px var(--color-accent);
     }
 
     .nav__icons {
         flex: 0 0 220px;
-        gap: 24px;
+        gap: 1.5rem;
     }
 
-    .nav__icon { font-size: 26px; }
+    .nav__icon { font-size: 1.625rem; }
 
     .nav__categories {
         justify-content: space-between;
@@ -935,25 +930,8 @@ p {
 
 @media (min-width: 768px) {
     .promo-bar {
-        justify-content: space-between;
+        justify-content: center;
         padding: 8px 20px;
-    }
-
-    .promo-bar__text { display: none; }
-
-    .promo-bar__desktop {
-        display: flex;
-        justify-content: space-between;
-        width: 100%;
-        align-items: center;
-    }
-
-    .promo-bar__text--left,
-    .promo-bar__text--right {
-        font-size: var(--text-xs);
-        color: var(--color-bg);
-        letter-spacing: 0.05em;
-        display: block;
     }
 }
 
@@ -1190,7 +1168,7 @@ p {
 }
 
 .wine-card__region {
-    font-size: 11px;
+    font-size: 0.6875rem;
     color: var(--color-mid);
     margin-top: 0;
     margin-bottom: 2px;
@@ -1199,7 +1177,7 @@ p {
 .wine-card__character {
     font-family: var(--font-display);
     font-style: italic;
-    font-size: 11px;
+    font-size: 0.6875rem;
     color: var(--color-mid);
     margin-top: 0;
     margin-bottom: 10px;
@@ -1439,7 +1417,7 @@ p {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 9px;
+    font-size: 0.5625rem;
     font-weight: 500;
     text-align: center;
     color: var(--color-dark);
@@ -1626,7 +1604,7 @@ p {
     width: 36px;
     height: 36px;
     padding: 0;
-    font-size: 18px;
+    font-size: 1.125rem;
     color: var(--color-dark);
     background: transparent;
     border: 0.5px solid var(--color-border);
@@ -1809,7 +1787,7 @@ p {
 }
 
 .wine-detail__price {
-    font-size: 32px;
+    font-size: 2rem;
     font-weight: 500;
     color: var(--color-accent);
     margin-bottom: 6px;
@@ -2154,7 +2132,7 @@ p {
     align-items: center;
     justify-content: center;
     margin: 0 auto var(--space-md);
-    font-size: 32px;
+    font-size: 2rem;
     color: var(--color-green);
 }
 
