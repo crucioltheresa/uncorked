@@ -1,4 +1,4 @@
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 from django.test import TestCase, Client
 from django.urls import reverse
@@ -54,6 +54,78 @@ class CheckoutTests(TestCase):
         session.save()
         response = self.client.get(reverse("checkout"))
         self.assertEqual(response.status_code, 200)
+
+
+class CheckoutSubmitTests(TestCase):
+    """US-12: Submitting the checkout form."""
+
+    def setUp(self):
+        self.client = Client()
+        region = Region.objects.create(name="Test", country="USA")
+        self.wine = Wine.objects.create(
+            name="Test Wine",
+            producer="Test Producer",
+            region=region,
+            wine_type="red",
+            abv=13.50,
+            price="19.99",
+            stock=100,
+        )
+        self.user = User.objects.create_user(
+            email="test@example.com",
+            username="testuser",
+            password="testpass123",
+        )
+        self.form_data = {
+            "full_name": "Jane Doe",
+            "email": "jane@example.com",
+            "address_line1": "1 Vine Street",
+            "address_line2": "",
+            "city": "Lisbon",
+            "postcode": "1000-001",
+            "country": "Portugal",
+        }
+
+    def submit_checkout(self, mock_create, data=None):
+        mock_create.return_value = MagicMock(
+            id="pi_test", client_secret="pi_test_secret"
+        )
+        self.client.post(
+            reverse("cart_add", args=[self.wine.id]), {"quantity": 2}
+        )
+        return self.client.post(reverse("checkout"), data or self.form_data)
+
+    @patch("orders.views.stripe.PaymentIntent.create")
+    def test_guest_valid_checkout_shows_payment_page(self, mock_create):
+        """US-12: guest submitting a valid checkout reaches the payment page."""
+        response = self.submit_checkout(mock_create)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "orders/payment.html")
+        order = Order.objects.get(email="jane@example.com")
+        self.assertIsNone(order.user)
+        self.assertEqual(str(order.total_price), "39.98")
+        session = self.client.session
+        self.assertEqual(session["guest_order_number"], str(order.order_number))
+        self.assertEqual(
+            session["cart"][str(self.wine.id)],
+            {"quantity": 2, "price": "19.99"},
+        )
+
+    @patch("orders.views.stripe.PaymentIntent.create")
+    def test_logged_in_valid_checkout_shows_payment_page(self, mock_create):
+        """US-12: logged-in user submitting a valid checkout reaches payment."""
+        self.client.login(username="test@example.com", password="testpass123")
+        data = dict(self.form_data, save_to_profile="on")
+        response = self.submit_checkout(mock_create, data)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "orders/payment.html")
+        order = Order.objects.get(email="jane@example.com")
+        self.assertEqual(order.user, self.user)
+        self.assertEqual(str(order.total_price), "39.98")
+        self.assertEqual(
+            self.client.session["cart"][str(self.wine.id)],
+            {"quantity": 2, "price": "19.99"},
+        )
 
 
 class GuestCheckoutTests(TestCase):

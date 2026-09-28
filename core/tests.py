@@ -1,4 +1,12 @@
-from django.test import TestCase, Client
+import tempfile
+from io import StringIO
+from pathlib import Path
+
+from django.core.files.base import ContentFile
+from django.core.files.storage import default_storage
+from django.core.management import call_command
+from django.core.management.base import CommandError
+from django.test import TestCase, Client, override_settings
 from django.urls import reverse
 from .models import NewsletterSubscriber
 
@@ -60,3 +68,57 @@ class NewsletterSignupTests(TestCase):
         """US-23: newsletter signup redirects back to the homepage."""
         response = self.client.post(self.url, {"email": "new@example.com"})
         self.assertRedirects(response, reverse("homepage"))
+
+
+IN_MEMORY_STORAGES = {
+    "default": {"BACKEND": "django.core.files.storage.InMemoryStorage"},
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"
+    },
+}
+
+
+class UploadMediaCommandTests(TestCase):
+    """US-09: One-off upload of local media to the default storage."""
+
+    def setUp(self):
+        temp_dir = tempfile.TemporaryDirectory()
+        self.addCleanup(temp_dir.cleanup)
+        self.media_root = Path(temp_dir.name)
+        (self.media_root / "wines").mkdir()
+        (self.media_root / "wines" / "image_3.jpg").write_bytes(b"new")
+
+    def test_uploads_files_with_same_names(self):
+        """US-09: files are uploaded under the exact names the database uses."""
+        with override_settings(
+            STORAGES=IN_MEMORY_STORAGES, MEDIA_ROOT=self.media_root
+        ):
+            call_command("upload_media", stdout=StringIO())
+            with default_storage.open("wines/image_3.jpg") as uploaded:
+                self.assertEqual(uploaded.read(), b"new")
+
+    def test_existing_file_is_overwritten_not_renamed(self):
+        """US-09: an existing file is replaced under the same name."""
+        with override_settings(
+            STORAGES=IN_MEMORY_STORAGES, MEDIA_ROOT=self.media_root
+        ):
+            default_storage.save("wines/image_3.jpg", ContentFile(b"old"))
+            call_command("upload_media", stdout=StringIO())
+            _, files = default_storage.listdir("wines")
+            self.assertEqual(files, ["image_3.jpg"])
+            with default_storage.open("wines/image_3.jpg") as uploaded:
+                self.assertEqual(uploaded.read(), b"new")
+
+    def test_refuses_to_run_on_local_storage(self):
+        """US-09: the command stops if media is still the local folder."""
+        local_storages = dict(
+            IN_MEMORY_STORAGES,
+            default={
+                "BACKEND": "django.core.files.storage.FileSystemStorage"
+            },
+        )
+        with override_settings(
+            STORAGES=local_storages, MEDIA_ROOT=self.media_root
+        ):
+            with self.assertRaises(CommandError):
+                call_command("upload_media", stdout=StringIO())

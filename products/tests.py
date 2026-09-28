@@ -1,5 +1,12 @@
-from django.test import TestCase, Client
+from unittest.mock import patch
+
+import cloudinary
+from cloudinary.exceptions import NotFound
+from django.contrib.auth import get_user_model
+from django.core.files.uploadedfile import SimpleUploadedFile
+from django.test import TestCase, Client, override_settings
 from django.urls import reverse
+from uncorked.storages import CloudinaryMediaStorage
 from .models import Wine, Region
 from .utils import COUNTRY_ISO_CODE_MAP, get_countries_with_wine_counts
 
@@ -253,3 +260,64 @@ class WineSearchTests(TestCase):
         self.assertEqual(wines.paginator.count, 1)
         self.assertEqual(wines[0].name, 'Wine 1')
         self.assertEqual(wines[0].wine_type, 'red')
+
+
+TINY_GIF = (
+    b"GIF89a\x01\x00\x01\x00\x80\x00\x00\x00\x00\x00\xff\xff\xff"
+    b"!\xf9\x04\x01\x00\x00\x00\x00,\x00\x00\x00\x00\x01\x00\x01"
+    b"\x00\x00\x02\x02D\x01\x00;"
+)
+CLOUDINARY_STORAGES = {
+    "default": {"BACKEND": "uncorked.storages.CloudinaryMediaStorage"},
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"
+    },
+}
+
+
+@override_settings(STORAGES=CLOUDINARY_STORAGES)
+@patch.object(cloudinary.config(), "cloud_name", "uncorked-test")
+@patch("uncorked.storages.cloudinary.api.resource", side_effect=NotFound)
+@patch("uncorked.storages.cloudinary.uploader.upload")
+class WineImageUploadTests(TestCase):
+    """US-09: Wine images uploaded in the admin go to Cloudinary."""
+
+    def setUp(self):
+        self.client = Client()
+        admin = get_user_model().objects.create_superuser(
+            email="admin@example.com",
+            username="admin",
+            password="adminpass123",
+        )
+        self.client.force_login(admin)
+
+    def test_admin_image_upload_goes_to_cloudinary(self, mock_upload, _):
+        """US-09: admin image upload is sent to Cloudinary, name unchanged."""
+        response = self.client.post(reverse("admin:products_wine_add"), {
+            "name": "Uploaded Wine",
+            "producer": "Test Producer",
+            "wine_type": "red",
+            "abv": "13.5",
+            "price": "20.00",
+            "stock": "5",
+            "slug": "uploaded-wine",
+            "is_available": "on",
+            "image": SimpleUploadedFile(
+                "label.gif", TINY_GIF, content_type="image/gif"
+            ),
+        })
+        self.assertEqual(response.status_code, 302)
+        wine = Wine.objects.get(slug="uploaded-wine")
+        self.assertEqual(wine.image.name, "wines/label.gif")
+        kwargs = mock_upload.call_args.kwargs
+        self.assertEqual(kwargs["public_id"], "media/wines/label")
+        self.assertEqual(kwargs["resource_type"], "image")
+
+    def test_image_url_points_to_cloudinary(self, mock_upload, _):
+        """US-09: stored image names are served from Cloudinary."""
+        url = CloudinaryMediaStorage().url("wines/image_3.jpg")
+        self.assertTrue(
+            url.startswith("https://res.cloudinary.com/uncorked-test/")
+        )
+        self.assertTrue(url.endswith("/media/wines/image_3.jpg"))
+        mock_upload.assert_not_called()

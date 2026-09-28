@@ -39,15 +39,18 @@ class Cart:
         self.session.modified = True
 
     def __iter__(self):
-        wine_ids = self.cart.keys()
-        wines = Wine.objects.filter(id__in=wine_ids)
-        cart = self.cart.copy()
+        # Build new dicts so the session only ever holds JSON-safe strings
+        # and ints; Decimals and Wine objects exist only on the way out.
+        wines = Wine.objects.filter(id__in=self.cart.keys())
         for wine in wines:
-            cart[str(wine.id)]["wine"] = wine
-        for item in cart.values():
-            item["price"] = Decimal(item["price"])
-            item["total_price"] = item["price"] * item["quantity"]
-            yield item
+            stored = self.cart[str(wine.id)]
+            price = Decimal(stored["price"])
+            yield {
+                "wine": wine,
+                "quantity": stored["quantity"],
+                "price": price,
+                "total_price": price * stored["quantity"],
+            }
 
     def __len__(self):
         return sum(item["quantity"] for item in self.cart.values())
