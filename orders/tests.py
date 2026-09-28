@@ -1,6 +1,10 @@
+import hashlib
+import hmac
+import json
+import time
 from unittest.mock import MagicMock, patch
 
-from django.test import TestCase, Client
+from django.test import TestCase, Client, override_settings
 from django.urls import reverse
 from django.contrib.auth import get_user_model
 from django.core import mail
@@ -308,12 +312,47 @@ class GuestOrderAccessTests(TestCase):
         self.assertEqual(response.status_code, 404)
 
 
+WEBHOOK_SECRET = "whsec_test_secret"
+
+
+def signed_webhook_post(client, event_type, intent, secret=WEBHOOK_SECRET):
+    """POST a Stripe event signed the same way Stripe signs real ones."""
+    payload = json.dumps({
+        "id": "evt_test",
+        "object": "event",
+        "type": event_type,
+        "data": {"object": intent},
+    })
+    timestamp = int(time.time())
+    signature = hmac.new(
+        secret.encode(), f"{timestamp}.{payload}".encode(), hashlib.sha256
+    ).hexdigest()
+    return client.post(
+        reverse("stripe_webhook"),
+        data=payload,
+        content_type="application/json",
+        HTTP_STRIPE_SIGNATURE=f"t={timestamp},v1={signature}",
+    )
+
+
+def payment_intent(order_number, intent_id="pi_test_123"):
+    """A PaymentIntent with the metadata the checkout sends."""
+    return {
+        "id": intent_id,
+        "object": "payment_intent",
+        "amount": 9000,
+        "currency": "eur",
+        "status": "succeeded",
+        "metadata": {"order_number": order_number},
+    }
+
+
+@override_settings(STRIPE_WEBHOOK_SECRET=WEBHOOK_SECRET)
 class StripeWebhookTests(TestCase):
     """US-13: Payment confirmation via the Stripe webhook."""
 
     def setUp(self):
         self.client = Client()
-        self.url = reverse("stripe_webhook")
         region = Region.objects.create(name="Test", country="USA")
         self.wine = Wine.objects.create(
             name="Test Wine",
@@ -333,6 +372,7 @@ class StripeWebhookTests(TestCase):
             country="USA",
             total_price=90.00,
             status="pending",
+            stripe_payment_intent="pi_test_123",
         )
         OrderItem.objects.create(
             order=self.order,
@@ -340,54 +380,145 @@ class StripeWebhookTests(TestCase):
             quantity=3,
             price_at_purchase=30.00,
         )
-        self.event = {
-            "type": "payment_intent.succeeded",
-            "data": {"object": {
-                "metadata": {"order_number": str(self.order.order_number)},
-            }},
-        }
+        self.intent = payment_intent(str(self.order.order_number))
 
-    def post_webhook(self):
-        return self.client.post(
-            self.url, data="{}", content_type="application/json",
-            HTTP_STRIPE_SIGNATURE="test-signature",
-        )
-
-    @patch("orders.views.stripe.Webhook.construct_event")
-    def test_webhook_marks_order_paid(self, mock_construct):
+    def test_webhook_marks_order_paid(self):
         """US-13: successful payment webhook marks the order as paid."""
-        mock_construct.return_value = self.event
-        response = self.post_webhook()
+        response = signed_webhook_post(
+            self.client, "payment_intent.succeeded", self.intent
+        )
         self.assertEqual(response.status_code, 200)
         self.order.refresh_from_db()
         self.assertEqual(self.order.status, "paid")
 
-    @patch("orders.views.stripe.Webhook.construct_event")
-    def test_webhook_reduces_stock(self, mock_construct):
+    def test_webhook_reduces_stock(self):
         """US-13: successful payment webhook reduces wine stock."""
-        mock_construct.return_value = self.event
-        self.post_webhook()
+        signed_webhook_post(
+            self.client, "payment_intent.succeeded", self.intent
+        )
         self.wine.refresh_from_db()
         self.assertEqual(self.wine.stock, 7)
 
-    @patch("orders.views.stripe.Webhook.construct_event")
-    def test_webhook_sends_confirmation_email(self, mock_construct):
+    def test_webhook_sends_confirmation_email(self):
         """US-30: successful payment webhook emails the customer."""
-        mock_construct.return_value = self.event
-        self.post_webhook()
+        signed_webhook_post(
+            self.client, "payment_intent.succeeded", self.intent
+        )
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(mail.outbox[0].to, ["customer@example.com"])
 
-    @patch("orders.views.stripe.Webhook.construct_event")
-    def test_invalid_signature_returns_400(self, mock_construct):
-        """US-13: webhook with an invalid payload returns 400."""
-        mock_construct.side_effect = ValueError("bad payload")
-        response = self.post_webhook()
+    def test_repeated_event_is_processed_once(self):
+        """US-13: a retried event does not reduce stock or email twice."""
+        for _ in range(2):
+            response = signed_webhook_post(
+                self.client, "payment_intent.succeeded", self.intent
+            )
+            self.assertEqual(response.status_code, 200)
+        self.wine.refresh_from_db()
+        self.assertEqual(self.wine.stock, 7)
+        self.assertEqual(len(mail.outbox), 1)
+
+    def test_order_found_by_intent_id_without_metadata(self):
+        """US-13: order is found by payment intent id if metadata is missing."""
+        intent = dict(self.intent, metadata={})
+        signed_webhook_post(self.client, "payment_intent.succeeded", intent)
+        self.order.refresh_from_db()
+        self.assertEqual(self.order.status, "paid")
+
+    def test_unknown_order_returns_200_and_logs_warning(self):
+        """US-13: an unknown order number is logged and nothing changes."""
+        intent = payment_intent("not-a-uuid", intent_id="pi_unknown")
+        with self.assertLogs("orders.views", level="WARNING") as logs:
+            response = signed_webhook_post(
+                self.client, "payment_intent.succeeded", intent
+            )
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("no order for payment intent pi_unknown", logs.output[0])
+        self.order.refresh_from_db()
+        self.assertEqual(self.order.status, "pending")
+
+    def test_webhook_logs_each_step(self):
+        """US-13: event, paid order and sent email are logged."""
+        with self.assertLogs("orders.views", level="INFO") as logs:
+            signed_webhook_post(
+                self.client, "payment_intent.succeeded", self.intent
+            )
+        output = "\n".join(logs.output)
+        self.assertIn("webhook received: payment_intent.succeeded", output)
+        self.assertIn("marked paid", output)
+        self.assertIn("confirmation email sent", output)
+
+    def test_invalid_signature_returns_400(self):
+        """US-13: webhook with an invalid signature returns 400."""
+        response = signed_webhook_post(
+            self.client,
+            "payment_intent.succeeded",
+            self.intent,
+            secret="whsec_wrong",
+        )
         self.assertEqual(response.status_code, 400)
         self.order.refresh_from_db()
         self.assertEqual(self.order.status, "pending")
 
 
+@override_settings(STRIPE_WEBHOOK_SECRET=WEBHOOK_SECRET)
+class CheckoutToWebhookTests(TestCase):
+    """US-13: The webhook reads exactly what the checkout sends to Stripe."""
+
+    def setUp(self):
+        self.client = Client()
+        region = Region.objects.create(name="Test", country="USA")
+        self.wine = Wine.objects.create(
+            name="Test Wine",
+            producer="Test Producer",
+            region=region,
+            wine_type="red",
+            abv=13.50,
+            price="20.00",
+            stock=10,
+        )
+
+    @patch("orders.views.stripe.PaymentIntent.create")
+    def test_checkout_metadata_marks_order_paid(self, mock_create):
+        """US-13: the checkout's own PaymentIntent metadata marks it paid."""
+        mock_create.return_value = MagicMock(
+            id="pi_from_checkout", client_secret="pi_from_checkout_secret"
+        )
+        self.client.post(
+            reverse("cart_add", args=[self.wine.id]), {"quantity": 2}
+        )
+        self.client.post(reverse("checkout"), {
+            "full_name": "Jane Doe",
+            "email": "jane@example.com",
+            "address_line1": "1 Vine Street",
+            "city": "Lisbon",
+            "postcode": "1000-001",
+            "country": "Portugal",
+        })
+        sent = mock_create.call_args.kwargs
+        intent = {
+            "id": "pi_from_checkout",
+            "object": "payment_intent",
+            "amount": sent["amount"],
+            "currency": sent["currency"],
+            "status": "succeeded",
+            "metadata": sent["metadata"],
+        }
+
+        response = signed_webhook_post(
+            self.client, "payment_intent.succeeded", intent
+        )
+
+        self.assertEqual(response.status_code, 200)
+        order = Order.objects.get(email="jane@example.com")
+        self.assertEqual(order.stripe_payment_intent, "pi_from_checkout")
+        self.assertEqual(order.status, "paid")
+        self.wine.refresh_from_db()
+        self.assertEqual(self.wine.stock, 8)
+        self.assertEqual(len(mail.outbox), 1)
+
+
+@override_settings(STRIPE_WEBHOOK_SECRET=WEBHOOK_SECRET)
 class PaymentFailureTests(TestCase):
     """US-14: Payment failure."""
 
@@ -419,33 +550,20 @@ class PaymentFailureTests(TestCase):
             quantity=1,
             price_at_purchase=30.00,
         )
-        self.event = {
-            "type": "payment_intent.payment_failed",
-            "data": {"object": {
-                "metadata": {"order_number": str(self.order.order_number)},
-            }},
-        }
+        self.intent = payment_intent(str(self.order.order_number))
 
-    @patch("orders.views.stripe.Webhook.construct_event")
-    def test_failed_payment_keeps_order_pending(self, mock_construct):
+    def test_failed_payment_keeps_order_pending(self):
         """US-14: failed payment leaves the order pending."""
-        mock_construct.return_value = self.event
-        self.client.post(
-            reverse("stripe_webhook"), data="{}",
-            content_type="application/json",
-            HTTP_STRIPE_SIGNATURE="test-signature",
+        signed_webhook_post(
+            self.client, "payment_intent.payment_failed", self.intent
         )
         self.order.refresh_from_db()
         self.assertEqual(self.order.status, "pending")
 
-    @patch("orders.views.stripe.Webhook.construct_event")
-    def test_failed_payment_keeps_stock(self, mock_construct):
+    def test_failed_payment_keeps_stock(self):
         """US-14: failed payment does not reduce stock or send an email."""
-        mock_construct.return_value = self.event
-        self.client.post(
-            reverse("stripe_webhook"), data="{}",
-            content_type="application/json",
-            HTTP_STRIPE_SIGNATURE="test-signature",
+        signed_webhook_post(
+            self.client, "payment_intent.payment_failed", self.intent
         )
         self.wine.refresh_from_db()
         self.assertEqual(self.wine.stock, 10)

@@ -1,16 +1,24 @@
+import logging
+
 import stripe
 import json
 from django.shortcuts import render, redirect, get_object_or_404
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import ValidationError
+from django.db import transaction
+from django.db.models import F
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from cart.cart import Cart
+from products.models import Wine
 from .models import Order, OrderItem
 from .forms import CheckoutForm
+
+logger = logging.getLogger(__name__)
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
@@ -138,27 +146,77 @@ def stripe_webhook(request):
     webhook_secret = settings.STRIPE_WEBHOOK_SECRET
 
     try:
-        event = stripe.Webhook.construct_event(payload, sig_header, webhook_secret)
-    except (ValueError, stripe.error.SignatureVerificationError):
+        event = stripe.Webhook.construct_event(
+            payload, sig_header, webhook_secret
+        )
+    except (ValueError, stripe.SignatureVerificationError):
+        logger.warning("Stripe webhook rejected: invalid payload or signature")
         return HttpResponse(status=400)
 
-    if event["type"] == "payment_intent.succeeded":
-        intent = event["data"]["object"]
-        order_number = intent["metadata"].get("order_number")
-        try:
-            order = Order.objects.get(order_number=order_number)
-            order.status = "paid"
-            order.save()
-            # Reduce stock
-            for item in order.items.all():
-                item.wine.stock -= item.quantity
-                item.wine.save()
-            # Send order confirmation email
-            _send_order_confirmation_email(order)
-        except Order.DoesNotExist:
-            pass
+    # Stripe objects are not dicts (no .get), so work with a plain copy
+    event = event.to_dict()
+    logger.info(
+        "Stripe webhook received: %s (%s)", event["type"], event.get("id")
+    )
+    if event["type"] != "payment_intent.succeeded":
+        return HttpResponse(status=200)
 
+    intent = event["data"]["object"]
+    order_number = (intent.get("metadata") or {}).get("order_number")
+    with transaction.atomic():
+        order = _find_order_for_intent(order_number, intent.get("id"))
+        if order is None:
+            logger.warning(
+                "Stripe webhook: no order for payment intent %s "
+                "(order_number=%s)",
+                intent.get("id"),
+                order_number,
+            )
+            return HttpResponse(status=200)
+        if order.status == "paid":
+            logger.info(
+                "Stripe webhook: order %s already paid, skipping",
+                order.order_number,
+            )
+            return HttpResponse(status=200)
+
+        order.status = "paid"
+        order.save(update_fields=["status", "updated_at"])
+        for item in order.items.all():
+            Wine.objects.filter(pk=item.wine_id).update(
+                stock=F("stock") - item.quantity
+            )
+    logger.info("Stripe webhook: order %s marked paid", order.order_number)
+
+    try:
+        _send_order_confirmation_email(order)
+    except Exception:
+        logger.exception(
+            "Stripe webhook: confirmation email failed for order %s",
+            order.order_number,
+        )
+    else:
+        logger.info(
+            "Stripe webhook: confirmation email sent for order %s to %s",
+            order.order_number,
+            order.email,
+        )
     return HttpResponse(status=200)
+
+
+def _find_order_for_intent(order_number, payment_intent_id):
+    """Find and lock the order by metadata order number, then intent id."""
+    orders = Order.objects.select_for_update()
+    if order_number:
+        try:
+            return orders.get(order_number=order_number)
+        except (Order.DoesNotExist, ValidationError):
+            pass
+    if payment_intent_id:
+        return orders.filter(
+            stripe_payment_intent=payment_intent_id
+        ).first()
+    return None
 
 
 def _send_order_confirmation_email(order):

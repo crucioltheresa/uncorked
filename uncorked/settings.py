@@ -194,3 +194,19 @@ ACCOUNT_EMAIL_VERIFICATION = "mandatory"
 STRIPE_PUBLIC_KEY = os.environ.get("STRIPE_PUBLIC_KEY")
 STRIPE_SECRET_KEY = os.environ.get("STRIPE_SECRET_KEY")
 STRIPE_WEBHOOK_SECRET = os.environ.get("STRIPE_WEBHOOK_SECRET", "")
+
+# Logging: app messages go to the console, which Heroku collects in its logs
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {"class": "logging.StreamHandler"},
+    },
+    "loggers": {
+        "orders": {
+            "handlers": ["console"],
+            # Tests check log output with assertLogs instead of printing it
+            "level": "CRITICAL" if "test" in sys.argv else "INFO",
+        },
+    },
+}
