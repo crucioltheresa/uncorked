@@ -1,0 +1,8 @@
+{% extends "account/email/base_message.txt" %}
+{% block content %}{% autoescape off %}Someone (hopefully you) just tried to sign up for Uncorked with {{ email }}, but there's already an account with that address.
+
+If you've forgotten your password, you can reset it here:
+
+{{ password_reset_url }}
+
+If it wasn't you, you can ignore this email. Your account is safe.{% endautoescape %}{% endblock content %}

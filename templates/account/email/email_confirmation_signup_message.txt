@@ -1,0 +1,10 @@
+{% extends "account/email/base_message.txt" %}
+{% block content %}{% autoescape off %}Welcome to Uncorked! Please confirm your email address to finish creating your account:
+{% if code %}
+Your confirmation code: {{ code }}
+{% else %}
+{{ activate_url }}
+{% endif %}
+This link expires in {{ confirmation_expiry }}.
+
+If you didn't sign up, you can ignore this email.{% endautoescape %}{% endblock content %}

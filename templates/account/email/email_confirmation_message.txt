@@ -1,0 +1,10 @@
+{% extends "account/email/base_message.txt" %}
+{% block content %}{% autoescape off %}Please confirm this email address for your Uncorked account:
+{% if code %}
+Your confirmation code: {{ code }}
+{% else %}
+{{ activate_url }}
+{% endif %}
+This link expires in {{ confirmation_expiry }}.
+
+If you didn't ask for this, you can ignore this email.{% endautoescape %}{% endblock content %}

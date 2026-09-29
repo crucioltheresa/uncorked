@@ -1,0 +1,9 @@
+{% extends "account/email/base_message.html" %}
+{% block heading %}You already have an account{% endblock heading %}
+{% block content %}
+        <p>Someone (hopefully you) just tried to sign up for Uncorked with <strong>{{ email }}</strong>, but there's already an account with that address.</p>
+        <p>If you've forgotten your password, you can reset it here:</p>
+        <p><a href="{{ password_reset_url }}" class="button">Reset my password</a></p>
+        <p class="note">Or copy this link into your browser:<br><a href="{{ password_reset_url }}" class="link">{{ password_reset_url }}</a></p>
+        <p>If it wasn't you, you can ignore this email. Your account is safe.</p>
+{% endblock content %}

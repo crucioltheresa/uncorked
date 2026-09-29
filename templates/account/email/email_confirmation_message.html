@@ -1,0 +1,13 @@
+{% extends "account/email/base_message.html" %}
+{% block heading %}Confirm your email{% endblock heading %}
+{% block content %}
+        <p>Please confirm this email address for your Uncorked account.</p>
+        {% if code %}
+        <p>Your confirmation code: <strong>{{ code }}</strong></p>
+        {% else %}
+        <p><a href="{{ activate_url }}" class="button">Confirm my email</a></p>
+        <p class="note">Or copy this link into your browser:<br><a href="{{ activate_url }}" class="link">{{ activate_url }}</a></p>
+        {% endif %}
+        <p class="note">This link expires in {{ confirmation_expiry }}.</p>
+        <p>If you didn't ask for this, you can ignore this email.</p>
+{% endblock content %}

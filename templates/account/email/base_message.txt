@@ -1,0 +1,7 @@
+{% autoescape off %}{% if greeting_name %}Hi {{ greeting_name }},{% else %}Hi there,{% endif %}
+
+{% block content %}{% endblock content %}
+
+Cheers,
+The Uncorked Team
+{% endautoescape %}

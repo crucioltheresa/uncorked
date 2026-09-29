@@ -195,6 +195,9 @@ LOGOUT_REDIRECT_URL = "/"
 ACCOUNT_LOGIN_METHODS = {"email"}
 ACCOUNT_SIGNUP_FIELDS = ["email*", "password1*", "password2*"]
 ACCOUNT_EMAIL_VERIFICATION = "mandatory"
+ACCOUNT_ADAPTER = "accounts.adapter.AccountAdapter"
+# Subjects already name Uncorked, so no "[Site] " prefix
+ACCOUNT_EMAIL_SUBJECT_PREFIX = ""
 
 # Stripe
 STRIPE_PUBLIC_KEY = os.environ.get("STRIPE_PUBLIC_KEY")

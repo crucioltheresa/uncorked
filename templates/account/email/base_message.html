@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <style>
+        body { font-family: Arial, sans-serif; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { border-bottom: 2px solid #8B7355; padding-bottom: 20px; margin-bottom: 30px; }
+        .header h1 { margin: 0; color: #2c2c2c; font-size: 28px; }
+        p { line-height: 1.5; }
+        .button { display: inline-block; background: #1C1612; color: #F7F2EC !important; text-decoration: none; padding: 12px 24px; border-radius: 2px; font-weight: bold; letter-spacing: 0.05em; }
+        .link { word-break: break-all; color: #B85C2A; }
+        .note { color: #666; font-size: 13px; }
+        .footer { color: #666; font-size: 12px; text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid #ddd; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>{% block heading %}Uncorked{% endblock heading %}</h1>
+        </div>
+
+        <p>{% if greeting_name %}Hi {{ greeting_name }},{% else %}Hi there,{% endif %}</p>
+
+        {% block content %}{% endblock content %}
+
+        <p>Cheers,<br>The Uncorked Team</p>
+
+        <div class="footer">
+            <p>Uncorked · Curated wines from independent producers and iconic estates.</p>
+        </div>
+    </div>
+</body>
+</html>

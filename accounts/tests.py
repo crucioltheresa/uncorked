@@ -4,7 +4,9 @@ from django.test import TestCase, Client
 from django.urls import reverse
 from django.contrib.auth import get_user_model
 from django.core import mail
+from django.core.cache import cache
 from allauth.account.models import EmailAddress
+from django.contrib.sites.models import Site
 from .models import UserProfile
 from orders.models import Order, OrderItem
 from products.models import Wine, Region
@@ -379,3 +381,121 @@ class ProfileEircodeTests(TestCase):
         self.assertContains(response, 'placeholder="Eircode"')
         self.assertContains(response, "Country: Ireland")
         self.assertNotContains(response, 'name="country"')
+
+
+class SiteNameTests(TestCase):
+    """US-01: The site is named Uncorked, never example.com."""
+
+    def test_default_site_is_uncorked(self):
+        """US-01: the data migration names the default site Uncorked."""
+        site = Site.objects.get_current()
+        self.assertEqual(site.name, "Uncorked")
+        self.assertEqual(
+            site.domain, "uncorked-store-5dff5e1aa357.herokuapp.com"
+        )
+
+
+class SignupConfirmationEmailTests(TestCase):
+    """US-01: The signup confirmation email is branded and has the link."""
+
+    def setUp(self):
+        # allauth rate-limits emails per address; limits live in the cache
+        cache.clear()
+        self.client = Client()
+        self.client.post(reverse("account_signup"), {
+            "email": "maeve.quill@uncorked-mail.ie",
+            "password1": "Str0ngPass!23",
+            "password2": "Str0ngPass!23",
+        })
+        self.user = User.objects.get(email="maeve.quill@uncorked-mail.ie")
+        self.email = mail.outbox[0]
+        self.html = self.email.alternatives[0][0]
+
+    def test_subject_and_text(self):
+        """US-01: the email has the Uncorked subject and welcome text."""
+        self.assertEqual(
+            self.email.subject,
+            "Welcome to Uncorked! Please confirm your email",
+        )
+        self.assertIn("Welcome to Uncorked!", self.email.body)
+        self.assertIn("The Uncorked Team", self.email.body)
+        self.assertIn("expires in 3 days", self.email.body)
+
+    def test_contains_confirmation_link(self):
+        """US-01: text and HTML versions both contain the confirm link."""
+        link = f"http://testserver{reverse('account_confirm_email', args=['x'])[:-2]}"
+        self.assertIn(link, self.email.body)
+        self.assertIn(link, self.html)
+
+    def test_no_example_com_or_username(self):
+        """US-01: the email never shows example.com or the username."""
+        self.assertTrue(self.user.username)
+        for content in [self.email.subject, self.email.body, self.html]:
+            self.assertNotIn("example.com", content)
+            self.assertNotIn(self.user.username, content)
+
+    def test_duplicate_signup_email_is_branded(self):
+        """US-01: a duplicate signup gets the branded "already exists" email."""
+        mail.outbox.clear()
+        # Same address again: reset the per-address email rate limit
+        cache.clear()
+        self.client.post(reverse("account_signup"), {
+            "email": "maeve.quill@uncorked-mail.ie",
+            "password1": "Str0ngPass!23",
+            "password2": "Str0ngPass!23",
+        })
+        email = mail.outbox[0]
+        self.assertEqual(email.subject, "You already have an Uncorked account")
+        self.assertIn("/accounts/password/reset/", email.body)
+        self.assertNotIn("example.com", email.body)
+        # The address itself is shown; the username must not appear elsewhere
+        body = email.body.replace("maeve.quill@uncorked-mail.ie", "")
+        self.assertNotIn(self.user.username, body)
+
+
+class PasswordResetEmailTests(TestCase):
+    """US-02: The password reset email is branded and has the link."""
+
+    def setUp(self):
+        cache.clear()
+        self.client = Client()
+        self.user = User.objects.create_user(
+            email="reset@uncorked-mail.ie",
+            username="auto-user-7731",
+            password="Str0ngPass!23",
+        )
+        EmailAddress.objects.filter(user=self.user).update(verified=True)
+
+    def request_reset(self):
+        self.client.post(
+            reverse("account_reset_password"),
+            {"email": "reset@uncorked-mail.ie"},
+        )
+        return mail.outbox[0]
+
+    def test_subject_text_and_link(self):
+        """US-02: Uncorked subject, friendly text and the reset link."""
+        email = self.request_reset()
+        self.assertEqual(email.subject, "Reset your Uncorked password")
+        self.assertIn("Hi there,", email.body)
+        self.assertIn("reset the password for your Uncorked account", email.body)
+        self.assertIn("http://testserver/accounts/password/reset/key/", email.body)
+        self.assertIn(
+            "http://testserver/accounts/password/reset/key/",
+            email.alternatives[0][0],
+        )
+        self.assertIn("expires in 3 days", email.body)
+
+    def test_no_example_com_or_username(self):
+        """US-02: the reset email never shows example.com or the username."""
+        email = self.request_reset()
+        for content in [email.subject, email.body, email.alternatives[0][0]]:
+            self.assertNotIn("example.com", content)
+            self.assertNotIn("auto-user-7731", content)
+
+    def test_greets_by_first_name_when_known(self):
+        """US-02: the email greets the user by first name if there is one."""
+        self.user.first_name = "Aoife"
+        self.user.save()
+        email = self.request_reset()
+        self.assertIn("Hi Aoife,", email.body)
