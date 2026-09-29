@@ -5,13 +5,15 @@
 {% block content %}
 <div class="payment">
     <h1>Payment</h1>
-    <p>Order total: <strong>€{{ order.total_price }}</strong></p>
+    <div class="payment__summary">
+        {% include "includes/order_totals.html" with subtotal=order.subtotal discount=order.discount delivery=order.delivery_cost total=order.grand_total %}
+    </div>
 
     <form id="payment-form">
         <div id="card-element"></div>
         <div id="card-errors" role="alert"></div>
         <button id="submit-btn" type="submit" class="btn btn--primary">
-            Pay €{{ order.total_price }}
+            Pay €{{ order.grand_total }}
         </button>
     </form>
 </div>

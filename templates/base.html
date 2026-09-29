@@ -6,6 +6,8 @@
     <meta name="description" content="{% block meta_description %}Uncorked — Curated wines from independent producers and iconic estates.{% endblock %}">
     <title>{% block title %}Uncorked{% endblock %}</title>
     {% load static %}
+    <link rel="icon" href="{% static 'img/favicon.svg' %}" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="{% static 'img/apple-touch-icon.png' %}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plaster&display=swap" rel="stylesheet">
@@ -45,8 +47,8 @@
                     {% endif %}
                     <a href="{% url 'cart_detail' %}" class="nav__icon">
                         <i class="bi bi-bag"></i>
-                        {% if request.session.cart %}
-                        <span class="nav__icon-count">{{ request.session.cart|length }}</span>
+                        {% if cart_bottle_count %}
+                        <span class="nav__icon-count" aria-label="{{ cart_bottle_count }} bottle{{ cart_bottle_count|pluralize }} in your cart">{{ cart_bottle_count }}</span>
                         {% endif %}
                     </a>
                 </div>
@@ -91,10 +93,11 @@
             </div>
 
             <div class="promo-bar">
-                <span class="promo-bar__text" id="promoText"></span>
+                <span class="promo-bar__text" id="promoText">{{ promo_discount_message }}</span>
+                {{ promo_messages|json_script:"promoMessages" }}
                 <div class="promo-bar__desktop">
-                    <span class="promo-bar__text--left">10% off if you buy 8 Bottles Of Wine or More!</span>
-                    <span class="promo-bar__text--right">Free National Delivery on orders of €100+</span>
+                    <span class="promo-bar__text--left">{{ promo_discount_message }}</span>
+                    <span class="promo-bar__text--right">{{ promo_delivery_message }}</span>
                 </div>
             </div>
         </nav>

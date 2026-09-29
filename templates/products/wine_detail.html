@@ -29,6 +29,21 @@
 
             <!-- Info -->
             <div class="wine-detail__info">
+                {% if request.user.is_superuser %}
+                <div class="wine-detail__admin">
+                    {% if not wine.is_available %}
+                    <p class="message message--warning wine-detail__admin-notice">
+                        This wine is unavailable and hidden from customers.
+                    </p>
+                    {% endif %}
+                    <a href="{% url 'wine_edit' wine.slug %}" class="btn btn--outline btn--sm">
+                        <i class="bi bi-pencil"></i> Edit
+                    </a>
+                    <a href="{% url 'wine_delete' wine.slug %}" class="btn btn--outline btn--sm btn--danger-outline">
+                        <i class="bi bi-trash"></i> Delete
+                    </a>
+                </div>
+                {% endif %}
                 <h1 class="wine-detail__name">
                     {{ wine.name }}{% if wine.vintage %} - {{ wine.vintage }}{% endif %}
                 </h1>
@@ -53,9 +68,15 @@
                                 <input type="number" name="quantity" value="1" min="1" max="{{ wine.stock }}">
                                 <button type="button" onclick="this.previousElementSibling.stepUp()">+</button>
                             </div>
-                            <a href="{% url 'wishlist_add' wine.id %}" class="wine-detail__wishlist">
+                            {% if request.user.is_authenticated %}
+                            <button type="submit" formaction="{% url 'wishlist_add' wine.id %}" class="wine-detail__wishlist">
+                                <i class="bi bi-star"></i> Add to Favourites
+                            </button>
+                            {% else %}
+                            <a href="{% url 'account_login' %}?next={{ request.path|urlencode }}" class="wine-detail__wishlist">
                                 <i class="bi bi-star"></i> Add to Favourites
                             </a>
+                            {% endif %}
                         </div>
                         <button type="submit" class="btn btn--primary btn--full">
                             ADD TO CART

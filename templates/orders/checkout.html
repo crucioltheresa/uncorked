@@ -14,11 +14,19 @@
                 <div class="form-group">
                     <label for="{{ field.id_for_label }}">{{ field.label }}</label>
                     {{ field }}
+                    {% if field.help_text %}
+                    <small class="checkout__help">{{ field.help_text }}</small>
+                    {% endif %}
                     {% if field.errors %}
-                    <p class="error">{{ field.errors }}</p>
+                    <p class="form-error">{{ field.errors|join:" " }}</p>
                     {% endif %}
                 </div>
                 {% endfor %}
+
+                <div class="form-group">
+                    <span class="checkout__country-label">Country</span>
+                    <p class="checkout__country">Ireland</p>
+                </div>
 
                 {% if user.is_authenticated %}
                 <div class="form-group form-group--checkbox">
@@ -40,10 +48,7 @@
                 <span>€{{ item.total_price }}</span>
             </div>
             {% endfor %}
-            <hr>
-            <div class="checkout__total">
-                <strong>Total: €{{ cart.get_total_price }}</strong>
-            </div>
+            {% include "includes/order_totals.html" with subtotal=totals.subtotal discount=totals.discount delivery=totals.delivery_cost total=totals.grand_total pending_label="Calculated from your Eircode" %}
         </div>
     </div>
 </div>

@@ -9,6 +9,9 @@ ORDER ITEMS:
 {{ item.wine.name }} ({{ item.wine.producer }}) - {{ item.quantity }}x @ €{{ item.price_at_purchase }} = €{{ item.get_total|floatformat:2 }}
 {% endfor %}
 
+Subtotal: €{{ subtotal|floatformat:2 }}
+{% if discount %}Discount (8+ bottles): -€{{ discount|floatformat:2 }}
+{% endif %}Delivery: {% if delivery_cost %}€{{ delivery_cost|floatformat:2 }}{% else %}Free{% endif %}
 Total: €{{ total|floatformat:2 }}
 
 DELIVERY ADDRESS:

@@ -12,7 +12,9 @@
     {% for item in order.items.all %}
     <p>{{ item.wine.name }} × {{ item.quantity }} — €{{ item.get_total }}</p>
     {% endfor %}
-    <p><strong>Total: €{{ order.total_price }}</strong></p>
+    <div class="order-success__totals">
+        {% include "includes/order_totals.html" with subtotal=order.subtotal discount=order.discount delivery=order.delivery_cost total=order.grand_total %}
+    </div>
 
     <a href="{% url 'wine_list' %}" class="btn btn--primary">Continue Shopping</a>
 </div>

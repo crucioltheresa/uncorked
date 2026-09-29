@@ -73,6 +73,8 @@ TEMPLATES = [
                 "django.contrib.messages.context_processors.messages",
                 "products.context_processors.countries",
                 "sommelier.context_processors.sommelier_questions",
+                "orders.context_processors.promotions",
+                "cart.context_processors.cart_bottle_count",
             ],
         },
     },
@@ -81,11 +83,15 @@ TEMPLATES = [
 WSGI_APPLICATION = "uncorked.wsgi.application"
 
 
-# Database
+# Database: DATABASE_URL in production (Neon), local SQLite otherwise.
+# Connections are reused for up to 10 minutes; the health check pings a
+# reused connection first, so one closed while Neon was idle is replaced
+# with a fresh connection instead of failing the request.
 DATABASES = {
     "default": dj_database_url.config(
         default=f'sqlite:///{BASE_DIR / "db.sqlite3"}',
         conn_max_age=600,
+        conn_health_checks=True,
     )
 }
 

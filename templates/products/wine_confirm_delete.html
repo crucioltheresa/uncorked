@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block title %}Delete {{ wine.name }} — Uncorked{% endblock %}
+
+{% block content %}
+<div class="wine-delete">
+    <div class="content-container">
+        <div class="wine-delete__panel">
+            <h1 class="wine-delete__title">Delete Wine</h1>
+            <p class="wine-delete__question">
+                Are you sure you want to delete <strong>{{ wine.name }}{% if wine.vintage %} {{ wine.vintage }}{% endif %}</strong>?
+            </p>
+            {% if has_orders %}
+            <p class="message message--warning">
+                This wine is part of existing orders, so it will be kept for the order history
+                and marked unavailable instead of deleted.
+            </p>
+            {% else %}
+            <p class="wine-delete__note">This can't be undone.</p>
+            {% endif %}
+
+            <form method="POST" class="wine-delete__actions">
+                {% csrf_token %}
+                <button type="submit" class="btn btn--danger">
+                    {% if has_orders %}Mark Unavailable{% else %}Delete Wine{% endif %}
+                </button>
+                <a href="{% url 'wine_detail' wine.slug %}" class="btn btn--outline">Cancel</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

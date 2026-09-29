@@ -139,3 +139,98 @@ class ViewManageCartTests(TestCase):
         self.client.post(reverse("cart_remove", args=[self.white.id]))
         response = self.client.get(reverse("cart_detail"))
         self.assertContains(response, "Your cart is empty.")
+
+
+class CartPageLayoutTests(TestCase):
+    """US-11: Cart rows show a thumbnail; the summary shows the totals."""
+
+    def setUp(self):
+        self.client = Client()
+        region = Region.objects.create(name="Rioja", country="Spain")
+        self.wine = Wine.objects.create(
+            name="Test Red",
+            producer="Test Producer",
+            region=region,
+            wine_type="red",
+            abv=13.5,
+            price="12.50",
+            stock=20,
+            image="wines/image_1.jpg",
+        )
+
+    def add(self, quantity):
+        self.client.post(
+            reverse("cart_add", args=[self.wine.id]), {"quantity": quantity}
+        )
+
+    def test_cart_row_shows_thumbnail(self):
+        """US-11: each cart row shows the wine's thumbnail."""
+        self.add(1)
+        response = self.client.get(reverse("cart_detail"))
+        self.assertContains(response, 'class="cart__thumb"')
+        self.assertContains(response, self.wine.image.url)
+
+    def test_cart_totals_without_discount(self):
+        """US-11: below 8 bottles: subtotal, no discount, delivery at checkout."""
+        self.add(2)
+        response = self.client.get(reverse("cart_detail"))
+        totals = response.context["totals"]
+        self.assertEqual(totals.subtotal, Decimal("25.00"))
+        self.assertEqual(totals.grand_total, Decimal("25.00"))
+        self.assertContains(response, "Subtotal")
+        self.assertNotContains(response, "totals__row--discount")
+        self.assertContains(response, "Calculated at checkout")
+        self.assertContains(response, "Continue Shopping")
+        self.assertContains(response, "Proceed to Checkout")
+
+    def test_cart_totals_with_discount_and_free_delivery(self):
+        """US-11: 9 bottles of €12.50 get 10% off and free delivery."""
+        self.add(9)
+        response = self.client.get(reverse("cart_detail"))
+        totals = response.context["totals"]
+        self.assertEqual(totals.subtotal, Decimal("112.50"))
+        self.assertEqual(totals.discount, Decimal("11.25"))
+        self.assertEqual(totals.grand_total, Decimal("101.25"))
+        self.assertContains(response, "−€11.25")
+        self.assertContains(response, "Free")
+        self.assertContains(response, "€101.25")
+
+
+class CartBadgeTests(TestCase):
+    """US-11: The nav cart badge counts bottles, not different wines."""
+
+    def setUp(self):
+        self.client = Client()
+        region = Region.objects.create(name="Rioja", country="Spain")
+        self.red = Wine.objects.create(
+            name="Badge Red", producer="Test", region=region,
+            wine_type="red", abv=13.5, price="10.00", stock=20,
+        )
+        self.white = Wine.objects.create(
+            name="Badge White", producer="Test", region=region,
+            wine_type="white", abv=12.0, price="10.00", stock=20,
+        )
+
+    def test_badge_shows_total_bottles(self):
+        """US-11: 3 reds and 2 whites show 5 on the badge."""
+        self.client.post(
+            reverse("cart_add", args=[self.red.id]), {"quantity": 3}
+        )
+        self.client.post(
+            reverse("cart_add", args=[self.white.id]), {"quantity": 2}
+        )
+        response = self.client.get(reverse("wine_list"))
+        self.assertEqual(response.context["cart_bottle_count"], 5)
+        self.assertContains(
+            response,
+            '<span class="nav__icon-count" '
+            'aria-label="5 bottles in your cart">5</span>',
+            html=True,
+        )
+
+    def test_no_badge_when_cart_is_empty(self):
+        """US-11: an empty cart shows no badge and creates no cart."""
+        response = self.client.get(reverse("wine_list"))
+        self.assertEqual(response.context["cart_bottle_count"], 0)
+        self.assertNotContains(response, "nav__icon-count")
+        self.assertNotIn("cart", self.client.session)

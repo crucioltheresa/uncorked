@@ -46,6 +46,20 @@
                     <td class="price">€{{ item.get_total|floatformat:2 }}</td>
                 </tr>
                 {% endfor %}
+                <tr>
+                    <td colspan="3">Subtotal</td>
+                    <td class="price">€{{ subtotal|floatformat:2 }}</td>
+                </tr>
+                {% if discount %}
+                <tr>
+                    <td colspan="3">Discount (8+ bottles)</td>
+                    <td class="price">−€{{ discount|floatformat:2 }}</td>
+                </tr>
+                {% endif %}
+                <tr>
+                    <td colspan="3">Delivery</td>
+                    <td class="price">{% if delivery_cost %}€{{ delivery_cost|floatformat:2 }}{% else %}Free{% endif %}</td>
+                </tr>
                 <tr class="total-row">
                     <td colspan="3">Total</td>
                     <td class="price">€{{ total|floatformat:2 }}</td>

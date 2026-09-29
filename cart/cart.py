@@ -1,5 +1,6 @@
 from decimal import Decimal
 from django.conf import settings
+from orders.pricing import calculate_totals
 from products.models import Wine
 
 CART_SESSION_ID = "cart"
@@ -56,9 +57,16 @@ class Cart:
         return sum(item["quantity"] for item in self.cart.values())
 
     def get_total_price(self):
+        """Wine subtotal before any discount or delivery."""
         return sum(
-            Decimal(item["price"]) * item["quantity"] for item in self.cart.values()
+            (Decimal(item["price"]) * item["quantity"]
+             for item in self.cart.values()),
+            Decimal("0.00"),
         )
+
+    def get_totals(self, eircode=None):
+        """Subtotal, bulk discount, delivery and grand total for the cart."""
+        return calculate_totals(self.get_total_price(), len(self), eircode)
 
     def clear(self):
         del self.session[CART_SESSION_ID]

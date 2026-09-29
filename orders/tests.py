@@ -2,13 +2,16 @@ import hashlib
 import hmac
 import json
 import time
+from decimal import Decimal
 from unittest.mock import MagicMock, patch
 
 from django.test import TestCase, Client, override_settings
 from django.urls import reverse
 from django.contrib.auth import get_user_model
 from django.core import mail
+from orders.forms import CheckoutForm
 from orders.models import Order, OrderItem
+from orders.pricing import calculate_totals, normalise_eircode
 from orders.views import _send_order_confirmation_email
 from products.models import Wine, Region
 
@@ -85,8 +88,8 @@ class CheckoutSubmitTests(TestCase):
             "email": "jane@example.com",
             "address_line1": "1 Vine Street",
             "address_line2": "",
-            "city": "Lisbon",
-            "postcode": "1000-001",
+            "city": "Cork",
+            "eircode": "T12 X70A",
             "country": "Portugal",
         }
 
@@ -107,7 +110,10 @@ class CheckoutSubmitTests(TestCase):
         self.assertTemplateUsed(response, "orders/payment.html")
         order = Order.objects.get(email="jane@example.com")
         self.assertIsNone(order.user)
-        self.assertEqual(str(order.total_price), "39.98")
+        self.assertEqual(str(order.subtotal), "39.98")
+        self.assertEqual(str(order.grand_total), "49.93")
+        self.assertEqual(order.postcode, "T12 X70A")
+        self.assertEqual(order.country, "Ireland")
         session = self.client.session
         self.assertEqual(session["guest_order_number"], str(order.order_number))
         self.assertEqual(
@@ -125,7 +131,10 @@ class CheckoutSubmitTests(TestCase):
         self.assertTemplateUsed(response, "orders/payment.html")
         order = Order.objects.get(email="jane@example.com")
         self.assertEqual(order.user, self.user)
-        self.assertEqual(str(order.total_price), "39.98")
+        self.assertEqual(str(order.grand_total), "49.93")
+        self.user.profile.refresh_from_db()
+        self.assertEqual(self.user.profile.postcode, "T12 X70A")
+        self.assertEqual(self.user.profile.country, "Ireland")
         self.assertEqual(
             self.client.session["cart"][str(self.wine.id)],
             {"quantity": 2, "price": "19.99"},
@@ -239,7 +248,7 @@ class OrderDetailViewTests(TestCase):
             city="New York",
             postcode="10001",
             country="USA",
-            total_price=10.00,
+            grand_total=10.00,
             status="paid",
         )
         OrderItem.objects.create(
@@ -293,7 +302,7 @@ class GuestOrderAccessTests(TestCase):
             city="Boston",
             postcode="02101",
             country="USA",
-            total_price=25.00,
+            grand_total=25.00,
             status="paid",
         )
         self.url = reverse("order_success", args=[self.order.order_number])
@@ -370,7 +379,7 @@ class StripeWebhookTests(TestCase):
             city="City",
             postcode="12345",
             country="USA",
-            total_price=90.00,
+            grand_total=90.00,
             status="pending",
             stripe_payment_intent="pi_test_123",
         )
@@ -491,8 +500,8 @@ class CheckoutToWebhookTests(TestCase):
             "full_name": "Jane Doe",
             "email": "jane@example.com",
             "address_line1": "1 Vine Street",
-            "city": "Lisbon",
-            "postcode": "1000-001",
+            "city": "Cork",
+            "eircode": "T12 X70A",
             "country": "Portugal",
         })
         sent = mock_create.call_args.kwargs
@@ -541,7 +550,7 @@ class PaymentFailureTests(TestCase):
             city="City",
             postcode="12345",
             country="USA",
-            total_price=30.00,
+            grand_total=30.00,
             status="pending",
         )
         OrderItem.objects.create(
@@ -592,7 +601,7 @@ class AdminOrdersTests(TestCase):
             city="City",
             postcode="12345",
             country="USA",
-            total_price=30.00,
+            grand_total=30.00,
             status="paid",
         )
         self.orders_url = reverse("admin:orders_order_changelist")
@@ -644,7 +653,7 @@ class OrderConfirmationEmailTests(TestCase):
             city="New York",
             postcode="10001",
             country="USA",
-            total_price=30.00,
+            grand_total=30.00,
             status="pending",
         )
         OrderItem.objects.create(
@@ -666,3 +675,256 @@ class OrderConfirmationEmailTests(TestCase):
         mail.outbox.clear()
         _send_order_confirmation_email(self.order)
         self.assertEqual(len(mail.outbox), 1)
+
+
+class BulkDiscountTests(TestCase):
+    """US-12: 10% off the wine subtotal for 8 bottles or more."""
+
+    def test_discount_applies_at_exactly_8_bottles(self):
+        """US-12: 8 bottles get 10% off the subtotal."""
+        totals = calculate_totals(Decimal("80.00"), 8)
+        self.assertEqual(totals.discount, Decimal("8.00"))
+        self.assertEqual(totals.discounted_subtotal, Decimal("72.00"))
+
+    def test_no_discount_at_7_bottles(self):
+        """US-12: 7 bottles get no discount."""
+        totals = calculate_totals(Decimal("70.00"), 7)
+        self.assertEqual(totals.discount, Decimal("0.00"))
+        self.assertFalse(totals.has_discount)
+
+    def test_discount_is_rounded_to_the_cent(self):
+        """US-12: the discount is a Decimal rounded to the cent."""
+        totals = calculate_totals(Decimal("99.95"), 8)
+        self.assertEqual(totals.discount, Decimal("10.00"))
+        self.assertEqual(totals.grand_total, Decimal("89.95"))
+
+
+class DeliveryCostTests(TestCase):
+    """US-12: Delivery cost by Eircode routing key, free from €100."""
+
+    def test_dublin_eircode_costs_595(self):
+        """US-12: a Dublin routing key (D01-D24, D6W) costs €5.95."""
+        for eircode in ["D02 X285", "D24 A1B2", "D6W 1234"]:
+            totals = calculate_totals(Decimal("40.00"), 2, eircode)
+            self.assertEqual(totals.delivery_cost, Decimal("5.95"))
+            self.assertEqual(totals.grand_total, Decimal("45.95"))
+
+    def test_other_eircode_costs_995(self):
+        """US-12: anywhere else in Ireland costs €9.95."""
+        totals = calculate_totals(Decimal("40.00"), 2, "T12 X70A")
+        self.assertEqual(totals.delivery_cost, Decimal("9.95"))
+        self.assertEqual(totals.grand_total, Decimal("49.95"))
+
+    def test_free_delivery_at_100_after_discount(self):
+        """US-12: delivery is free when the discounted total is €100+."""
+        totals = calculate_totals(Decimal("112.00"), 8, "T12 X70A")
+        self.assertEqual(totals.discounted_subtotal, Decimal("100.80"))
+        self.assertEqual(totals.delivery_cost, Decimal("0.00"))
+        self.assertEqual(totals.grand_total, Decimal("100.80"))
+
+    def test_free_delivery_uses_the_discounted_total(self):
+        """US-12: €110 before a 10% discount is €99, so delivery is paid."""
+        totals = calculate_totals(Decimal("110.00"), 8, "D02 X285")
+        self.assertEqual(totals.discounted_subtotal, Decimal("99.00"))
+        self.assertEqual(totals.delivery_cost, Decimal("5.95"))
+        self.assertEqual(totals.grand_total, Decimal("104.95"))
+
+    def test_delivery_unknown_without_eircode(self):
+        """US-11: without an Eircode, delivery is unknown unless it's free."""
+        self.assertIsNone(calculate_totals(Decimal("40.00"), 2).delivery_cost)
+        self.assertEqual(
+            calculate_totals(Decimal("120.00"), 2).delivery_cost,
+            Decimal("0.00"),
+        )
+
+
+class EircodeValidationTests(TestCase):
+    """US-12: Eircodes are validated and stored normalised."""
+
+    def test_valid_eircodes_are_normalised(self):
+        """US-12: any case, with or without a space, becomes "D02 X285"."""
+        cases = {
+            "D02 X285": "D02 X285",
+            "d02x285": "D02 X285",
+            "  a65 f4e2 ": "A65 F4E2",
+            "d6w1234": "D6W 1234",
+        }
+        for raw, expected in cases.items():
+            self.assertEqual(normalise_eircode(raw), expected)
+
+    def test_invalid_eircodes_are_rejected(self):
+        """US-12: wrong length, letters or format are not valid Eircodes."""
+        for raw in ["", "12345", "D02 X28", "D02 X2855", "B12 3456", "DO2 X285"]:
+            self.assertIsNone(normalise_eircode(raw))
+
+    def test_checkout_form_shows_error_for_invalid_eircode(self):
+        """US-12: the checkout form explains an invalid Eircode."""
+        form = CheckoutForm(data=dict(CHECKOUT_DATA, eircode="12345"))
+        self.assertFalse(form.is_valid())
+        self.assertIn("Please enter a valid Eircode", form.errors["eircode"][0])
+
+    def test_checkout_form_normalises_eircode(self):
+        """US-12: the checkout form accepts lowercase without a space."""
+        form = CheckoutForm(data=dict(CHECKOUT_DATA, eircode="d02x285"))
+        self.assertTrue(form.is_valid())
+        self.assertEqual(form.cleaned_data["eircode"], "D02 X285")
+
+
+CHECKOUT_DATA = {
+    "full_name": "Aoife Byrne",
+    "email": "aoife@example.com",
+    "address_line1": "1 Grafton Street",
+    "address_line2": "",
+    "city": "Dublin",
+    "eircode": "D02 X285",
+}
+
+
+class CheckoutTotalsTests(TestCase):
+    """US-12 / US-13: Checkout stores totals and charges the grand total."""
+
+    def setUp(self):
+        self.client = Client()
+        region = Region.objects.create(name="Test", country="Ireland")
+        self.wine = Wine.objects.create(
+            name="Test Wine",
+            producer="Test Producer",
+            region=region,
+            wine_type="red",
+            abv=13.5,
+            price="12.50",
+            stock=20,
+        )
+
+    def fill_cart(self, quantity):
+        self.client.post(
+            reverse("cart_add", args=[self.wine.id]), {"quantity": quantity}
+        )
+
+    @patch("orders.views.stripe.PaymentIntent.create")
+    def test_payment_intent_amount_equals_grand_total(self, mock_create):
+        """US-13: Stripe is charged the server-side grand total in cents."""
+        mock_create.return_value = MagicMock(
+            id="pi_totals", client_secret="pi_totals_secret"
+        )
+        self.fill_cart(8)
+        # Values posted by the browser for totals are ignored
+        data = dict(CHECKOUT_DATA, grand_total="1.00", discount="99")
+        response = self.client.post(reverse("checkout"), data)
+
+        order = Order.objects.get(email="aoife@example.com")
+        self.assertEqual(order.subtotal, Decimal("100.00"))
+        self.assertEqual(order.discount, Decimal("10.00"))
+        self.assertEqual(order.delivery_cost, Decimal("5.95"))
+        self.assertEqual(order.grand_total, Decimal("95.95"))
+        self.assertEqual(mock_create.call_args.kwargs["amount"], 9595)
+        self.assertContains(response, "Pay €95.95")
+
+    @patch("orders.views.stripe.PaymentIntent.create")
+    def test_invalid_eircode_shows_error_and_creates_no_order(
+        self, mock_create
+    ):
+        """US-12: an invalid Eircode is shown as an error; nothing is paid."""
+        self.fill_cart(2)
+        response = self.client.post(
+            reverse("checkout"), dict(CHECKOUT_DATA, eircode="ABC")
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "orders/checkout.html")
+        self.assertContains(response, "Please enter a valid Eircode")
+        self.assertFalse(Order.objects.exists())
+        mock_create.assert_not_called()
+
+    @patch("orders.views.stripe.PaymentIntent.create")
+    def test_lowercase_eircode_is_stored_normalised(self, mock_create):
+        """US-12: "t12x70a" is saved as "T12 X70A" with €9.95 delivery."""
+        mock_create.return_value = MagicMock(id="pi_x", client_secret="s")
+        self.fill_cart(2)
+        self.client.post(
+            reverse("checkout"), dict(CHECKOUT_DATA, eircode="t12x70a")
+        )
+        order = Order.objects.get(email="aoife@example.com")
+        self.assertEqual(order.postcode, "T12 X70A")
+        self.assertEqual(order.delivery_cost, Decimal("9.95"))
+        self.assertEqual(order.grand_total, Decimal("34.95"))
+
+    def test_checkout_prefills_eircode_from_profile(self):
+        """US-12: a saved Eircode on the profile pre-fills the checkout."""
+        user = get_user_model().objects.create_user(
+            email="saved@example.com", username="saved", password="x"
+        )
+        user.profile.postcode = "d02x285"
+        user.profile.save()
+        self.client.force_login(user)
+        self.fill_cart(1)
+        response = self.client.get(reverse("checkout"))
+        self.assertEqual(response.context["form"].initial["eircode"], "D02 X285")
+
+    def test_checkout_summary_shows_discount_at_8_bottles(self):
+        """US-12: the checkout summary shows the bulk discount."""
+        self.fill_cart(8)
+        response = self.client.get(reverse("checkout"))
+        self.assertContains(response, "Discount")
+        self.assertContains(response, "−€10.00")
+        self.assertContains(response, "Calculated from your Eircode")
+
+
+class OrderBreakdownDisplayTests(TestCase):
+    """US-13 / US-30: The full breakdown on success, detail and email."""
+
+    def setUp(self):
+        self.client = Client()
+        self.user = get_user_model().objects.create_user(
+            email="buyer@example.com", username="buyer", password="x"
+        )
+        region = Region.objects.create(name="Test", country="Ireland")
+        wine = Wine.objects.create(
+            name="Test Wine", producer="Test", region=region,
+            wine_type="red", abv=13.5, price="12.50", stock=20,
+        )
+        self.order = Order.objects.create(
+            user=self.user,
+            full_name="Buyer",
+            email="buyer@example.com",
+            address_line1="1 Grafton Street",
+            city="Dublin",
+            postcode="D02 X285",
+            country="Ireland",
+            subtotal=Decimal("100.00"),
+            discount=Decimal("10.00"),
+            delivery_cost=Decimal("5.95"),
+            grand_total=Decimal("95.95"),
+            status="paid",
+        )
+        OrderItem.objects.create(
+            order=self.order, wine=wine, quantity=8,
+            price_at_purchase=Decimal("12.50"),
+        )
+
+    def assert_breakdown(self, content):
+        for text in ["€100.00", "10.00", "€5.95", "€95.95"]:
+            self.assertIn(text, content)
+
+    def test_success_page_shows_breakdown(self):
+        """US-13: the order success page shows the full breakdown."""
+        self.client.force_login(self.user)
+        response = self.client.get(
+            reverse("order_success", args=[self.order.order_number])
+        )
+        self.assert_breakdown(response.content.decode())
+
+    def test_order_detail_shows_breakdown(self):
+        """US-03: the order detail page shows the full breakdown."""
+        self.client.force_login(self.user)
+        response = self.client.get(
+            reverse("order_detail", args=[self.order.order_number])
+        )
+        self.assert_breakdown(response.content.decode())
+        self.assertContains(response, "D02 X285")
+
+    def test_confirmation_email_shows_breakdown(self):
+        """US-30: the confirmation email shows the full breakdown."""
+        _send_order_confirmation_email(self.order)
+        email = mail.outbox[0]
+        self.assert_breakdown(email.body)
+        self.assert_breakdown(email.alternatives[0][0])

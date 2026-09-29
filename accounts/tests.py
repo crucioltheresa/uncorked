@@ -167,15 +167,14 @@ class ProfileViewTests(TestCase):
                 "email": "john@example.com",
                 "address_line1": "123 Main St",
                 "address_line2": "",
-                "city": "New York",
-                "postcode": "10001",
-                "country": "USA",
+                "city": "Dublin",
+                "postcode": "D02 X285",
             },
         )
         self.assertEqual(response.status_code, 302)
         self.user.profile.refresh_from_db()
         self.assertEqual(self.user.profile.full_name, "John Doe")
-        self.assertEqual(self.user.profile.city, "New York")
+        self.assertEqual(self.user.profile.city, "Dublin")
 
     def test_profile_shows_order_history(self):
         """US-03: profile page lists the user's orders."""
@@ -197,7 +196,7 @@ class ProfileViewTests(TestCase):
             city="New York",
             postcode="10001",
             country="USA",
-            total_price=10.00,
+            grand_total=10.00,
             status="paid",
         )
         OrderItem.objects.create(
@@ -323,3 +322,60 @@ class AccountPagesTests(TestCase):
         """US-03: email management page redirects anonymous users."""
         response = self.client.get(reverse("account_email"))
         self.assertEqual(response.status_code, 302)
+
+
+class ProfileEircodeTests(TestCase):
+    """US-03: Profile delivery details use an Eircode, Ireland only."""
+
+    def setUp(self):
+        self.client = Client()
+        self.user = User.objects.create_user(
+            email="test@example.com",
+            username="testuser",
+            password="testpass123",
+        )
+        self.client.force_login(self.user)
+        self.url = reverse("profile")
+        self.data = {
+            "full_name": "Aoife Byrne",
+            "email": "aoife@example.com",
+            "address_line1": "1 Patrick Street",
+            "address_line2": "",
+            "city": "Cork",
+            "postcode": "T12 X70A",
+        }
+
+    def test_valid_eircode_is_saved_normalised(self):
+        """US-03: a lowercase Eircode without a space is saved normalised."""
+        self.client.post(self.url, dict(self.data, postcode="t12x70a"))
+        self.user.profile.refresh_from_db()
+        self.assertEqual(self.user.profile.postcode, "T12 X70A")
+
+    def test_invalid_eircode_shows_error_and_is_not_saved(self):
+        """US-03: an invalid Eircode shows an error and nothing is saved."""
+        response = self.client.post(self.url, dict(self.data, postcode="10001"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Please enter a valid Eircode")
+        self.user.profile.refresh_from_db()
+        self.assertNotEqual(self.user.profile.postcode, "10001")
+        self.assertNotEqual(self.user.profile.city, "Cork")
+
+    def test_country_is_always_ireland(self):
+        """US-03: a posted country is ignored; the profile is set to Ireland."""
+        self.client.post(self.url, dict(self.data, country="USA"))
+        self.user.profile.refresh_from_db()
+        self.assertEqual(self.user.profile.country, "Ireland")
+
+    def test_eircode_can_be_left_empty(self):
+        """US-03: the Eircode is optional on the profile."""
+        response = self.client.post(self.url, dict(self.data, postcode=""))
+        self.assertEqual(response.status_code, 302)
+        self.user.profile.refresh_from_db()
+        self.assertEqual(self.user.profile.postcode, "")
+
+    def test_page_shows_eircode_and_fixed_country(self):
+        """US-03: the form asks for an Eircode and shows Ireland as fixed."""
+        response = self.client.get(self.url)
+        self.assertContains(response, 'placeholder="Eircode"')
+        self.assertContains(response, "Country: Ireland")
+        self.assertNotContains(response, 'name="country"')

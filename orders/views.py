@@ -17,6 +17,7 @@ from cart.cart import Cart
 from products.models import Wine
 from .models import Order, OrderItem
 from .forms import CheckoutForm
+from .pricing import DELIVERY_COUNTRY, normalise_eircode
 
 logger = logging.getLogger(__name__)
 
@@ -36,7 +37,10 @@ def checkout(request):
             and request.POST.get("save_to_profile") == "on"
         )
         if form.is_valid():
-            # Create order
+            # Totals come from the server-side cart and the validated
+            # Eircode only, never from values posted by the browser
+            eircode = form.cleaned_data["eircode"]
+            totals = cart.get_totals(eircode)
             order = Order.objects.create(
                 user=request.user if request.user.is_authenticated else None,
                 full_name=form.cleaned_data["full_name"],
@@ -44,9 +48,12 @@ def checkout(request):
                 address_line1=form.cleaned_data["address_line1"],
                 address_line2=form.cleaned_data["address_line2"],
                 city=form.cleaned_data["city"],
-                postcode=form.cleaned_data["postcode"],
-                country=form.cleaned_data["country"],
-                total_price=cart.get_total_price(),
+                postcode=eircode,
+                country=DELIVERY_COUNTRY,
+                subtotal=totals.subtotal,
+                discount=totals.discount,
+                delivery_cost=totals.delivery_cost,
+                grand_total=totals.grand_total,
                 status="pending",
             )
             # Create order items
@@ -66,13 +73,13 @@ def checkout(request):
                 profile.address_line1 = form.cleaned_data["address_line1"]
                 profile.address_line2 = form.cleaned_data["address_line2"]
                 profile.city = form.cleaned_data["city"]
-                profile.postcode = form.cleaned_data["postcode"]
-                profile.country = form.cleaned_data["country"]
+                profile.postcode = eircode
+                profile.country = DELIVERY_COUNTRY
                 profile.save()
 
             # Create Stripe payment intent
             intent = stripe.PaymentIntent.create(
-                amount=int(cart.get_total_price() * 100),
+                amount=int(order.grand_total * 100),
                 currency="eur",
                 metadata={"order_number": str(order.order_number)},
             )
@@ -104,8 +111,8 @@ def checkout(request):
                 "address_line1": profile.address_line1,
                 "address_line2": profile.address_line2,
                 "city": profile.city,
-                "postcode": profile.postcode,
-                "country": profile.country,
+                # Only pre-fill a saved postcode that is a valid Eircode
+                "eircode": normalise_eircode(profile.postcode) or "",
             }
         form = CheckoutForm(initial=initial)
 
@@ -115,6 +122,7 @@ def checkout(request):
         {
             "cart": cart,
             "form": form,
+            "totals": cart.get_totals(),
         },
     )
 
@@ -225,7 +233,10 @@ def _send_order_confirmation_email(order):
         "order_number": order.order_number,
         "order": order,
         "items": order.items.all(),
-        "total": order.total_price,
+        "subtotal": order.subtotal,
+        "discount": order.discount,
+        "delivery_cost": order.delivery_cost,
+        "total": order.grand_total,
         "full_name": order.full_name,
         "address_line1": order.address_line1,
         "address_line2": order.address_line2,

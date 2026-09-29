@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if wine %}Edit {{ wine.name }}{% else %}Add Wine{% endif %} — Uncorked{% endblock %}
+
+{% block content %}
+<div class="wine-form">
+    <div class="content-container">
+        <div class="profile__header">
+            <h1>{% if wine %}Edit Wine{% else %}Add Wine{% endif %}</h1>
+        </div>
+
+        <form method="POST" enctype="multipart/form-data" class="wine-form__form" novalidate>
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+            <div class="form-error wine-form__errors" role="alert">
+                {% for error in form.non_field_errors %}{{ error }}<br>{% endfor %}
+            </div>
+            {% endif %}
+
+            <div class="wine-form__grid">
+                {% for field in form %}
+                {% if field.widget_type == 'checkbox' %}
+                <div class="form-group form-group--checkbox wine-form__field wine-form__field--full">
+                    <label for="{{ field.id_for_label }}">{{ field }} {{ field.label }}</label>
+                </div>
+                {% elif field.name == 'image' %}
+                <div class="form-group wine-form__field wine-form__field--full">
+                    <label for="{{ field.id_for_label }}">{% if wine.image %}Replace image{% else %}Image{% endif %}</label>
+                    {% if wine.image %}
+                    <div class="wine-form__current-image">
+                        <img src="{{ wine.image.url }}" alt="Current image of {{ wine.name }}">
+                        <span>Current image. Choose a new file to replace it.</span>
+                    </div>
+                    {% endif %}
+                    {{ field }}
+                    {% if field.errors %}<span class="form-error">{{ field.errors|join:" " }}</span>{% endif %}
+                </div>
+                {% else %}
+                <div class="form-group wine-form__field{% if field.name in form.full_width_fields %} wine-form__field--full{% endif %}">
+                    <label for="{{ field.id_for_label }}">{{ field.label }}{% if field.field.required %} *{% endif %}</label>
+                    {{ field }}
+                    {% if field.errors %}<span class="form-error">{{ field.errors|join:" " }}</span>{% endif %}
+                </div>
+                {% endif %}
+                {% endfor %}
+            </div>
+
+            <div class="wine-form__actions">
+                <button type="submit" class="btn btn--primary">
+                    {% if wine %}Save Changes{% else %}Add Wine{% endif %}
+                </button>
+                <a href="{% if wine %}{% url 'wine_detail' wine.slug %}{% else %}{% url 'wine_list' %}{% endif %}" class="btn btn--outline">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -3,10 +3,10 @@ function initPromoBar() {
     const promoEl = document.getElementById('promoText');
     if (!promoEl) return;
 
-    const promoMessages = [
-        "10% off if you buy 8 Bottles Of Wine or More!",
-        "Free National Delivery on orders of €100+"
-    ];
+    // Messages come from the pricing rules, rendered by base.html
+    const messagesEl = document.getElementById('promoMessages');
+    const promoMessages = messagesEl ? JSON.parse(messagesEl.textContent) : [];
+    if (promoMessages.length === 0) return;
 
     let currentPromo = 0;
 

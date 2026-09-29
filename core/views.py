@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
+from django.templatetags.static import static
 from products.models import Wine
 from products.utils import get_countries_with_wine_counts
 from .models import NewsletterSubscriber
@@ -35,3 +36,11 @@ def newsletter_signup(request):
             else:
                 messages.info(request, "You're already subscribed!")
     return redirect("homepage")
+
+
+def favicon(request):
+    """
+    Send /favicon.ico requests (e.g. from admin pages) to the SVG icon.
+    Not permanent, because the static URL changes when the icon does.
+    """
+    return redirect(static("img/favicon.svg"))

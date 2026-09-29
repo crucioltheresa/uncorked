@@ -1,5 +1,7 @@
 from django import forms
 
+from .pricing import normalise_eircode
+
 
 class CheckoutForm(forms.Form):
     full_name = forms.CharField(
@@ -19,9 +21,20 @@ class CheckoutForm(forms.Form):
     city = forms.CharField(
         max_length=100, widget=forms.TextInput(attrs={"placeholder": "City"})
     )
-    postcode = forms.CharField(
-        max_length=20, widget=forms.TextInput(attrs={"placeholder": "Postcode"})
+    eircode = forms.CharField(
+        label="Eircode",
+        max_length=8,
+        help_text="We deliver in Ireland only, e.g. D02 X285.",
+        widget=forms.TextInput(
+            attrs={"placeholder": "Eircode", "autocapitalize": "characters"}
+        ),
     )
-    country = forms.CharField(
-        max_length=100, widget=forms.TextInput(attrs={"placeholder": "Country"})
-    )
+
+    def clean_eircode(self):
+        """Accept any case, with or without the space; store "D02 X285"."""
+        eircode = normalise_eircode(self.cleaned_data["eircode"])
+        if eircode is None:
+            raise forms.ValidationError(
+                "Please enter a valid Eircode, e.g. D02 X285 or A65 F4E2."
+            )
+        return eircode

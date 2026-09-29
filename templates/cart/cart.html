@@ -4,36 +4,44 @@
 
 {% block content %}
 <div class="cart">
-    <h1>Your Cart</h1>
+    <h1 class="cart__title">Your Cart</h1>
 
     {% if cart|length > 0 %}
     <table class="cart__table">
-        <thead>
+        <thead class="cart__head">
             <tr>
                 <th>Product</th>
                 <th>Price</th>
                 <th>Quantity</th>
                 <th>Total</th>
-                <th></th>
+                <th><span class="sr-only">Remove</span></th>
             </tr>
         </thead>
         <tbody>
             {% for item in cart %}
-            <tr>
-                <td>
-                    <a href="{% url 'wine_detail' item.wine.slug %}">
-                        {{ item.wine.name }}
+            <tr class="cart__row">
+                <td class="cart__cell cart__cell--product">
+                    <a href="{% url 'wine_detail' item.wine.slug %}" class="cart__product">
+                        {% if item.wine.image %}
+                        <img src="{{ item.wine.image.url }}" alt="" class="cart__thumb" width="64" height="64">
+                        {% else %}
+                        <span class="cart__thumb cart__thumb--empty" aria-hidden="true"><i class="bi bi-cup-straw"></i></span>
+                        {% endif %}
+                        <span class="cart__product-text">
+                            <span class="cart__name">{{ item.wine.name }}</span>
+                            <small class="cart__region">{{ item.wine.region }}</small>
+                        </span>
                     </a>
-                    <br>
-                    <small>{{ item.wine.region }}</small>
                 </td>
-                <td>€{{ item.price }}</td>
-                <td>{{ item.quantity }}</td>
-                <td>€{{ item.total_price }}</td>
-                <td>
+                <td class="cart__cell cart__cell--price" data-label="Price">€{{ item.price }}</td>
+                <td class="cart__cell cart__cell--qty" data-label="Qty">{{ item.quantity }}</td>
+                <td class="cart__cell cart__cell--total">€{{ item.total_price }}</td>
+                <td class="cart__cell cart__cell--remove">
                     <form method="POST" action="{% url 'cart_remove' item.wine.id %}">
                         {% csrf_token %}
-                        <button type="submit"><i class="bi bi-trash"></i> Remove</button>
+                        <button type="submit" class="cart__remove" aria-label="Remove {{ item.wine.name }}">
+                            <i class="bi bi-trash"></i><span class="cart__remove-text"> Remove</span>
+                        </button>
                     </form>
                 </td>
             </tr>
@@ -42,14 +50,18 @@
     </table>
 
     <div class="cart__summary">
-        <p>Total: <strong>€{{ cart.get_total_price }}</strong></p>
-        <a href="{% url 'checkout' %}" class="btn btn--primary">Proceed to Checkout</a>
-        <a href="{% url 'wine_list' %}">Continue Shopping</a>
+        {% include "includes/order_totals.html" with subtotal=totals.subtotal discount=totals.discount delivery=totals.delivery_cost total=totals.grand_total %}
+        <div class="cart__actions">
+            <a href="{% url 'wine_list' %}" class="btn btn--outline">Continue Shopping</a>
+            <a href="{% url 'checkout' %}" class="btn btn--primary">Proceed to Checkout</a>
+        </div>
     </div>
 
     {% else %}
-    <p>Your cart is empty.</p>
-    <a href="{% url 'wine_list' %}">Browse our wines</a>
+    <div class="cart__empty">
+        <p>Your cart is empty.</p>
+        <a href="{% url 'wine_list' %}" class="btn btn--primary">Browse our wines</a>
+    </div>
     {% endif %}
 </div>
 {% endblock %}

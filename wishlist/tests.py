@@ -29,6 +29,13 @@ class AddToWishlistTests(TestCase):
         )
         self.url = reverse("wishlist_add", args=[self.wine.id])
 
+    def test_add_with_get_returns_405(self):
+        """US-16: adding to the wishlist with GET is not allowed."""
+        self.client.login(username="test@example.com", password="testpass123")
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 405)
+        self.assertFalse(WishlistItem.objects.exists())
+
     def test_add_requires_login(self):
         """US-16: anonymous users are redirected to login."""
         response = self.client.post(self.url)
@@ -93,6 +100,18 @@ class ViewManageWishlistTests(TestCase):
         WishlistItem.objects.create(user=self.user, wine=self.my_wine)
         WishlistItem.objects.create(user=self.other_user, wine=self.their_wine)
         self.client.login(username="test@example.com", password="testpass123")
+
+    def test_remove_with_get_returns_405(self):
+        """US-17: removing from the wishlist with GET is not allowed."""
+        response = self.client.get(
+            reverse("wishlist_remove", args=[self.my_wine.id])
+        )
+        self.assertEqual(response.status_code, 405)
+        self.assertTrue(
+            WishlistItem.objects.filter(
+                user=self.user, wine=self.my_wine
+            ).exists()
+        )
 
     def test_wishlist_requires_login(self):
         """US-17: anonymous users are redirected to login."""

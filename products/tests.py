@@ -3,9 +3,11 @@ from unittest.mock import patch
 import cloudinary
 from cloudinary.exceptions import NotFound
 from django.contrib.auth import get_user_model
+from django.core.files.storage import default_storage
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase, Client, override_settings
 from django.urls import reverse
+from orders.models import Order, OrderItem
 from uncorked.storages import CloudinaryMediaStorage
 from .models import Wine, Region
 from .utils import COUNTRY_ISO_CODE_MAP, get_countries_with_wine_counts
@@ -321,3 +323,229 @@ class WineImageUploadTests(TestCase):
         )
         self.assertTrue(url.endswith("/media/wines/image_3.jpg"))
         mock_upload.assert_not_called()
+
+
+class ProductManagementTests(TestCase):
+    """US-09: Superusers manage the catalogue from the front end."""
+
+    def setUp(self):
+        self.client = Client()
+        User = get_user_model()
+        self.admin = User.objects.create_superuser(
+            email="admin@example.com",
+            username="admin",
+            password="adminpass123",
+        )
+        self.customer = User.objects.create_user(
+            email="customer@example.com",
+            username="customer",
+            password="testpass123",
+        )
+        self.region = Region.objects.create(name="Rioja", country="Spain")
+        self.wine = Wine.objects.create(
+            name="Plain Red",
+            producer="Test Producer",
+            region=self.region,
+            wine_type="red",
+            abv=13.5,
+            price=20.00,
+            stock=10,
+        )
+        self.ordered_wine = Wine.objects.create(
+            name="Ordered Red",
+            producer="Test Producer",
+            region=self.region,
+            wine_type="red",
+            abv=13.5,
+            price=25.00,
+            stock=10,
+        )
+        order = Order.objects.create(
+            full_name="Customer",
+            email="customer@example.com",
+            address_line1="1 Main St",
+            city="Madrid",
+            postcode="28001",
+            country="Spain",
+            grand_total=25.00,
+            status="paid",
+        )
+        OrderItem.objects.create(
+            order=order,
+            wine=self.ordered_wine,
+            quantity=1,
+            price_at_purchase=25.00,
+        )
+        self.add_url = reverse("wine_add")
+        self.edit_url = reverse("wine_edit", args=[self.wine.slug])
+        self.delete_url = reverse("wine_delete", args=[self.wine.slug])
+        self.form_data = {
+            "name": "New Rioja",
+            "producer": "Bodega Test",
+            "region": self.region.id,
+            "wine_type": "red",
+            "vintage": 2020,
+            "abv": "14.0",
+            "price": "29.50",
+            "stock": 12,
+            "character": "Bold",
+            "tasting_notes": "Cherry and spice.",
+            "food_pairing": "Lamb",
+            "description": "Family estate.",
+            "is_available": "on",
+        }
+
+    def test_logged_out_user_redirected_to_login(self):
+        """US-09: logged-out users are sent to login from every page."""
+        for url in [self.add_url, self.edit_url, self.delete_url]:
+            response = self.client.get(url)
+            self.assertEqual(response.status_code, 302)
+            self.assertTrue(response.url.startswith("/accounts/login/"))
+
+    def test_non_superuser_cannot_add_wine(self):
+        """US-09: a customer can't add a wine and sees an error message."""
+        self.client.force_login(self.customer)
+        response = self.client.post(
+            self.add_url, self.form_data, follow=True
+        )
+        self.assertRedirects(response, reverse("wine_list"))
+        self.assertContains(response, "Only site administrators")
+        self.assertFalse(Wine.objects.filter(name="New Rioja").exists())
+
+    def test_non_superuser_cannot_edit_wine(self):
+        """US-09: a customer can't edit a wine."""
+        self.client.force_login(self.customer)
+        data = dict(self.form_data, name="Hacked")
+        response = self.client.post(self.edit_url, data)
+        self.assertRedirects(
+            response, reverse("wine_list"), fetch_redirect_response=False
+        )
+        self.wine.refresh_from_db()
+        self.assertEqual(self.wine.name, "Plain Red")
+
+    def test_non_superuser_cannot_delete_wine(self):
+        """US-09: a customer can't delete a wine."""
+        self.client.force_login(self.customer)
+        response = self.client.post(self.delete_url)
+        self.assertRedirects(
+            response, reverse("wine_list"), fetch_redirect_response=False
+        )
+        self.assertTrue(Wine.objects.filter(pk=self.wine.pk).exists())
+
+    def test_superuser_can_add_wine_with_image(self):
+        """US-09: a superuser adds a wine with an image and sees it."""
+        self.client.force_login(self.admin)
+        data = dict(
+            self.form_data,
+            image=SimpleUploadedFile(
+                "rioja.gif", TINY_GIF, content_type="image/gif"
+            ),
+        )
+        response = self.client.post(self.add_url, data, follow=True)
+        wine = Wine.objects.get(name="New Rioja")
+        self.assertRedirects(
+            response, reverse("wine_detail", args=[wine.slug])
+        )
+        self.assertContains(response, "New Rioja&quot; was added.")
+        self.assertEqual(wine.region, self.region)
+        self.assertEqual(wine.image.name, "wines/rioja.gif")
+        self.assertTrue(default_storage.exists("wines/rioja.gif"))
+
+    def test_add_with_invalid_data_shows_errors(self):
+        """US-09: invalid data is not saved and errors are shown."""
+        self.client.force_login(self.admin)
+        data = dict(self.form_data, price="-5", name="")
+        response = self.client.post(self.add_url, data)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "products/wine_form.html")
+        self.assertContains(response, "Price must be more than 0.")
+        self.assertContains(response, "Please correct the errors below.")
+        self.assertEqual(Wine.objects.count(), 2)
+
+    def test_add_duplicate_name_and_vintage_shows_error(self):
+        """US-09: a wine with the same name and vintage is rejected."""
+        self.client.force_login(self.admin)
+        data = dict(self.form_data, name="Plain Red", vintage="")
+        response = self.client.post(self.add_url, data)
+        self.assertContains(
+            response, "A wine with this name and vintage already exists."
+        )
+        self.assertEqual(Wine.objects.filter(name="Plain Red").count(), 1)
+
+    def test_edit_page_is_prefilled(self):
+        """US-09: the edit page shows the wine's current values."""
+        self.client.force_login(self.admin)
+        response = self.client.get(self.edit_url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["form"].instance, self.wine)
+        self.assertContains(response, 'value="Plain Red"')
+
+    def test_edit_page_shows_current_image(self):
+        """US-09: the edit page shows the current image and a replace field."""
+        self.wine.image.save(
+            "current.gif", SimpleUploadedFile("current.gif", TINY_GIF)
+        )
+        self.client.force_login(self.admin)
+        response = self.client.get(self.edit_url)
+        self.assertContains(response, "Current image of Plain Red")
+        self.assertContains(response, "Replace image")
+
+    def test_superuser_can_edit_wine(self):
+        """US-09: a superuser edits a wine and returns to its detail page."""
+        self.client.force_login(self.admin)
+        data = dict(self.form_data, name="Plain Red", price="22.00")
+        response = self.client.post(self.edit_url, data, follow=True)
+        self.assertRedirects(
+            response, reverse("wine_detail", args=[self.wine.slug])
+        )
+        self.assertContains(response, "Plain Red&quot; was updated.")
+        self.wine.refresh_from_db()
+        self.assertEqual(str(self.wine.price), "22.00")
+
+    def test_delete_requires_post(self):
+        """US-09: GET shows a confirmation page and deletes nothing."""
+        self.client.force_login(self.admin)
+        response = self.client.get(self.delete_url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "products/wine_confirm_delete.html")
+        self.assertContains(
+            response, "Are you sure you want to delete <strong>Plain Red"
+        )
+        self.assertTrue(Wine.objects.filter(pk=self.wine.pk).exists())
+
+    def test_superuser_can_delete_wine_without_orders(self):
+        """US-09: a wine with no orders is deleted."""
+        self.client.force_login(self.admin)
+        response = self.client.post(self.delete_url, follow=True)
+        self.assertRedirects(response, reverse("wine_list"))
+        self.assertContains(response, "Plain Red&quot; was deleted.")
+        self.assertFalse(Wine.objects.filter(pk=self.wine.pk).exists())
+
+    def test_wine_with_orders_is_marked_unavailable(self):
+        """US-09: a wine in existing orders is kept but made unavailable."""
+        self.client.force_login(self.admin)
+        url = reverse("wine_delete", args=[self.ordered_wine.slug])
+        response = self.client.post(url, follow=True)
+        self.ordered_wine.refresh_from_db()
+        self.assertFalse(self.ordered_wine.is_available)
+        self.assertContains(response, "marked unavailable instead")
+        self.assertContains(response, "hidden from customers")
+
+    def test_admin_links_shown_only_to_superusers(self):
+        """US-09: edit, delete and add links appear only for superusers."""
+        detail_url = reverse("wine_detail", args=[self.wine.slug])
+        self.client.force_login(self.customer)
+        self.assertNotContains(self.client.get(detail_url), self.edit_url)
+        self.assertNotContains(self.client.get(reverse("wine_list")), self.edit_url)
+        self.assertNotContains(self.client.get(reverse("profile")), self.add_url)
+
+        self.client.force_login(self.admin)
+        self.assertContains(self.client.get(detail_url), self.delete_url)
+        self.assertContains(self.client.get(reverse("wine_list")), self.edit_url)
+        self.assertContains(self.client.get(reverse("profile")), self.add_url)
+
+    def test_uploads_use_in_memory_storage_in_tests(self):
+        """US-09: tests never upload to Cloudinary."""
+        self.assertEqual(
+            default_storage.__class__.__name__, "InMemoryStorage"
+        )

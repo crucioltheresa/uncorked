@@ -1,0 +1,27 @@
+{% comment %}
+Totals breakdown: subtotal, discount (only when it applies), delivery and total.
+Takes: subtotal, discount, delivery (None = not known yet), total, and
+optionally pending_label (text shown while delivery is not known).
+{% endcomment %}
+<dl class="totals">
+    <div class="totals__row">
+        <dt class="totals__label">Subtotal</dt>
+        <dd class="totals__value">€{{ subtotal }}</dd>
+    </div>
+    {% if discount %}
+    <div class="totals__row totals__row--discount">
+        <dt class="totals__label">Discount <span class="totals__note">(8+ bottles)</span></dt>
+        <dd class="totals__value">−€{{ discount }}</dd>
+    </div>
+    {% endif %}
+    <div class="totals__row">
+        <dt class="totals__label">Delivery</dt>
+        <dd class="totals__value">
+            {% if delivery is None %}{{ pending_label|default:"Calculated at checkout" }}{% elif delivery %}€{{ delivery }}{% else %}Free{% endif %}
+        </dd>
+    </div>
+    <div class="totals__row totals__row--total">
+        <dt class="totals__label">Total</dt>
+        <dd class="totals__value">€{{ total }}</dd>
+    </div>
+</dl>

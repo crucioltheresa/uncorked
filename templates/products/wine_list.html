@@ -68,6 +68,16 @@
                         <button type="submit" class="wine-card__add-btn">Add to Cart</button>
                     </div>
                 </form>
+                {% if request.user.is_superuser %}
+                <div class="wine-card__admin">
+                    <a href="{% url 'wine_edit' wine.slug %}" class="wine-card__admin-link">
+                        <i class="bi bi-pencil"></i> Edit
+                    </a>
+                    <a href="{% url 'wine_delete' wine.slug %}" class="wine-card__admin-link wine-card__admin-link--danger">
+                        <i class="bi bi-trash"></i> Delete
+                    </a>
+                </div>
+                {% endif %}
             </div>
             {% empty %}
             <p>

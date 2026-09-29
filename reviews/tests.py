@@ -74,7 +74,7 @@ class WriteReviewTests(TestCase):
             city="City",
             postcode="12345",
             country="Spain",
-            total_price=25.00,
+            grand_total=25.00,
             status="paid",
         )
         OrderItem.objects.create(
@@ -138,6 +138,13 @@ class DeleteReviewTests(TestCase):
         self.client.login(username="other@example.com", password="testpass123")
         response = self.client.post(self.url)
         self.assertEqual(response.status_code, 404)
+        self.assertTrue(Review.objects.filter(id=self.review.id).exists())
+
+    def test_delete_with_get_returns_405(self):
+        """US-19: deleting a review with GET is not allowed."""
+        self.client.login(username="owner@example.com", password="testpass123")
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 405)
         self.assertTrue(Review.objects.filter(id=self.review.id).exists())
 
     def test_delete_requires_login(self):

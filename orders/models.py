@@ -1,4 +1,6 @@
 import uuid
+from decimal import Decimal
+
 from django.db import models
 from django.conf import settings
 from products.models import Wine
@@ -29,7 +31,17 @@ class Order(models.Model):
     city = models.CharField(max_length=100)
     postcode = models.CharField(max_length=20)
     country = models.CharField(max_length=100)
-    total_price = models.DecimalField(max_digits=10, decimal_places=2)
+    # Totals, calculated on the server by orders.pricing.calculate_totals
+    subtotal = models.DecimalField(
+        max_digits=10, decimal_places=2, default=Decimal("0.00")
+    )
+    discount = models.DecimalField(
+        max_digits=10, decimal_places=2, default=Decimal("0.00")
+    )
+    delivery_cost = models.DecimalField(
+        max_digits=10, decimal_places=2, default=Decimal("0.00")
+    )
+    grand_total = models.DecimalField(max_digits=10, decimal_places=2)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

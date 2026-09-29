@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_POST
 from django.contrib import messages
 from products.models import Wine
 from orders.models import Order
@@ -46,6 +47,7 @@ def add_review(request, wine_id):
 
 
 @login_required
+@require_POST
 def delete_review(request, review_id):
     review = get_object_or_404(Review, id=review_id, user=request.user)
     wine_slug = review.wine.slug

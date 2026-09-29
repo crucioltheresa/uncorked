@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_POST
 from django.contrib import messages
 from products.models import Wine
 from .models import WishlistItem
@@ -12,6 +13,7 @@ def wishlist_detail(request):
 
 
 @login_required
+@require_POST
 def wishlist_add(request, wine_id):
     wine = get_object_or_404(Wine, id=wine_id)
     _, created = WishlistItem.objects.get_or_create(user=request.user, wine=wine)
@@ -23,6 +25,7 @@ def wishlist_add(request, wine_id):
 
 
 @login_required
+@require_POST
 def wishlist_remove(request, wine_id):
     wine = get_object_or_404(Wine, id=wine_id)
     WishlistItem.objects.filter(user=request.user, wine=wine).delete()

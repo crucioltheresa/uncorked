@@ -1,6 +1,8 @@
 import tempfile
+from decimal import Decimal
 from io import StringIO
 from pathlib import Path
+from unittest.mock import patch
 
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
@@ -8,6 +10,7 @@ from django.core.management import call_command
 from django.core.management.base import CommandError
 from django.test import TestCase, Client, override_settings
 from django.urls import reverse
+from orders import pricing
 from .models import NewsletterSubscriber
 
 
@@ -22,6 +25,29 @@ class HomepageTests(TestCase):
         response = self.client.get(reverse("homepage"))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "core/index.html")
+
+    def test_pages_link_the_favicon(self):
+        """US-26: every page links the SVG favicon and apple-touch-icon."""
+        response = self.client.get(reverse("homepage"))
+        self.assertContains(
+            response,
+            '<link rel="icon" href="/static/img/favicon.svg" '
+            'type="image/svg+xml">',
+            html=True,
+        )
+        self.assertContains(
+            response,
+            '<link rel="apple-touch-icon" '
+            'href="/static/img/apple-touch-icon.png">',
+            html=True,
+        )
+
+    def test_favicon_ico_redirects_to_svg(self):
+        """US-26: /favicon.ico no longer 404s; it points to the SVG icon."""
+        response = self.client.get("/favicon.ico")
+        self.assertRedirects(
+            response, "/static/img/favicon.svg", fetch_redirect_response=False
+        )
 
 
 class NewsletterSignupTests(TestCase):
@@ -122,3 +148,48 @@ class UploadMediaCommandTests(TestCase):
         ):
             with self.assertRaises(CommandError):
                 call_command("upload_media", stdout=StringIO())
+
+
+class PromoBarTests(TestCase):
+    """US-26: The promo bar reads its values from the pricing rules."""
+
+    def setUp(self):
+        self.client = Client()
+
+    def test_promo_bar_shows_current_pricing(self):
+        """US-26: the promo bar shows the discount and free delivery rules."""
+        response = self.client.get(reverse("homepage"))
+        self.assertContains(
+            response, "10% off if you buy 8 Bottles Of Wine or More!"
+        )
+        self.assertContains(
+            response, "Free National Delivery on orders of €100+"
+        )
+
+    def test_promo_bar_follows_changes_to_pricing(self):
+        """US-26: changing orders.pricing changes the promo text."""
+        with patch.object(pricing, "BULK_DISCOUNT_RATE", Decimal("0.15")), \
+                patch.object(pricing, "BULK_DISCOUNT_MIN_BOTTLES", 6), \
+                patch.object(
+                    pricing, "FREE_DELIVERY_THRESHOLD", Decimal("80.50")
+                ):
+            response = self.client.get(reverse("homepage"))
+        self.assertContains(
+            response, "15% off if you buy 6 Bottles Of Wine or More!"
+        )
+        self.assertContains(
+            response, "Free National Delivery on orders of €80.50+"
+        )
+        self.assertNotContains(response, "10% off")
+
+    def test_messages_are_passed_to_the_slider_script(self):
+        """US-26: the rotating promo gets its messages as JSON, not from JS."""
+        response = self.client.get(reverse("homepage"))
+        self.assertContains(response, '<script id="promoMessages"')
+        self.assertEqual(
+            response.context["promo_messages"],
+            [
+                "10% off if you buy 8 Bottles Of Wine or More!",
+                "Free National Delivery on orders of €100+",
+            ],
+        )
