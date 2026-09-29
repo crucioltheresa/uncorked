@@ -47,7 +47,9 @@ class CheckoutTests(TestCase):
     def test_guest_can_checkout(self):
         """US-12: guest can access the checkout form."""
         session = self.client.session
-        session["cart"] = {str(self.wine.id): {"quantity": 1, "price": "20.00"}}
+        session["cart"] = {
+            str(self.wine.id): {"quantity": 1, "price": "20.00"}
+        }
         session.save()
         response = self.client.get(reverse("checkout"))
         self.assertEqual(response.status_code, 200)
@@ -57,7 +59,9 @@ class CheckoutTests(TestCase):
         """US-12: logged-in user can access the checkout form."""
         self.client.login(username="test@example.com", password="testpass123")
         session = self.client.session
-        session["cart"] = {str(self.wine.id): {"quantity": 1, "price": "20.00"}}
+        session["cart"] = {
+            str(self.wine.id): {"quantity": 1, "price": "20.00"}
+        }
         session.save()
         response = self.client.get(reverse("checkout"))
         self.assertEqual(response.status_code, 200)
@@ -104,7 +108,7 @@ class CheckoutSubmitTests(TestCase):
 
     @patch("orders.views.stripe.PaymentIntent.create")
     def test_guest_valid_checkout_shows_payment_page(self, mock_create):
-        """US-12: guest submitting a valid checkout reaches the payment page."""
+        """US-12: a guest submitting a valid checkout reaches payment."""
         response = self.submit_checkout(mock_create)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "orders/payment.html")
@@ -115,7 +119,9 @@ class CheckoutSubmitTests(TestCase):
         self.assertEqual(order.postcode, "T12 X70A")
         self.assertEqual(order.country, "Ireland")
         session = self.client.session
-        self.assertEqual(session["guest_order_number"], str(order.order_number))
+        self.assertEqual(
+            session["guest_order_number"], str(order.order_number)
+        )
         self.assertEqual(
             session["cart"][str(self.wine.id)],
             {"quantity": 2, "price": "19.99"},
@@ -123,7 +129,7 @@ class CheckoutSubmitTests(TestCase):
 
     @patch("orders.views.stripe.PaymentIntent.create")
     def test_logged_in_valid_checkout_shows_payment_page(self, mock_create):
-        """US-12: logged-in user submitting a valid checkout reaches payment."""
+        """US-12: a logged-in user's valid checkout reaches payment."""
         self.client.login(username="test@example.com", password="testpass123")
         data = dict(self.form_data, save_to_profile="on")
         response = self.submit_checkout(mock_create, data)
@@ -161,7 +167,9 @@ class GuestCheckoutTests(TestCase):
     def test_guest_checkout_form_no_save_checkbox(self):
         """US-12: guest checkout form hides the save-to-profile checkbox."""
         session = self.client.session
-        session["cart"] = {str(self.wine.id): {"quantity": 1, "price": "15.00"}}
+        session["cart"] = {
+            str(self.wine.id): {"quantity": 1, "price": "15.00"}
+        }
         session.save()
 
         response = self.client.get(reverse("checkout"))
@@ -198,7 +206,9 @@ class CheckoutPrefilledTests(TestCase):
         )
         self.client.login(email="test@example.com", password="testpass123")
         session = self.client.session
-        session["cart"] = {str(self.wine.id): {"quantity": 1, "price": "10.00"}}
+        session["cart"] = {
+            str(self.wine.id): {"quantity": 1, "price": "10.00"}
+        }
         session.save()
 
     def test_checkout_prefilled_with_saved_details(self):
@@ -212,7 +222,9 @@ class CheckoutPrefilledTests(TestCase):
         """US-12: save-to-profile checkbox appears for logged-in users."""
         response = self.client.get(reverse("checkout"))
         self.assertContains(response, "save_to_profile")
-        self.assertContains(response, "Save this delivery information to my profile")
+        self.assertContains(
+            response, "Save this delivery information to my profile"
+        )
 
 
 class OrderDetailViewTests(TestCase):
@@ -284,7 +296,7 @@ class OrderDetailViewTests(TestCase):
         self.assertContains(response, "Test Wine")
 
     def test_sequential_id_does_not_work(self):
-        """US-03: sequential order id returns 404, only the order number works."""
+        """US-03: a sequential order id returns 404; only the number works."""
         self.client.login(username="test@example.com", password="testpass123")
         response = self.client.get(f"/order/{self.order.id}/")
         self.assertEqual(response.status_code, 404)
@@ -308,7 +320,7 @@ class GuestOrderAccessTests(TestCase):
         self.url = reverse("order_success", args=[self.order.order_number])
 
     def test_guest_can_view_own_order_via_session(self):
-        """US-13: guest sees the confirmation page if the order is in session."""
+        """US-13: a guest sees confirmation if the order is in session."""
         session = self.client.session
         session["guest_order_number"] = str(self.order.order_number)
         session.save()
@@ -428,7 +440,7 @@ class StripeWebhookTests(TestCase):
         self.assertEqual(len(mail.outbox), 1)
 
     def test_order_found_by_intent_id_without_metadata(self):
-        """US-13: order is found by payment intent id if metadata is missing."""
+        """US-13: the order is found by intent id if metadata is missing."""
         intent = dict(self.intent, metadata={})
         signed_webhook_post(self.client, "payment_intent.succeeded", intent)
         self.order.refresh_from_db()
@@ -625,7 +637,9 @@ class AdminOrdersTests(TestCase):
 
     def test_staff_can_see_orders_in_admin(self):
         """US-15: staff can see orders in the admin order list."""
-        self.client.login(username="admin@example.com", password="adminpass123")
+        self.client.login(
+            username="admin@example.com", password="adminpass123"
+        )
         response = self.client.get(self.orders_url)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Customer Name")
@@ -664,7 +678,7 @@ class OrderConfirmationEmailTests(TestCase):
         )
 
     def test_webhook_sends_order_confirmation_email_once(self):
-        """US-30: one email per call, sent to the order email with its number."""
+        """US-30: one email per call, to the order email, with its number."""
         _send_order_confirmation_email(self.order)
 
         self.assertEqual(len(mail.outbox), 1)
@@ -754,14 +768,18 @@ class EircodeValidationTests(TestCase):
 
     def test_invalid_eircodes_are_rejected(self):
         """US-12: wrong length, letters or format are not valid Eircodes."""
-        for raw in ["", "12345", "D02 X28", "D02 X2855", "B12 3456", "DO2 X285"]:
+        for raw in [
+            "", "12345", "D02 X28", "D02 X2855", "B12 3456", "DO2 X285",
+        ]:
             self.assertIsNone(normalise_eircode(raw))
 
     def test_checkout_form_shows_error_for_invalid_eircode(self):
         """US-12: the checkout form explains an invalid Eircode."""
         form = CheckoutForm(data=dict(CHECKOUT_DATA, eircode="12345"))
         self.assertFalse(form.is_valid())
-        self.assertIn("Please enter a valid Eircode", form.errors["eircode"][0])
+        self.assertIn(
+            "Please enter a valid Eircode", form.errors["eircode"][0]
+        )
 
     def test_checkout_form_normalises_eircode(self):
         """US-12: the checkout form accepts lowercase without a space."""
@@ -858,7 +876,8 @@ class CheckoutTotalsTests(TestCase):
         self.client.force_login(user)
         self.fill_cart(1)
         response = self.client.get(reverse("checkout"))
-        self.assertEqual(response.context["form"].initial["eircode"], "D02 X285")
+        initial = response.context["form"].initial
+        self.assertEqual(initial["eircode"], "D02 X285")
 
     def test_checkout_summary_shows_discount_at_8_bottles(self):
         """US-12: the checkout summary shows the bulk discount."""

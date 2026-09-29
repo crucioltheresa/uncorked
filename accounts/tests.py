@@ -1,5 +1,7 @@
 from importlib import import_module
 
+from django.apps import apps
+from django.contrib import admin
 from django.test import TestCase, Client
 from django.urls import reverse
 from django.contrib.auth import get_user_model
@@ -8,8 +10,11 @@ from django.core.cache import cache
 from allauth.account.models import EmailAddress
 from django.contrib.sites.models import Site
 from .models import UserProfile
+from core.models import ContactMessage, NewsletterSubscriber
 from orders.models import Order, OrderItem
 from products.models import Wine, Region
+from reviews.models import Review
+from wishlist.models import WishlistItem
 
 User = get_user_model()
 
@@ -27,7 +32,7 @@ class RegistrationTests(TestCase):
         )
 
     def test_valid_signup_creates_user(self):
-        """US-01: valid signup creates a user and asks for email confirmation."""
+        """US-01: valid signup creates a user and asks to confirm email."""
         response = self.client.post(self.signup_url, {
             "email": "new@example.com",
             "password1": "Str0ngPass!23",
@@ -39,7 +44,7 @@ class RegistrationTests(TestCase):
         self.assertTrue(User.objects.filter(email="new@example.com").exists())
 
     def test_duplicate_email_does_not_create_second_account(self):
-        """US-01: duplicate email creates no new account and notifies the owner."""
+        """US-01: duplicate email creates no account and tells the owner."""
         self.client.post(self.signup_url, {
             "email": "taken@example.com",
             "password1": "Str0ngPass!23",
@@ -91,13 +96,17 @@ class LoginLogoutTests(TestCase):
 
     def test_logged_in_user_redirected_from_login_page(self):
         """US-02: logged-in user cannot access the login page."""
-        self.client.login(username="test@example.com", password="Str0ngPass!23")
+        self.client.login(
+            username="test@example.com", password="Str0ngPass!23"
+        )
         response = self.client.get(reverse("account_login"))
         self.assertRedirects(response, "/", fetch_redirect_response=False)
 
     def test_logout_logs_user_out(self):
         """US-02: logout ends the session and redirects home."""
-        self.client.login(username="test@example.com", password="Str0ngPass!23")
+        self.client.login(
+            username="test@example.com", password="Str0ngPass!23"
+        )
         response = self.client.post(reverse("account_logout"))
         self.assertRedirects(response, "/", fetch_redirect_response=False)
         self.assertNotIn("_auth_user_id", self.client.session)
@@ -125,7 +134,9 @@ class UserProfileModelTests(TestCase):
 
     def test_profile_str(self):
         """US-03: profile string representation shows the user's email."""
-        self.assertEqual(str(self.user.profile), f"Profile for {self.user.email}")
+        self.assertEqual(
+            str(self.user.profile), f"Profile for {self.user.email}"
+        )
 
 
 class ProfileViewTests(TestCase):
@@ -355,7 +366,9 @@ class ProfileEircodeTests(TestCase):
 
     def test_invalid_eircode_shows_error_and_is_not_saved(self):
         """US-03: an invalid Eircode shows an error and nothing is saved."""
-        response = self.client.post(self.url, dict(self.data, postcode="10001"))
+        response = self.client.post(
+            self.url, dict(self.data, postcode="10001")
+        )
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Please enter a valid Eircode")
         self.user.profile.refresh_from_db()
@@ -363,7 +376,7 @@ class ProfileEircodeTests(TestCase):
         self.assertNotEqual(self.user.profile.city, "Cork")
 
     def test_country_is_always_ireland(self):
-        """US-03: a posted country is ignored; the profile is set to Ireland."""
+        """US-03: a posted country is ignored; the profile is Ireland."""
         self.client.post(self.url, dict(self.data, country="USA"))
         self.user.profile.refresh_from_db()
         self.assertEqual(self.user.profile.country, "Ireland")
@@ -423,7 +436,8 @@ class SignupConfirmationEmailTests(TestCase):
 
     def test_contains_confirmation_link(self):
         """US-01: text and HTML versions both contain the confirm link."""
-        link = f"http://testserver{reverse('account_confirm_email', args=['x'])[:-2]}"
+        confirm_url = reverse("account_confirm_email", args=["x"])[:-2]
+        link = f"http://testserver{confirm_url}"
         self.assertIn(link, self.email.body)
         self.assertIn(link, self.html)
 
@@ -435,7 +449,7 @@ class SignupConfirmationEmailTests(TestCase):
             self.assertNotIn(self.user.username, content)
 
     def test_duplicate_signup_email_is_branded(self):
-        """US-01: a duplicate signup gets the branded "already exists" email."""
+        """US-01: duplicate signup gets the branded "already exists" email."""
         mail.outbox.clear()
         # Same address again: reset the per-address email rate limit
         cache.clear()
@@ -478,8 +492,12 @@ class PasswordResetEmailTests(TestCase):
         email = self.request_reset()
         self.assertEqual(email.subject, "Reset your Uncorked password")
         self.assertIn("Hi there,", email.body)
-        self.assertIn("reset the password for your Uncorked account", email.body)
-        self.assertIn("http://testserver/accounts/password/reset/key/", email.body)
+        self.assertIn(
+            "reset the password for your Uncorked account", email.body
+        )
+        self.assertIn(
+            "http://testserver/accounts/password/reset/key/", email.body
+        )
         self.assertIn(
             "http://testserver/accounts/password/reset/key/",
             email.alternatives[0][0],
@@ -535,7 +553,9 @@ class AuthModalTests(TestCase):
             'title="Log in or sign up" aria-label="Log in or sign up" '
             'data-auth-open="login">',
         )
-        self.assertContains(response, 'aria-describedby="signup-password2-error"')
+        self.assertContains(
+            response, 'aria-describedby="signup-password2-error"'
+        )
 
     def test_no_modal_for_logged_in_users(self):
         """US-02: logged-in pages don't include the modal."""
@@ -646,3 +666,104 @@ class AuthModalTests(TestCase):
         self.assertNotContains(
             response, f'<a href="{reverse("account_logout")}"'
         )
+
+
+class AdminPanelTests(TestCase):
+    """US-04: Every model is manageable in the admin panel."""
+
+    def setUp(self):
+        self.client = Client()
+        self.admin = User.objects.create_superuser(
+            email="boss@uncorked-mail.ie",
+            username="boss",
+            password="adminpass123",
+        )
+        self.client.force_login(self.admin)
+        # One row of each model, so every changelist renders real rows
+        region = Region.objects.create(name="Rioja", country="Spain")
+        wine = Wine.objects.create(
+            name="Admin Red", producer="Test", region=region,
+            wine_type="red", abv=13.5, price="20.00", stock=5,
+        )
+        order = Order.objects.create(
+            user=self.admin, full_name="Boss", email="boss@uncorked-mail.ie",
+            address_line1="1 Main St", city="Dublin", postcode="D02 X285",
+            country="Ireland", grand_total="20.00", status="paid",
+        )
+        OrderItem.objects.create(
+            order=order, wine=wine, quantity=1, price_at_purchase="20.00"
+        )
+        self.review = Review.objects.create(
+            wine=wine, user=self.admin, rating=5, title="Great",
+            body="Lovely wine.", verified_purchase=True,
+        )
+        WishlistItem.objects.create(user=self.admin, wine=wine)
+        NewsletterSubscriber.objects.create(email="news@uncorked-mail.ie")
+        ContactMessage.objects.create(
+            name="Aoife", email="aoife@uncorked-mail.ie", subject="other",
+            message="Just saying hello to the team.",
+        )
+
+    def test_every_changelist_loads_for_superuser(self):
+        """US-04: each registered admin changelist returns 200."""
+        for model in admin.site._registry:
+            meta = model._meta
+            url = reverse(
+                f"admin:{meta.app_label}_{meta.model_name}_changelist"
+            )
+            with self.subTest(model=meta.label):
+                self.assertEqual(self.client.get(url).status_code, 200)
+
+    def test_project_models_are_all_registered(self):
+        """US-04: every model in the project's apps is in the admin."""
+        project_apps = {
+            "accounts", "core", "products", "orders", "reviews", "wishlist",
+        }
+        for model in apps.get_models():
+            if model._meta.app_label in project_apps:
+                with self.subTest(model=model._meta.label):
+                    self.assertTrue(admin.site.is_registered(model))
+
+    def test_staff_can_delete_a_review(self):
+        """US-04: staff can delete a review from the admin."""
+        url = reverse("admin:reviews_review_delete", args=[self.review.pk])
+        self.assertEqual(self.client.get(url).status_code, 200)
+        response = self.client.post(url, {"post": "yes"})
+        self.assertRedirects(
+            response, reverse("admin:reviews_review_changelist")
+        )
+        self.assertFalse(Review.objects.filter(pk=self.review.pk).exists())
+
+    def test_reviews_changelist_filters_by_rating_and_verified(self):
+        """US-04: reviews can be filtered by rating and verified purchase."""
+        url = reverse("admin:reviews_review_changelist")
+        response = self.client.get(
+            url, {"rating": 5, "verified_purchase__exact": 1}
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Admin Red")
+
+    def test_add_user_page_uses_custom_user_model(self):
+        """US-04: staff can add a user (email-based custom user model)."""
+        url = reverse("admin:accounts_customuser_add")
+        self.assertContains(self.client.get(url), 'name="email"')
+        response = self.client.post(url, {
+            "email": "newstaff@uncorked-mail.ie",
+            "username": "newstaff",
+            "usable_password": "true",
+            "password1": "Str0ngPass!23",
+            "password2": "Str0ngPass!23",
+        })
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(
+            User.objects.filter(email="newstaff@uncorked-mail.ie").exists()
+        )
+
+    def test_user_change_page_shows_profile(self):
+        """US-04: a user's admin page includes their delivery details."""
+        url = reverse(
+            "admin:accounts_customuser_change", args=[self.admin.pk]
+        )
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "profile-0-full_name")

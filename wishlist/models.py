@@ -5,7 +5,9 @@ from products.models import Wine
 
 class WishlistItem(models.Model):
     user = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="wishlist"
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="wishlist",
     )
     wine = models.ForeignKey(Wine, on_delete=models.CASCADE)
     added_at = models.DateTimeField(auto_now_add=True)

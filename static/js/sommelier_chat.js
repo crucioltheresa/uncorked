@@ -1,3 +1,32 @@
+// Sommelier chat: asks the quiz questions one by one, then sends the
+// answers to /sommelier/submit/ and shows the recommended wines.
+
+// Pure helpers (no DOM), exported for tests
+
+// Request body for /sommelier/submit/: {"answers": {question_id: value}}
+function buildSommelierPayload(answers) {
+    return JSON.stringify({ answers });
+}
+
+// All questions answered: time to submit
+function isQuizComplete(index, questionCount) {
+    return index >= questionCount;
+}
+
+// Value of one cookie from a document.cookie string, or null
+function parseCookie(cookieString, name) {
+    let cookieValue = null;
+    if (cookieString && cookieString !== '') {
+        cookieString.split(';').forEach(cookie => {
+            const c = cookie.trim();
+            if (c.startsWith(name + '=')) {
+                cookieValue = decodeURIComponent(c.slice(name.length + 1));
+            }
+        });
+    }
+    return cookieValue;
+}
+
 function initSommelierChat(containerId, questions) {
     const container = document.getElementById(containerId);
     if (!container || !questions || questions.length === 0) return;
@@ -27,20 +56,11 @@ function initSommelierChat(containerId, questions) {
     }
 
     function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            document.cookie.split(';').forEach(cookie => {
-                const c = cookie.trim();
-                if (c.startsWith(name + '=')) {
-                    cookieValue = decodeURIComponent(c.slice(name.length + 1));
-                }
-            });
-        }
-        return cookieValue;
+        return parseCookie(document.cookie, name);
     }
 
     function askQuestion(index) {
-        if (index >= questions.length) {
+        if (isQuizComplete(index, questions.length)) {
             submitAnswers();
             return;
         }
@@ -97,7 +117,7 @@ function initSommelierChat(containerId, questions) {
                     'Content-Type': 'application/json',
                     'X-CSRFToken': getCookie('csrftoken'),
                 },
-                body: JSON.stringify({ answers })
+                body: buildSommelierPayload(answers)
             })
             .then(res => res.json())
             .then(data => {
@@ -158,4 +178,8 @@ function initSommelierChat(containerId, questions) {
 
     askQuestion(0);
     return { restartQuiz };
+}
+
+if (typeof module !== "undefined") {
+    module.exports = { buildSommelierPayload, isQuizComplete, parseCookie };
 }

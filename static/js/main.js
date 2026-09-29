@@ -1,3 +1,15 @@
+// Pure helpers (no DOM), exported for tests
+
+// Next promo message to show, wrapping back to the first
+function nextPromoIndex(current, count) {
+    return (current + 1) % count;
+}
+
+// True when the previous page was on this site (so Back can use history)
+function referrerIsSameSite(referrer, host) {
+    return Boolean(referrer) && new URL(referrer).host === host;
+}
+
 // Promo bar slider: Rotates between promotional messages every 3 seconds
 function initPromoBar() {
     const promoEl = document.getElementById('promoText');
@@ -15,7 +27,7 @@ function initPromoBar() {
         promoEl.style.transform = 'translateX(20px)';
 
         setTimeout(() => {
-            currentPromo = (currentPromo + 1) % promoMessages.length;
+            currentPromo = nextPromoIndex(currentPromo, promoMessages.length);
             promoEl.textContent = promoMessages[currentPromo];
             promoEl.style.opacity = '1';
             promoEl.style.transform = 'translateX(0)';
@@ -28,6 +40,9 @@ function initPromoBar() {
     promoEl.style.transform = 'translateX(0)';
     setInterval(updatePromo, 3000);
 }
+
+// Browser only from here (the file can also be loaded by tests in Node)
+if (typeof document !== 'undefined') {
 
 // Initialize on DOM ready
 if (document.readyState === 'loading') {
@@ -165,15 +180,19 @@ if (document.readyState === 'loading') {
     });
 })();
 
+}
+
 // Back button: Navigate to previous page or homepage
 function goBack() {
-    if (document.referrer && new URL(document.referrer).host === window.location.host) {
+    if (referrerIsSameSite(document.referrer, window.location.host)) {
         window.history.back();
     } else {
         window.location.href = '/';
     }
     return false;
 }
+
+if (typeof document !== 'undefined') {
 
 // Sommelier chat widget: Floating button, dialog, and page integration
 (function() {
@@ -230,3 +249,9 @@ function goBack() {
         }
     });
 })();
+
+}
+
+if (typeof module !== "undefined") {
+    module.exports = { nextPromoIndex, referrerIsSameSite };
+}

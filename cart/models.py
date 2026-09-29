@@ -1,3 +1,1 @@
-from django.db import models
-
-# Create your models here.
+"""No models: the cart is stored in the session (see cart/cart.py)."""

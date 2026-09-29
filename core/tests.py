@@ -123,7 +123,7 @@ class UploadMediaCommandTests(TestCase):
         (self.media_root / "wines" / "image_3.jpg").write_bytes(b"new")
 
     def test_uploads_files_with_same_names(self):
-        """US-09: files are uploaded under the exact names the database uses."""
+        """US-09: files are uploaded under the names the database uses."""
         with override_settings(
             STORAGES=IN_MEMORY_STORAGES, MEDIA_ROOT=self.media_root
         ):
@@ -265,9 +265,13 @@ class ShippingPageTests(TestCase):
 
     def test_follows_changes_to_pricing(self):
         """US-27: changing orders.pricing changes the page."""
-        with patch.object(pricing, "DUBLIN_DELIVERY_COST", Decimal("6.50")), \
-                patch.object(pricing, "FREE_DELIVERY_THRESHOLD", Decimal("120.00")), \
-                patch.object(pricing, "BULK_DISCOUNT_MIN_BOTTLES", 12):
+        with (
+            patch.object(pricing, "DUBLIN_DELIVERY_COST", Decimal("6.50")),
+            patch.object(
+                pricing, "FREE_DELIVERY_THRESHOLD", Decimal("120.00")
+            ),
+            patch.object(pricing, "BULK_DISCOUNT_MIN_BOTTLES", 12),
+        ):
             response = self.client.get(reverse("shipping_returns"))
         self.assertContains(response, "€6.50")
         self.assertContains(response, "€120 or more")
@@ -321,7 +325,9 @@ class ContactFormTests(TestCase):
         """US-27: required fields show clear errors."""
         response = self.client.post(self.url, {"website": ""})
         self.assertContains(response, "Please tell us your name.")
-        self.assertContains(response, "Please choose what your message is about.")
+        self.assertContains(
+            response, "Please choose what your message is about."
+        )
         self.assertContains(response, "Please write your message.")
 
     def test_honeypot_blocks_submission(self):
@@ -335,7 +341,7 @@ class ContactFormTests(TestCase):
         self.assertEqual(len(mail.outbox), 0)
 
     def test_email_failure_is_logged_and_message_still_saved(self):
-        """US-27: if sending fails, the message is kept and the error logged."""
+        """US-27: if sending fails, the message is kept and it's logged."""
         with patch(
             "core.views.EmailMessage.send", side_effect=OSError("SMTP down")
         ), self.assertLogs("core.views", level="ERROR") as logs:
@@ -402,7 +408,8 @@ class SeoTests(TestCase):
         self.assertEqual(response["Content-Type"], "application/xml")
         content = response.content.decode()
         self.assertIn(reverse("wine_detail", args=[self.wine.slug]), content)
-        self.assertNotIn(reverse("wine_detail", args=[self.hidden.slug]), content)
+        hidden_url = reverse("wine_detail", args=[self.hidden.slug])
+        self.assertNotIn(hidden_url, content)
         self.assertIn("<lastmod>", content)
         for name in ["about", "faq", "shipping_returns", "privacy", "contact"]:
             self.assertIn(reverse(name), content)
@@ -419,11 +426,13 @@ class SeoTests(TestCase):
         )
         self.assertContains(
             response,
-            '<meta property="og:image" content="http://testserver/media/wines/image_1.jpg">',
+            '<meta property="og:image" '
+            'content="http://testserver/media/wines/image_1.jpg">',
         )
         self.assertContains(
             response,
-            f'<link rel="canonical" href="http://testserver{reverse("wine_detail", args=[self.wine.slug])}">',
+            '<link rel="canonical" href="http://testserver'
+            f'{reverse("wine_detail", args=[self.wine.slug])}">',
         )
 
     def test_pages_have_unique_titles_and_descriptions(self):
@@ -435,7 +444,8 @@ class SeoTests(TestCase):
             html = self.client.get(reverse(name)).content.decode()
             titles.add(html.split("<title>")[1].split("</title>")[0])
             descriptions.add(
-                html.split('<meta name="description" content="')[1].split('"')[0]
+                html.split('<meta name="description" content="')[1]
+                .split('"')[0]
             )
         self.assertEqual(len(titles), len(pages))
         self.assertEqual(len(descriptions), len(pages))
@@ -449,7 +459,9 @@ class ErrorPageTests(TestCase):
         response = self.client.get("/this-page-does-not-exist/")
         self.assertEqual(response.status_code, 404)
         self.assertTemplateUsed(response, "404.html")
-        self.assertContains(response, "This bottle's gone missing", status_code=404)
+        self.assertContains(
+            response, "This bottle's gone missing", status_code=404
+        )
         self.assertContains(response, reverse("wine_list"), status_code=404)
 
     def test_500_page_renders_without_context(self):

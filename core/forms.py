@@ -32,7 +32,9 @@ class ContactForm(forms.ModelForm):
                 "required": "Please enter your email so we can reply.",
                 "invalid": "Please enter a valid email address.",
             },
-            "subject": {"required": "Please choose what your message is about."},
+            "subject": {
+                "required": "Please choose what your message is about.",
+            },
             "message": {"required": "Please write your message."},
         }
 

@@ -4,9 +4,13 @@ from products.models import Wine
 
 
 class Review(models.Model):
-    wine = models.ForeignKey(Wine, on_delete=models.CASCADE, related_name="reviews")
+    wine = models.ForeignKey(
+        Wine, on_delete=models.CASCADE, related_name="reviews"
+    )
     user = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="reviews"
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="reviews",
     )
     rating = models.IntegerField(choices=[(i, i) for i in range(1, 6)])
     title = models.CharField(max_length=100)

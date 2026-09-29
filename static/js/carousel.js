@@ -1,4 +1,34 @@
 // Reusable carousel function for handling scroll-snap carousels with prev/next buttons
+
+// Pure helpers (no DOM), exported for tests
+
+// Index of the item currently in view, from the scroll position
+function carouselIndex(scrollLeft, itemWidth) {
+    return Math.round(scrollLeft / itemWidth);
+}
+
+// Prev is disabled on the first item, next on the last
+function carouselButtonState(index, itemCount) {
+    return {
+        prevDisabled: index === 0,
+        nextDisabled: index === itemCount - 1,
+    };
+}
+
+// Which dots are active: only the one matching the current item
+function carouselDotStates(dotCount, index) {
+    return Array.from({ length: dotCount }, (_, i) => i === index);
+}
+
+// Index to move to with the next / prev buttons, or null if at the end
+function nextCarouselIndex(index, itemCount) {
+    return index < itemCount - 1 ? index + 1 : null;
+}
+
+function prevCarouselIndex(index) {
+    return index > 0 ? index - 1 : null;
+}
+
 function initCarousel(carouselSelector, prevBtnSelector, nextBtnSelector, dotsSelector = null) {
     const carousel = document.querySelector(carouselSelector);
     const prevBtn = document.querySelector(prevBtnSelector);
@@ -14,27 +44,25 @@ function initCarousel(carouselSelector, prevBtnSelector, nextBtnSelector, dotsSe
 
     // Get current item index based on scroll position
     function getCurrentIndex() {
-        const scrollPosition = carousel.scrollLeft;
-        const itemWidth = getItemWidth();
-        return Math.round(scrollPosition / itemWidth);
+        return carouselIndex(carousel.scrollLeft, getItemWidth());
     }
 
     // Update active dot and button states based on carousel scroll position
     function updateCarouselState() {
         const currentIndex = getCurrentIndex();
-        const isFirst = currentIndex === 0;
-        const isLast = currentIndex === items.length - 1;
+        const buttons = carouselButtonState(currentIndex, items.length);
 
         // Update dot states if dots exist
         if (dots) {
+            const active = carouselDotStates(dots.length, currentIndex);
             dots.forEach((dot, index) => {
-                dot.classList.toggle('dot--active', index === currentIndex);
+                dot.classList.toggle('dot--active', active[index]);
             });
         }
 
         // Disable/enable prev and next buttons
-        prevBtn.disabled = isFirst;
-        nextBtn.disabled = isLast;
+        prevBtn.disabled = buttons.prevDisabled;
+        nextBtn.disabled = buttons.nextDisabled;
     }
 
     // Scroll to item at given index
@@ -46,17 +74,17 @@ function initCarousel(carouselSelector, prevBtnSelector, nextBtnSelector, dotsSe
 
     // Scroll to next item
     function nextItem() {
-        const currentIndex = getCurrentIndex();
-        if (currentIndex < items.length - 1) {
-            scrollToItem(currentIndex + 1);
+        const target = nextCarouselIndex(getCurrentIndex(), items.length);
+        if (target !== null) {
+            scrollToItem(target);
         }
     }
 
     // Scroll to previous item
     function prevItem() {
-        const currentIndex = getCurrentIndex();
-        if (currentIndex > 0) {
-            scrollToItem(currentIndex - 1);
+        const target = prevCarouselIndex(getCurrentIndex());
+        if (target !== null) {
+            scrollToItem(target);
         }
     }
 
@@ -83,6 +111,9 @@ function initCarousel(carouselSelector, prevBtnSelector, nextBtnSelector, dotsSe
     // Initialize carousel state on page load
     updateCarouselState();
 }
+
+// Browser only from here: set up the carousels on the page
+if (typeof document !== 'undefined') {
 
 // Initialize reviews carousel
 (function() {
@@ -119,3 +150,15 @@ function initCarousel(carouselSelector, prevBtnSelector, nextBtnSelector, dotsSe
     // Re-initialize on resize
     mediaQuery.addEventListener('change', initNewArrivalsCarousel);
 })();
+
+}
+
+if (typeof module !== "undefined") {
+    module.exports = {
+        carouselIndex,
+        carouselButtonState,
+        carouselDotStates,
+        nextCarouselIndex,
+        prevCarouselIndex,
+    };
+}

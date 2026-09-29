@@ -21,7 +21,9 @@ def wishlist_detail(request):
 @require_POST
 def wishlist_add(request, wine_id):
     wine = get_object_or_404(Wine, id=wine_id)
-    _, created = WishlistItem.objects.get_or_create(user=request.user, wine=wine)
+    _, created = WishlistItem.objects.get_or_create(
+        user=request.user, wine=wine
+    )
     if created:
         messages.success(request, f'"{wine.name}" added to your wishlist.')
     else:

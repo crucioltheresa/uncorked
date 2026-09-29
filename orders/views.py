@@ -1,7 +1,6 @@
 import logging
 
 import stripe
-import json
 from django.shortcuts import render, redirect, get_object_or_404
 from django.conf import settings
 from django.contrib import messages
@@ -128,9 +127,14 @@ def checkout(request):
 
 
 def order_success(request, order_number):
-    """Show order success page. Access controlled by user ownership or session."""
+    """
+    Show the order success page. Only the order's owner, or a guest with
+    the order number in their session, can see it.
+    """
     if request.user.is_authenticated:
-        order = get_object_or_404(Order, order_number=order_number, user=request.user)
+        order = get_object_or_404(
+            Order, order_number=order_number, user=request.user
+        )
     else:
         # Guest can only view if order_number is in their session
         if request.session.get("guest_order_number") != str(order_number):
@@ -143,7 +147,9 @@ def order_success(request, order_number):
 @login_required
 def order_detail(request, order_number):
     """View order details. User can only see their own orders."""
-    order = get_object_or_404(Order, order_number=order_number, user=request.user)
+    order = get_object_or_404(
+        Order, order_number=order_number, user=request.user
+    )
     return render(request, "orders/detail.html", {"order": order})
 
 

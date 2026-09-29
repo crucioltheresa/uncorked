@@ -7,7 +7,9 @@ from .utils import QUESTIONS, get_recommendations
 
 def quiz(request):
     return render(
-        request, "sommelier/quiz.html", {"questions_json": json.dumps(QUESTIONS)}
+        request,
+        "sommelier/quiz.html",
+        {"questions_json": json.dumps(QUESTIONS)},
     )
 
 

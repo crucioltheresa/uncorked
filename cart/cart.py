@@ -1,5 +1,4 @@
 from decimal import Decimal
-from django.conf import settings
 from orders.pricing import calculate_totals
 from products.models import Wine
 

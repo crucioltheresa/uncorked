@@ -1,5 +1,37 @@
 // Country Map: Handle country selection via SVG paths with tooltips and keyboard navigation
-(function() {
+
+// Pure helpers (no DOM), exported for tests
+
+// Lookup of ISO code -> country data (name, iso_code, wine_count)
+function buildIsoMap(countryData) {
+  const isoMap = {};
+  countryData.forEach(country => {
+    isoMap[country.iso_code] = country;
+  });
+  return isoMap;
+}
+
+// A country on the map is clickable only if we have wines from it
+function isCountryClickable(isoCode, isoMap) {
+  return Boolean(isoMap[isoCode]);
+}
+
+// Screen reader label for a clickable country
+function countryAriaLabel(countryInfo) {
+  return `${countryInfo.name}: ${countryInfo.wine_count} wines`;
+}
+
+// Tooltip wording: "1 wine" / "3 wines"
+function wineCountLabel(count) {
+  return `${count} wine${count !== 1 ? 's' : ''}`;
+}
+
+// Catalogue URL filtered by country
+function countryFilterUrl(wineListUrl, countryName) {
+  return `${wineListUrl}?country=${encodeURIComponent(countryName)}`;
+}
+
+if (typeof document !== 'undefined') (function() {
   const svgPaths = document.querySelectorAll('.world-map__country');
   const countriesDataEl = document.getElementById('countriesData');
 
@@ -9,19 +41,16 @@
   const countryData = JSON.parse(countriesDataEl.textContent);
 
   // Create lookup map for ISO code -> country data
-  const isoMap = {};
-  countryData.forEach(country => {
-    isoMap[country.iso_code] = country;
-  });
+  const isoMap = buildIsoMap(countryData);
 
   // Add hover/focus interactions to SVG paths
   svgPaths.forEach(path => {
     const isoCode = path.id;
     const countryInfo = isoMap[isoCode];
 
-    if (countryInfo) {
+    if (isCountryClickable(isoCode, isoMap)) {
       path.classList.add('world-map__country--has-wines');
-      path.setAttribute('aria-label', `${countryInfo.name}: ${countryInfo.wine_count} wines`);
+      path.setAttribute('aria-label', countryAriaLabel(countryInfo));
       path.setAttribute('tabindex', '0');
 
       // Hover: show tooltip
@@ -72,7 +101,7 @@
     tooltipEl.className = 'world-map-tooltip';
     tooltipEl.innerHTML = `
       <strong>${countryInfo.name}</strong><br>
-      ${countryInfo.wine_count} wine${countryInfo.wine_count !== 1 ? 's' : ''}
+      ${wineCountLabel(countryInfo.wine_count)}
     `;
     document.body.appendChild(tooltipEl);
 
@@ -93,6 +122,16 @@
   // Navigate to wines filtered by country
   function navigateToCountry(countryName) {
     const wineListUrl = document.querySelector('a[href*="/wines/"]')?.href || '/wines/';
-    window.location.href = `${wineListUrl}?country=${encodeURIComponent(countryName)}`;
+    window.location.href = countryFilterUrl(wineListUrl, countryName);
   }
 })();
+
+if (typeof module !== "undefined") {
+  module.exports = {
+    buildIsoMap,
+    isCountryClickable,
+    countryAriaLabel,
+    wineCountLabel,
+    countryFilterUrl,
+  };
+}

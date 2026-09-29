@@ -1,6 +1,7 @@
 from django import forms
+from django.contrib.auth.forms import AdminUserCreationForm, UserChangeForm
 from orders.pricing import DELIVERY_COUNTRY, normalise_eircode
-from .models import UserProfile
+from .models import CustomUser, UserProfile
 
 
 class ProfileForm(forms.ModelForm):
@@ -11,13 +12,24 @@ class ProfileForm(forms.ModelForm):
 
     class Meta:
         model = UserProfile
-        fields = ["full_name", "email", "address_line1", "address_line2", "city", "postcode"]
+        fields = [
+            "full_name",
+            "email",
+            "address_line1",
+            "address_line2",
+            "city",
+            "postcode",
+        ]
         labels = {"postcode": "Eircode"}
         widgets = {
             "full_name": forms.TextInput(attrs={"placeholder": "Full Name"}),
             "email": forms.EmailInput(attrs={"placeholder": "Email Address"}),
-            "address_line1": forms.TextInput(attrs={"placeholder": "Address Line 1"}),
-            "address_line2": forms.TextInput(attrs={"placeholder": "Address Line 2 (optional)"}),
+            "address_line1": forms.TextInput(
+                attrs={"placeholder": "Address Line 1"}
+            ),
+            "address_line2": forms.TextInput(
+                attrs={"placeholder": "Address Line 2 (optional)"}
+            ),
             "city": forms.TextInput(attrs={"placeholder": "City"}),
             "postcode": forms.TextInput(
                 attrs={
@@ -43,3 +55,18 @@ class ProfileForm(forms.ModelForm):
     def save(self, commit=True):
         self.instance.country = DELIVERY_COUNTRY
         return super().save(commit=commit)
+
+
+class CustomUserCreationForm(AdminUserCreationForm):
+    """Admin "add user" form for the custom user model."""
+
+    class Meta(AdminUserCreationForm.Meta):
+        model = CustomUser
+        fields = ("email", "username")
+
+
+class CustomUserChangeForm(UserChangeForm):
+    """Admin "change user" form for the custom user model."""
+
+    class Meta(UserChangeForm.Meta):
+        model = CustomUser

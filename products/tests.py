@@ -134,7 +134,7 @@ class CountriesContextProcessorTests(TestCase):
         create_test_wines()
 
     def test_context_processor_provides_countries(self):
-        """US-29: only countries with wines are listed, alphabetically, with counts."""
+        """US-29: only countries with wines are listed, A-Z, with counts."""
         response = self.client.get(reverse('wine_list'))
         countries = response.context['countries']
 
@@ -189,7 +189,9 @@ class CountryFilterTests(TestCase):
     def test_country_filter_case_insensitive(self):
         """US-29: country filter ignores letter case."""
         for value in ['france', 'FRANCE', 'FrAnCe']:
-            response = self.client.get(reverse('wine_list'), {'country': value})
+            response = self.client.get(
+                reverse('wine_list'), {'country': value}
+            )
             self.assertEqual(response.context['wines'].paginator.count, 2)
 
     def test_country_filter_stacks_with_type_filter(self):
@@ -244,7 +246,9 @@ class WineSearchTests(TestCase):
 
     def test_search_no_results(self):
         """US-08: search with no matches shows a friendly message."""
-        response = self.client.get(reverse('wine_list'), {'q': 'NonexistentWine'})
+        response = self.client.get(
+            reverse('wine_list'), {'q': 'NonexistentWine'}
+        )
         wines = response.context['wines']
 
         self.assertEqual(wines.paginator.count, 0)
@@ -534,15 +538,17 @@ class ProductManagementTests(TestCase):
     def test_admin_links_shown_only_to_superusers(self):
         """US-09: edit, delete and add links appear only for superusers."""
         detail_url = reverse("wine_detail", args=[self.wine.slug])
+        list_url = reverse("wine_list")
+        profile_url = reverse("profile")
         self.client.force_login(self.customer)
         self.assertNotContains(self.client.get(detail_url), self.edit_url)
-        self.assertNotContains(self.client.get(reverse("wine_list")), self.edit_url)
-        self.assertNotContains(self.client.get(reverse("profile")), self.add_url)
+        self.assertNotContains(self.client.get(list_url), self.edit_url)
+        self.assertNotContains(self.client.get(profile_url), self.add_url)
 
         self.client.force_login(self.admin)
         self.assertContains(self.client.get(detail_url), self.delete_url)
-        self.assertContains(self.client.get(reverse("wine_list")), self.edit_url)
-        self.assertContains(self.client.get(reverse("profile")), self.add_url)
+        self.assertContains(self.client.get(list_url), self.edit_url)
+        self.assertContains(self.client.get(profile_url), self.add_url)
 
     def test_uploads_use_in_memory_storage_in_tests(self):
         """US-09: tests never upload to Cloudinary."""

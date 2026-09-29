@@ -22,7 +22,9 @@ STORE_CONTACT_EMAIL = "uncorked.store@gmail.com"
 
 
 def homepage(request):
-    featured_wines = Wine.objects.filter(is_featured=True, is_available=True)[:8]
+    featured_wines = Wine.objects.filter(
+        is_featured=True, is_available=True
+    )[:8]
     countries = get_countries_with_wine_counts()
 
     return render(
@@ -43,7 +45,9 @@ def newsletter_signup(request):
         except ValidationError:
             messages.error(request, "Please enter a valid email address.")
         else:
-            _, created = NewsletterSubscriber.objects.get_or_create(email=email)
+            _, created = NewsletterSubscriber.objects.get_or_create(
+                email=email
+            )
             if created:
                 messages.success(request, "Thanks for subscribing!")
             else:
@@ -106,14 +110,18 @@ def _send_contact_emails(contact):
     emails = [
         EmailMessage(
             subject=f"New contact message: {contact.get_subject_display()}",
-            body=render_to_string("core/email/contact_notification.txt", context),
+            body=render_to_string(
+                "core/email/contact_notification.txt", context
+            ),
             from_email=settings.DEFAULT_FROM_EMAIL,
             to=[settings.DEFAULT_FROM_EMAIL],
             reply_to=[contact.email],
         ),
         EmailMessage(
             subject="We've got your message - Uncorked",
-            body=render_to_string("core/email/contact_confirmation.txt", context),
+            body=render_to_string(
+                "core/email/contact_confirmation.txt", context
+            ),
             from_email=settings.DEFAULT_FROM_EMAIL,
             to=[contact.email],
         ),
@@ -140,7 +148,8 @@ def contact(request):
                 _send_contact_emails(contact_message)
             messages.success(
                 request,
-                "Thanks for getting in touch! We'll reply within two working days.",
+                "Thanks for getting in touch! "
+                "We'll reply within two working days.",
             )
             return redirect("contact")
         messages.error(request, "Please correct the errors below.")

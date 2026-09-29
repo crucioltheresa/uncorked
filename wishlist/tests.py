@@ -53,7 +53,9 @@ class AddToWishlistTests(TestCase):
             response, reverse("wine_detail", args=[self.wine.slug])
         )
         self.assertTrue(
-            WishlistItem.objects.filter(user=self.user, wine=self.wine).exists()
+            WishlistItem.objects.filter(
+                user=self.user, wine=self.wine
+            ).exists()
         )
 
     def test_duplicate_shows_info_message(self):
@@ -61,7 +63,9 @@ class AddToWishlistTests(TestCase):
         self.client.login(username="test@example.com", password="testpass123")
         self.client.post(self.url)
         response = self.client.post(self.url, follow=True)
-        self.assertEqual(WishlistItem.objects.filter(user=self.user).count(), 1)
+        self.assertEqual(
+            WishlistItem.objects.filter(user=self.user).count(), 1
+        )
         self.assertContains(response, "is already in your wishlist")
 
 
@@ -175,18 +179,21 @@ class FavouriteStarTests(TestCase):
         self.toggle_url = reverse("wishlist_toggle", args=[self.other.id])
 
     def test_catalogue_shows_filled_and_outline_stars(self):
-        """US-16: wishlisted wines have a filled, pressed star; others don't."""
+        """US-16: favourites get a filled, pressed star; others don't."""
         self.client.force_login(self.user)
         response = self.client.get(reverse("wine_list"))
         self.assertContains(
             response,
-            'aria-pressed="true" aria-label="Remove Liked Red from favourites"',
+            'aria-pressed="true" '
+            'aria-label="Remove Liked Red from favourites"',
         )
         self.assertContains(
             response,
             'aria-pressed="false" aria-label="Add Other White to favourites"',
         )
-        self.assertContains(response, "favourite-star__button--active", count=1)
+        self.assertContains(
+            response, "favourite-star__button--active", count=1
+        )
         self.assertContains(response, "bi bi-star-fill", count=1)
 
     def test_homepage_new_arrivals_show_stars(self):
@@ -202,11 +209,15 @@ class FavouriteStarTests(TestCase):
         response = self.client.post(self.toggle_url, {"next": next_url})
         self.assertRedirects(response, next_url)
         self.assertTrue(
-            WishlistItem.objects.filter(user=self.user, wine=self.other).exists()
+            WishlistItem.objects.filter(
+                user=self.user, wine=self.other
+            ).exists()
         )
         self.client.post(self.toggle_url, {"next": next_url})
         self.assertFalse(
-            WishlistItem.objects.filter(user=self.user, wine=self.other).exists()
+            WishlistItem.objects.filter(
+                user=self.user, wine=self.other
+            ).exists()
         )
 
     def test_toggle_returns_json_for_fetch(self):
@@ -347,7 +358,9 @@ class FavouritesPageTests(TestCase):
         )
         self.assertRedirects(response, reverse("wishlist_detail"))
         self.assertFalse(
-            WishlistItem.objects.filter(user=self.user, wine=self.wine).exists()
+            WishlistItem.objects.filter(
+                user=self.user, wine=self.wine
+            ).exists()
         )
 
     def test_remove_returns_json_for_fetch_and_never_re_adds(self):
@@ -360,7 +373,9 @@ class FavouritesPageTests(TestCase):
             self.assertFalse(data["in_wishlist"])
         self.assertEqual(data["count"], 2)
         self.assertFalse(
-            WishlistItem.objects.filter(user=self.user, wine=self.wine).exists()
+            WishlistItem.objects.filter(
+                user=self.user, wine=self.wine
+            ).exists()
         )
 
     def test_empty_state_when_no_favourites(self):
@@ -410,7 +425,8 @@ class WineDetailFavouriteButtonTests(TestCase):
         response = self.client.get(self.url)
         self.assertContains(
             response,
-            'aria-pressed="true" aria-label="Remove Detail Red from favourites"',
+            'aria-pressed="true" '
+            'aria-label="Remove Detail Red from favourites"',
         )
         self.assertContains(
             response, '<i class="bi bi-x-lg" aria-hidden="true"></i>',
@@ -430,6 +446,8 @@ class WineDetailFavouriteButtonTests(TestCase):
             toggle, {"quantity": 1}, HTTP_REFERER=page
         )
         self.assertRedirects(response, page, fetch_redirect_response=False)
-        self.assertContains(self.client.get(self.url), "Remove from favourites")
+        self.assertContains(
+            self.client.get(self.url), "Remove from favourites"
+        )
         self.client.post(toggle, {"quantity": 1})
         self.assertContains(self.client.get(self.url), "Add to favourites")

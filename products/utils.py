@@ -1,4 +1,4 @@
-from django.db.models import Count, Q
+from django.db.models import Count
 from .models import Wine
 
 COUNTRY_ISO_CODE_MAP = {

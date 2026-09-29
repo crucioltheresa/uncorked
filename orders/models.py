@@ -14,7 +14,9 @@ class Order(models.Model):
         ("cancelled", "Cancelled"),
     ]
 
-    order_number = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
+    order_number = models.UUIDField(
+        default=uuid.uuid4, unique=True, editable=False
+    )
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
@@ -23,7 +25,9 @@ class Order(models.Model):
         related_name="orders",
     )
     stripe_payment_intent = models.CharField(max_length=255, blank=True)
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="pending")
+    status = models.CharField(
+        max_length=20, choices=STATUS_CHOICES, default="pending"
+    )
     full_name = models.CharField(max_length=200)
     email = models.EmailField()
     address_line1 = models.CharField(max_length=255)
@@ -53,7 +57,9 @@ class Order(models.Model):
 
 
 class OrderItem(models.Model):
-    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name="items")
+    order = models.ForeignKey(
+        Order, on_delete=models.CASCADE, related_name="items"
+    )
     wine = models.ForeignKey(Wine, on_delete=models.PROTECT)
     quantity = models.IntegerField()
     price_at_purchase = models.DecimalField(max_digits=6, decimal_places=2)

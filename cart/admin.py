@@ -1,3 +1,1 @@
-from django.contrib import admin
-
-# Register your models here.
+"""No admin registrations for the cart app: the cart lives in the session."""

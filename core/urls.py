@@ -6,7 +6,11 @@ from .sitemaps import SITEMAPS
 
 urlpatterns = [
     path("", views.homepage, name="homepage"),
-    path("newsletter/signup/", views.newsletter_signup, name="newsletter_signup"),
+    path(
+        "newsletter/signup/",
+        views.newsletter_signup,
+        name="newsletter_signup",
+    ),
     path("favicon.ico", views.favicon, name="favicon"),
     path("about/", views.about, name="about"),
     path("faq/", views.faq, name="faq"),

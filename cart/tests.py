@@ -171,7 +171,7 @@ class CartPageLayoutTests(TestCase):
         self.assertContains(response, self.wine.image.url)
 
     def test_cart_totals_without_discount(self):
-        """US-11: below 8 bottles: subtotal, no discount, delivery at checkout."""
+        """US-11: under 8 bottles: subtotal, no discount, delivery later."""
         self.add(2)
         response = self.client.get(reverse("cart_detail"))
         totals = response.context["totals"]
@@ -308,5 +308,6 @@ class CartPreviewTests(TestCase):
         self.assertContains(response, f'data-url="{self.url}"')
         self.assertContains(
             response,
-            'id="cartPreviewPanel" role="region" aria-label="Cart preview" hidden',
+            'id="cartPreviewPanel" role="region" '
+            'aria-label="Cart preview" hidden',
         )

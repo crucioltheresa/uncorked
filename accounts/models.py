@@ -25,7 +25,9 @@ class UserProfile(models.Model):
     Linked one-to-one to CustomUser, created automatically on user creation.
     """
 
-    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name="profile")
+    user = models.OneToOneField(
+        CustomUser, on_delete=models.CASCADE, related_name="profile"
+    )
     full_name = models.CharField(max_length=200, blank=True)
     email = models.EmailField(blank=True)
     address_line1 = models.CharField(max_length=255, blank=True)
