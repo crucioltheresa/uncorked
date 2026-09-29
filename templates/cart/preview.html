@@ -1,0 +1,46 @@
+{% comment %}
+Nav cart preview fragment (loaded by cart_preview.js). Shows up to four
+items, then "+ N more", with the subtotal and any bulk discount.
+{% endcomment %}
+{% if items %}
+<ul class="cart-preview__list">
+    {% for item in items %}
+    <li class="cart-preview__item">
+        {% if item.wine.image %}
+        <img src="{{ item.wine.image.url }}" alt="" class="cart-preview__thumb" width="48" height="48" loading="lazy">
+        {% else %}
+        <span class="cart-preview__thumb cart-preview__thumb--empty" aria-hidden="true"></span>
+        {% endif %}
+        <span class="cart-preview__info">
+            <a href="{% url 'wine_detail' item.wine.slug %}" class="cart-preview__name">{{ item.wine.name }}</a>
+            <span class="cart-preview__qty">Qty {{ item.quantity }}</span>
+        </span>
+        <span class="cart-preview__line-total">€{{ item.total_price }}</span>
+    </li>
+    {% endfor %}
+</ul>
+{% if more_count %}
+<p class="cart-preview__more">+ {{ more_count }} more</p>
+{% endif %}
+<dl class="cart-preview__totals">
+    <div class="cart-preview__row">
+        <dt>Subtotal</dt>
+        <dd>€{{ totals.subtotal }}</dd>
+    </div>
+    {% if totals.discount %}
+    <div class="cart-preview__row cart-preview__row--discount">
+        <dt>Discount ({{ discount_bottles }}+ bottles)</dt>
+        <dd>−€{{ totals.discount }}</dd>
+    </div>
+    {% endif %}
+</dl>
+<div class="cart-preview__actions">
+    <a href="{% url 'cart_detail' %}" class="btn btn--outline btn--sm">View cart</a>
+    <a href="{% url 'checkout' %}" class="btn btn--primary btn--sm">Checkout</a>
+</div>
+{% else %}
+<div class="cart-preview__empty">
+    <p>Your cart is empty.</p>
+    <a href="{% url 'wine_list' %}" class="btn btn--primary btn--sm">Browse our wines</a>
+</div>
+{% endif %}

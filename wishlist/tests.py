@@ -273,3 +273,163 @@ class FavouriteStarTests(TestCase):
             if "wishlist_wishlistitem" in q["sql"]
         ]
         self.assertEqual(len(wishlist_queries), 1)
+
+
+class FavouritesPageTests(TestCase):
+    """US-17: The favourites page: quantity, add to cart and remove."""
+
+    def setUp(self):
+        self.client = Client()
+        self.user = User.objects.create_user(
+            email="fav@example.com", username="favuser", password="x"
+        )
+        region = Region.objects.create(name="Rioja", country="Spain")
+        self.wine = Wine.objects.create(
+            name="Fav Red", producer="Test", region=region,
+            wine_type="red", abv=13.5, price="12.00", stock=6,
+        )
+        self.gone = Wine.objects.create(
+            name="Gone White", producer="Test", region=region,
+            wine_type="white", abv=12.0, price="10.00", stock=5,
+            is_available=False,
+        )
+        self.empty = Wine.objects.create(
+            name="Sold Out Rose", producer="Test", region=region,
+            wine_type="rose", abv=12.0, price="10.00", stock=0,
+        )
+        for wine in [self.wine, self.gone, self.empty]:
+            WishlistItem.objects.create(user=self.user, wine=wine)
+        self.client.force_login(self.user)
+
+    def test_page_shows_stepper_add_and_remove(self):
+        """US-17: each favourite has a stepper, add to cart and remove."""
+        response = self.client.get(reverse("wishlist_detail"))
+        self.assertContains(
+            response,
+            '<input type="number" name="quantity" value="1" min="1" max="6" '
+            'aria-label="Quantity of Fav Red">',
+            html=True,
+        )
+        self.assertContains(
+            response, f'action="{reverse("cart_add", args=[self.wine.id])}"'
+        )
+        self.assertContains(
+            response,
+            f'action="{reverse("wishlist_remove", args=[self.wine.id])}"',
+        )
+        self.assertContains(response, "Remove from favourites", count=3)
+
+    def test_add_to_cart_uses_chosen_quantity(self):
+        """US-17: adding from favourites adds the quantity chosen."""
+        self.client.post(
+            reverse("cart_add", args=[self.wine.id]), {"quantity": 4}
+        )
+        cart = self.client.session["cart"]
+        self.assertEqual(cart[str(self.wine.id)]["quantity"], 4)
+
+    def test_unavailable_and_out_of_stock_disable_add_to_cart(self):
+        """US-17: unavailable or out-of-stock wines can't be added."""
+        response = self.client.get(reverse("wishlist_detail"))
+        self.assertContains(response, "No longer available")
+        self.assertContains(response, "Out of stock")
+        self.assertContains(
+            response,
+            '<button type="submit" class="wine-card__add-btn" disabled '
+            'aria-disabled="true">Add to Cart</button>',
+            count=2,
+            html=True,
+        )
+
+    def test_remove_from_favourites(self):
+        """US-17: removing takes the wine out of the favourites."""
+        response = self.client.post(
+            reverse("wishlist_remove", args=[self.wine.id])
+        )
+        self.assertRedirects(response, reverse("wishlist_detail"))
+        self.assertFalse(
+            WishlistItem.objects.filter(user=self.user, wine=self.wine).exists()
+        )
+
+    def test_remove_returns_json_for_fetch_and_never_re_adds(self):
+        """US-17: remove answers fetch with JSON and is safe to repeat."""
+        url = reverse("wishlist_remove", args=[self.wine.id])
+        for _ in range(2):
+            data = self.client.post(
+                url, HTTP_X_REQUESTED_WITH="XMLHttpRequest"
+            ).json()
+            self.assertFalse(data["in_wishlist"])
+        self.assertEqual(data["count"], 2)
+        self.assertFalse(
+            WishlistItem.objects.filter(user=self.user, wine=self.wine).exists()
+        )
+
+    def test_empty_state_when_no_favourites(self):
+        """US-17: with no favourites, the empty message shows."""
+        WishlistItem.objects.filter(user=self.user).delete()
+        response = self.client.get(reverse("wishlist_detail"))
+        self.assertContains(response, "saved any favourites yet.")
+        self.assertNotContains(response, "data-favourite-card")
+
+
+class WineDetailFavouriteButtonTests(TestCase):
+    """US-16: The wine page's add / remove favourites button."""
+
+    def setUp(self):
+        self.client = Client()
+        self.user = User.objects.create_user(
+            email="detail@example.com", username="detailuser", password="x"
+        )
+        region = Region.objects.create(name="Rioja", country="Spain")
+        self.wine = Wine.objects.create(
+            name="Detail Red", producer="Test", region=region,
+            wine_type="red", abv=13.5, price="12.00", stock=6,
+        )
+        self.url = reverse("wine_detail", args=[self.wine.slug])
+        self.client.force_login(self.user)
+
+    def test_shows_add_when_not_a_favourite(self):
+        """US-16: not a favourite: star icon and "Add to favourites"."""
+        response = self.client.get(self.url)
+        self.assertContains(
+            response,
+            'aria-pressed="false" aria-label="Add Detail Red to favourites"',
+        )
+        self.assertContains(
+            response,
+            "<span data-favourite-text>Add to favourites</span>",
+            html=True,
+        )
+        self.assertContains(
+            response,
+            f'formaction="{reverse("wishlist_toggle", args=[self.wine.id])}"',
+        )
+
+    def test_shows_remove_when_a_favourite(self):
+        """US-16: a favourite: X icon and "Remove from favourites"."""
+        WishlistItem.objects.create(user=self.user, wine=self.wine)
+        response = self.client.get(self.url)
+        self.assertContains(
+            response,
+            'aria-pressed="true" aria-label="Remove Detail Red from favourites"',
+        )
+        self.assertContains(
+            response, '<i class="bi bi-x-lg" aria-hidden="true"></i>',
+            html=True,
+        )
+        self.assertContains(
+            response,
+            "<span data-favourite-text>Remove from favourites</span>",
+            html=True,
+        )
+
+    def test_toggling_switches_the_button(self):
+        """US-16: the button adds, then removes, returning to the page."""
+        toggle = reverse("wishlist_toggle", args=[self.wine.id])
+        page = f"http://testserver{self.url}"
+        response = self.client.post(
+            toggle, {"quantity": 1}, HTTP_REFERER=page
+        )
+        self.assertRedirects(response, page, fetch_redirect_response=False)
+        self.assertContains(self.client.get(self.url), "Remove from favourites")
+        self.client.post(toggle, {"quantity": 1})
+        self.assertContains(self.client.get(self.url), "Add to favourites")

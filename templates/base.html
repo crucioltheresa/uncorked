@@ -51,16 +51,21 @@
                         <i class="bi bi-person-fill"></i>
                     </a>
                     {% else %}
-                    <a href="{% url 'account_login' %}" class="nav__icon" title="Sign In">
+                    <a href="{% url 'account_login' %}" class="nav__icon" title="Log in or sign up" aria-label="Log in or sign up" data-auth-open="login">
                         <i class="bi bi-person"></i>
                     </a>
                     {% endif %}
-                    <a href="{% url 'cart_detail' %}" class="nav__icon">
-                        <i class="bi bi-bag"></i>
-                        {% if cart_bottle_count %}
-                        <span class="nav__icon-count" aria-label="{{ cart_bottle_count }} bottle{{ cart_bottle_count|pluralize }} in your cart">{{ cart_bottle_count }}</span>
-                        {% endif %}
-                    </a>
+                    <div class="cart-preview" data-cart-preview data-url="{% url 'cart_preview' %}">
+                        <a href="{% url 'cart_detail' %}" class="nav__icon cart-preview__trigger"
+                           aria-label="Your cart{% if cart_bottle_count %}, {{ cart_bottle_count }} bottle{{ cart_bottle_count|pluralize }}{% endif %}" aria-controls="cartPreviewPanel" aria-expanded="false">
+                            <i class="bi bi-bag" aria-hidden="true"></i>
+                            {% if cart_bottle_count %}
+                            <span class="nav__icon-count" aria-label="{{ cart_bottle_count }} bottle{{ cart_bottle_count|pluralize }} in your cart">{{ cart_bottle_count }}</span>
+                            {% endif %}
+                        </a>
+                        {# Filled from /cart/preview/ on first hover or focus #}
+                        <div class="cart-preview__panel" id="cartPreviewPanel" role="region" aria-label="Cart preview" hidden></div>
+                    </div>
                 </div>
             </div>
             
@@ -192,6 +197,13 @@
     <script src="{% static 'js/main.js' %}"></script>
     {% endblock %}
     <script src="{% static 'js/wishlist.js' %}"></script>
+    <script src="{% static 'js/cart_preview.js' %}"></script>
+    {% if not request.user.is_authenticated %}
+    {% include "account/includes/auth_modal.html" %}
+    {% endif %}
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    {% if not request.user.is_authenticated %}
+    <script src="{% static 'js/auth_modal.js' %}"></script>
+    {% endif %}
 </body>
 </html>

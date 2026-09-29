@@ -10,7 +10,10 @@ from .models import WishlistItem
 
 @login_required
 def wishlist_detail(request):
-    items = WishlistItem.objects.filter(user=request.user).select_related("wine")
+    """The user's favourites, each with a quantity and add-to-cart."""
+    items = WishlistItem.objects.filter(user=request.user).select_related(
+        "wine", "wine__region"
+    )
     return render(request, "wishlist/wishlist.html", {"items": items})
 
 
@@ -29,9 +32,18 @@ def wishlist_add(request, wine_id):
 @login_required
 @require_POST
 def wishlist_remove(request, wine_id):
+    """Remove a wine (always removes, unlike the toggle). JSON for fetch."""
     wine = get_object_or_404(Wine, id=wine_id)
     WishlistItem.objects.filter(user=request.user, wine=wine).delete()
-    messages.success(request, f'"{wine.name}" removed from your wishlist.')
+    message = f'"{wine.name}" removed from your favourites.'
+    if _wants_json(request):
+        return JsonResponse({
+            "wine_id": wine.id,
+            "in_wishlist": False,
+            "message": message,
+            "count": WishlistItem.objects.filter(user=request.user).count(),
+        })
+    messages.success(request, message)
     return redirect("wishlist_detail")
 
 

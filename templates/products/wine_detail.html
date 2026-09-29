@@ -76,12 +76,26 @@
                                 <button type="button" onclick="this.previousElementSibling.stepUp()">+</button>
                             </div>
                             {% if request.user.is_authenticated %}
-                            <button type="submit" formaction="{% url 'wishlist_add' wine.id %}" class="wine-detail__wishlist">
-                                <i class="bi bi-star"></i> Add to Favourites
+                            {% if wine.id in wishlist_wine_ids %}
+                            <button type="submit" formaction="{% url 'wishlist_toggle' wine.id %}"
+                                    class="wine-detail__wishlist wine-detail__wishlist--active"
+                                    data-favourite-toggle="detail" data-wine-name="{{ wine.name }}"
+                                    aria-pressed="true" aria-label="Remove {{ wine.name }} from favourites">
+                                <i class="bi bi-x-lg" aria-hidden="true"></i>
+                                <span data-favourite-text>Remove from favourites</span>
                             </button>
                             {% else %}
+                            <button type="submit" formaction="{% url 'wishlist_toggle' wine.id %}"
+                                    class="wine-detail__wishlist"
+                                    data-favourite-toggle="detail" data-wine-name="{{ wine.name }}"
+                                    aria-pressed="false" aria-label="Add {{ wine.name }} to favourites">
+                                <i class="bi bi-star" aria-hidden="true"></i>
+                                <span data-favourite-text>Add to favourites</span>
+                            </button>
+                            {% endif %}
+                            {% else %}
                             <a href="{% url 'account_login' %}?next={{ request.path|urlencode }}" class="wine-detail__wishlist">
-                                <i class="bi bi-star"></i> Add to Favourites
+                                <i class="bi bi-star" aria-hidden="true"></i> Add to favourites
                             </a>
                             {% endif %}
                         </div>

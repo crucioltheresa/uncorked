@@ -1,35 +1,69 @@
 {% extends 'base.html' %}
 
-{% block title %}My Wishlist — Uncorked{% endblock %}
+{% block title %}My Favourites — Uncorked{% endblock %}
+{% block meta_description %}The wines you've saved to your Uncorked favourites.{% endblock %}
 
 {% block content %}
 <div class="wishlist">
-    <h1>My Wishlist</h1>
-    {% if items %}
-    <div class="wine-grid">
+    <h1 class="wishlist__title">My Favourites</h1>
+
+    <div class="wine-grid wishlist__grid" {% if not items %}hidden{% endif %}>
         {% for item in items %}
-        <div class="wine-card">
-            {% if item.wine.image %}
-            <img src="{{ item.wine.image.url }}" alt="{{ item.wine.name }}">
+        {% with wine=item.wine %}
+        <article class="wine-card wishlist__card" data-favourite-card>
+            <div class="wine-card__image">
+                {% if wine.image %}
+                <a href="{% url 'wine_detail' wine.slug %}">
+                    <img src="{{ wine.image.url }}" alt="{{ wine.name }}">
+                </a>
+                {% endif %}
+                <span class="badge badge--{{ wine.wine_type }} wine-card__badge">{{ wine.get_wine_type_display }}</span>
+            </div>
+            <div class="wine-card__top">
+                <h2 class="wine-card__name">
+                    <a href="{% url 'wine_detail' wine.slug %}">{{ wine.name }}</a>
+                </h2>
+                <span class="wine-card__price">€{{ wine.price }}</span>
+            </div>
+            <p class="wine-card__region">{{ wine.region }}{% if wine.vintage %} · {{ wine.vintage }}{% endif %}</p>
+
+            {% if not wine.is_available %}
+            <p class="wishlist__status wishlist__status--out">No longer available</p>
+            {% elif wine.stock < 1 %}
+            <p class="wishlist__status wishlist__status--out">Out of stock</p>
             {% endif %}
-            <h3><a href="{% url 'wine_detail' item.wine.slug %}">{{ item.wine.name }}</a></h3>
-            <p>{{ item.wine.region }}</p>
-            <p>€{{ item.wine.price }}</p>
-            <form method="POST" action="{% url 'cart_add' item.wine.id %}">
+
+            <form method="POST" action="{% url 'cart_add' wine.id %}">
                 {% csrf_token %}
-                <input type="hidden" name="quantity" value="1">
-                <button type="submit">Add to Cart</button>
+                <div class="wine-card__actions">
+                    {% if wine.is_available and wine.stock > 0 %}
+                    <div class="quantity-stepper">
+                        <button type="button" onclick="this.nextElementSibling.stepDown()" aria-label="Fewer bottles of {{ wine.name }}">−</button>
+                        <input type="number" name="quantity" value="1" min="1" max="{{ wine.stock }}" aria-label="Quantity of {{ wine.name }}">
+                        <button type="button" onclick="this.previousElementSibling.stepUp()" aria-label="More bottles of {{ wine.name }}">+</button>
+                    </div>
+                    <button type="submit" class="wine-card__add-btn">Add to Cart</button>
+                    {% else %}
+                    <button type="submit" class="wine-card__add-btn" disabled aria-disabled="true">Add to Cart</button>
+                    {% endif %}
+                </div>
             </form>
-            <form method="POST" action="{% url 'wishlist_remove' item.wine.id %}">
+
+            <form method="POST" action="{% url 'wishlist_remove' wine.id %}" class="wishlist__remove"
+                  data-favourite-form data-favourite-remove>
                 {% csrf_token %}
-                <button type="submit">Remove</button>
+                <button type="submit" class="wishlist__remove-btn" aria-label="Remove {{ wine.name }} from favourites">
+                    <i class="bi bi-x-lg" aria-hidden="true"></i> Remove from favourites
+                </button>
             </form>
-        </div>
+        </article>
+        {% endwith %}
         {% endfor %}
     </div>
-    {% else %}
-    <p>Your wishlist is empty.</p>
-    <a href="{% url 'wine_list' %}">Browse our wines</a>
-    {% endif %}
+
+    <div class="wishlist__empty" data-favourites-empty {% if items %}hidden{% endif %}>
+        <p>You haven't saved any favourites yet. Tap the star on any wine to keep it here.</p>
+        <a href="{% url 'wine_list' %}" class="btn btn--primary">Browse our wines</a>
+    </div>
 </div>
 {% endblock %}

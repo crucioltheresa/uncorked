@@ -1,8 +1,10 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.views.decorators.http import require_POST
+from django.views.decorators.cache import never_cache
+from django.views.decorators.http import require_GET, require_POST
 from django.contrib import messages
+from orders.pricing import BULK_DISCOUNT_MIN_BOTTLES
 from products.models import Wine
-from .cart import Cart
+from .cart import CART_SESSION_ID, Cart
 
 
 def cart_detail(request):
@@ -55,3 +57,30 @@ def cart_remove(request, wine_id):
     cart.remove(wine)
     messages.success(request, f'"{wine.name}" removed from your cart.')
     return redirect("cart_detail")
+
+
+PREVIEW_MAX_ITEMS = 4
+
+
+@never_cache
+@require_GET
+def cart_preview(request):
+    """
+    HTML fragment for the nav cart preview, loaded by cart_preview.js on
+    first hover or focus. Only ever reads this visitor's own session, and
+    doesn't create an empty cart for visitors who don't have one.
+    """
+    if not request.session.get(CART_SESSION_ID):
+        return render(request, "cart/preview.html", {"items": []})
+    cart = Cart(request)
+    items = list(cart)
+    return render(
+        request,
+        "cart/preview.html",
+        {
+            "items": items[:PREVIEW_MAX_ITEMS],
+            "more_count": max(0, len(items) - PREVIEW_MAX_ITEMS),
+            "totals": cart.get_totals(),
+            "discount_bottles": BULK_DISCOUNT_MIN_BOTTLES,
+        },
+    )

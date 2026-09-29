@@ -499,3 +499,150 @@ class PasswordResetEmailTests(TestCase):
         self.user.save()
         email = self.request_reset()
         self.assertIn("Hi Aoife,", email.body)
+
+
+AJAX = {"HTTP_X_REQUESTED_WITH": "XMLHttpRequest"}
+
+
+class AuthModalTests(TestCase):
+    """US-01 / US-02: Login and signup in a modal."""
+
+    def setUp(self):
+        cache.clear()
+        self.client = Client()
+        self.user = User.objects.create_user(
+            email="modal@uncorked-mail.ie",
+            username="modaluser",
+            password="Str0ngPass!23",
+        )
+        # create_user makes no allauth EmailAddress; login needs a verified one
+        EmailAddress.objects.update_or_create(
+            user=self.user,
+            email=self.user.email,
+            defaults={"verified": True, "primary": True},
+        )
+
+    def test_modal_markup_for_logged_out_users(self):
+        """US-01: logged-out pages include the modal and its script."""
+        response = self.client.get(reverse("wine_list"))
+        self.assertContains(response, 'id="authModal"')
+        self.assertContains(response, 'data-auth-form="login"')
+        self.assertContains(response, 'data-auth-form="signup"')
+        self.assertContains(response, "js/auth_modal.js")
+        self.assertContains(
+            response,
+            f'<a href="{reverse("account_login")}" class="nav__icon" '
+            'title="Log in or sign up" aria-label="Log in or sign up" '
+            'data-auth-open="login">',
+        )
+        self.assertContains(response, 'aria-describedby="signup-password2-error"')
+
+    def test_no_modal_for_logged_in_users(self):
+        """US-02: logged-in pages don't include the modal."""
+        self.client.force_login(self.user)
+        response = self.client.get(reverse("wine_list"))
+        self.assertNotContains(response, 'id="authModal"')
+        self.assertNotContains(response, "js/auth_modal.js")
+
+    def test_login_fetch_success_returns_location(self):
+        """US-02: a fetch login returns JSON with where to go next."""
+        response = self.client.post(reverse("account_login"), {
+            "login": "modal@uncorked-mail.ie",
+            "password": "Str0ngPass!23",
+            "next": "/wines/",
+        }, **AJAX)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["location"], "/wines/")
+        self.assertIn("_auth_user_id", self.client.session)
+
+    def test_login_fetch_error_returns_form_errors(self):
+        """US-02: a wrong password returns 400 with the error message."""
+        response = self.client.post(reverse("account_login"), {
+            "login": "modal@uncorked-mail.ie",
+            "password": "WrongPass!99",
+        }, **AJAX)
+        self.assertEqual(response.status_code, 400)
+        errors = response.json()["form"]["errors"]
+        self.assertIn(
+            "The email address and/or password you specified are not correct.",
+            errors,
+        )
+        self.assertNotIn("_auth_user_id", self.client.session)
+
+    def test_signup_fetch_success_points_to_verification(self):
+        """US-01: a fetch signup goes to "check your email" (verification)."""
+        response = self.client.post(reverse("account_signup"), {
+            "email": "newmodal@uncorked-mail.ie",
+            "password1": "Str0ngPass!23",
+            "password2": "Str0ngPass!23",
+        }, **AJAX)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.json()["location"],
+            reverse("account_email_verification_sent"),
+        )
+        self.assertTrue(
+            User.objects.filter(email="newmodal@uncorked-mail.ie").exists()
+        )
+
+    def test_signup_fetch_error_returns_field_errors(self):
+        """US-01: mismatched passwords return 400 with the field error."""
+        response = self.client.post(reverse("account_signup"), {
+            "email": "newmodal@uncorked-mail.ie",
+            "password1": "Str0ngPass!23",
+            "password2": "Different!456",
+        }, **AJAX)
+        self.assertEqual(response.status_code, 400)
+        fields = response.json()["form"]["fields"]
+        self.assertIn(
+            "You must type the same password each time.",
+            fields["password2"]["errors"],
+        )
+        self.assertFalse(
+            User.objects.filter(email="newmodal@uncorked-mail.ie").exists()
+        )
+
+    def test_full_pages_still_work(self):
+        """US-01 / US-02: the full login and signup pages still work."""
+        self.assertTemplateUsed(
+            self.client.get(reverse("account_login")), "account/login.html"
+        )
+        self.assertTemplateUsed(
+            self.client.get(reverse("account_signup")), "account/signup.html"
+        )
+        response = self.client.post(reverse("account_login"), {
+            "login": "modal@uncorked-mail.ie",
+            "password": "Str0ngPass!23",
+        })
+        self.assertRedirects(response, "/", fetch_redirect_response=False)
+        self.assertIn("_auth_user_id", self.client.session)
+
+    def test_login_message_does_not_show_username(self):
+        """US-02: the welcome message doesn't show the generated username."""
+        response = self.client.post(reverse("account_login"), {
+            "login": "modal@uncorked-mail.ie",
+            "password": "Str0ngPass!23",
+        }, follow=True)
+        self.assertContains(response, "Welcome back! You&#x27;re logged in.")
+        self.assertNotContains(response, "modaluser")
+
+    def test_logout_post_logs_out_and_redirects_home(self):
+        """US-02: logging out by POST ends the session and goes home."""
+        self.client.force_login(self.user)
+        response = self.client.post(reverse("account_logout"), follow=True)
+        self.assertRedirects(response, "/")
+        self.assertNotIn("_auth_user_id", self.client.session)
+        self.assertContains(response, "You&#x27;ve logged out. See you soon!")
+
+    def test_profile_logout_is_a_post_form(self):
+        """US-02: the profile's log out option is a POST form, not a link."""
+        self.client.force_login(self.user)
+        response = self.client.get(reverse("profile"))
+        self.assertContains(
+            response,
+            f'<form method="POST" action="{reverse("account_logout")}" '
+            'class="profile__logout">',
+        )
+        self.assertNotContains(
+            response, f'<a href="{reverse("account_logout")}"'
+        )
