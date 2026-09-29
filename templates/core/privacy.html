@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block title %}Privacy Policy — Uncorked{% endblock %}
+{% block meta_description %}How Uncorked collects, uses and protects your personal data, in plain language, and how to ask us to delete it.{% endblock %}
+{% block og_title %}Privacy Policy — Uncorked{% endblock %}
+
+{% block content %}
+<article class="static-page">
+    <h1>Privacy Policy</h1>
+    <p class="static-page__lead">
+        We only collect what we need to run the shop and get wine to your door,
+        and we never sell your data. Here's the plain-language version.
+    </p>
+
+    <h2>What we collect</h2>
+    <ul class="static-page__list">
+        <li><strong>Your account:</strong> your email address and password (stored securely, never readable by us), plus any delivery details you save to your profile.</li>
+        <li><strong>Your orders:</strong> your name, email, delivery address, Eircode and what you bought, so we can deliver it and keep proper records.</li>
+        <li><strong>The newsletter:</strong> your email address, if you sign up.</li>
+        <li><strong>The contact form:</strong> your name, email and message, so we can reply.</li>
+        <li><strong>Favourites and reviews:</strong> the wines you save and any reviews you write.</li>
+    </ul>
+
+    <h2>Payments</h2>
+    <p>
+        Card payments are handled by <strong>Stripe</strong>. Your card details go
+        straight to Stripe and never touch our servers. We only receive a
+        confirmation that the payment went through.
+    </p>
+
+    <h2>How we use it</h2>
+    <p>
+        To process and deliver your orders, send order and account emails, reply
+        to your messages and, if you've subscribed, send our newsletter. We keep
+        order records for as long as the law requires.
+    </p>
+
+    <h2>Your rights</h2>
+    <p>
+        You can ask to see, correct or delete your personal data at any time, and
+        unsubscribe from the newsletter whenever you like. To ask us to delete your
+        data, email <a href="mailto:{{ contact_email }}">{{ contact_email }}</a> from
+        the address you use with us. We'll confirm within 30 days.
+    </p>
+
+    <h2>Questions</h2>
+    <p>
+        Email us at <a href="mailto:{{ contact_email }}">{{ contact_email }}</a> or
+        use our <a href="{% url 'contact' %}">contact form</a>.
+    </p>
+</article>
+{% endblock %}

@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block title %}About Us — Uncorked{% endblock %}
+{% block meta_description %}Uncorked is a small independent wine shop in Dublin pouring natural, classic and everything-in-between wines from producers we love.{% endblock %}
+{% block og_title %}About Uncorked — a small wine shop in Dublin{% endblock %}
+{% block og_description %}Natural, classic and everything-in-between wines, chosen bottle by bottle in Dublin.{% endblock %}
+
+{% block content %}
+<article class="static-page">
+    <h1>About Uncorked</h1>
+    <p class="static-page__lead">
+        We're a small, independent wine shop in Dublin with one simple idea:
+        every bottle on our shelves should have a story worth telling.
+    </p>
+
+    <h2>What we pour</h2>
+    <p>
+        Natural wines with a bit of wildness, classics from iconic estates, and
+        plenty in between. We taste everything we sell, and we buy mostly from
+        small, independent growers who farm with care and make wine with as
+        little intervention as they can.
+    </p>
+
+    <h2>How we choose</h2>
+    <p>
+        No algorithms, no endless aisles. Just a short, well-loved list that
+        changes with the seasons. If a wine doesn't make us want a second glass,
+        it doesn't make the shelf.
+    </p>
+
+    <h2>Not sure where to start?</h2>
+    <p>
+        That's what we're here for. Take our <a href="{% url 'quiz_start' %}">wine quiz</a>,
+        chat with our sommelier using the button in the corner, or
+        <a href="{% url 'contact' %}">send us a message</a>. We love talking wine.
+    </p>
+
+    <p class="static-page__cta">
+        <a href="{% url 'wine_list' %}" class="btn btn--primary">Browse our wines</a>
+    </p>
+</article>
+{% endblock %}

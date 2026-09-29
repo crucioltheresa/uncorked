@@ -1,0 +1,32 @@
+{% comment %}
+Favourite star for a wine card image. Takes: wine.
+Logged in: a POST form that toggles the wine in the wishlist (works without
+JavaScript; wishlist.js sends it with fetch instead). Logged out: a link to
+log in and come back to this page.
+{% endcomment %}
+{% if request.user.is_authenticated %}
+<form method="POST" action="{% url 'wishlist_toggle' wine.id %}" class="favourite-star" data-favourite-form>
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{{ request.get_full_path }}">
+    {% if wine.id in wishlist_wine_ids %}
+    <button type="submit" class="favourite-star__button favourite-star__button--active"
+            aria-pressed="true" aria-label="Remove {{ wine.name }} from favourites"
+            data-wine-name="{{ wine.name }}">
+        <i class="bi bi-star-fill" aria-hidden="true"></i>
+    </button>
+    {% else %}
+    <button type="submit" class="favourite-star__button"
+            aria-pressed="false" aria-label="Add {{ wine.name }} to favourites"
+            data-wine-name="{{ wine.name }}">
+        <i class="bi bi-star" aria-hidden="true"></i>
+    </button>
+    {% endif %}
+</form>
+{% else %}
+<div class="favourite-star">
+    <a href="{% url 'account_login' %}?next={{ request.get_full_path|urlencode }}"
+       class="favourite-star__button" aria-label="Log in to add {{ wine.name }} to favourites">
+        <i class="bi bi-star" aria-hidden="true"></i>
+    </a>
+</div>
+{% endif %}

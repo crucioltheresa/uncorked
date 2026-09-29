@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block title %}Shipping &amp; Returns — Uncorked{% endblock %}
+{% block meta_description %}Uncorked delivers across {{ delivery_country }}: €{{ dublin_cost }} in Dublin, €{{ ireland_cost }} elsewhere, free over €{{ free_threshold|floatformat:"-2" }}. {{ discount_percent }}% off {{ discount_bottles }}+ bottles.{% endblock %}
+{% block og_title %}Shipping &amp; Returns — Uncorked{% endblock %}
+
+{% block content %}
+<article class="static-page">
+    <h1>Shipping &amp; Returns</h1>
+    <p class="static-page__lead">
+        We deliver across {{ delivery_country }} only, straight from our shop in Dublin.
+        Every order needs a valid Eircode so our couriers can find you.
+    </p>
+
+    <h2>Delivery costs</h2>
+    <table class="rates">
+        <caption class="sr-only">Delivery costs by area</caption>
+        <thead>
+            <tr>
+                <th scope="col">Where</th>
+                <th scope="col">Cost</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Dublin (Eircodes starting with D, e.g. D02, D6W)</td>
+                <td class="rates__cost">€{{ dublin_cost }}</td>
+            </tr>
+            <tr>
+                <td>Rest of {{ delivery_country }}</td>
+                <td class="rates__cost">€{{ ireland_cost }}</td>
+            </tr>
+            <tr>
+                <td>Orders of €{{ free_threshold|floatformat:"-2" }} or more (after any discount)</td>
+                <td class="rates__cost">Free</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>Buy more, save more</h2>
+    <p>
+        Buy {{ discount_bottles }} bottles or more and we'll take
+        <strong>{{ discount_percent }}% off</strong> your wine. The discount is
+        applied before delivery is worked out, and you'll see it in your cart.
+    </p>
+
+    <h2>Delivery times</h2>
+    <p>
+        Orders placed before 2pm on a working day usually arrive in 1–2 working
+        days in Dublin and 2–4 working days elsewhere in {{ delivery_country }}.
+        Someone aged 18 or over needs to be there to receive the delivery.
+    </p>
+
+    <h2>Returns</h2>
+    <p>
+        <strong>Damaged or faulty bottles:</strong> send us a photo within 48 hours
+        of delivery and we'll replace or refund them.
+    </p>
+    <p>
+        <strong>Changed your mind?</strong> You can return unopened bottles within
+        14 days of delivery for a refund of the wine. Just
+        <a href="{% url 'contact' %}">get in touch</a> first and we'll arrange it.
+    </p>
+</article>
+{% endblock %}

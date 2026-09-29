@@ -1,0 +1,14 @@
+User-agent: *
+Disallow: /admin/
+Disallow: /accounts/
+Disallow: /cart/
+Disallow: /checkout/
+Disallow: /order/
+Disallow: /wishlist/
+Disallow: /webhook/
+Disallow: /wines/add/
+Disallow: /wines/*/edit/
+Disallow: /wines/*/delete/
+Allow: /
+
+Sitemap: {{ sitemap_url }}

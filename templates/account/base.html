@@ -1,5 +1,9 @@
 {% extends "base.html" %}
 
+{# allauth pages set head_title; show it as "Log In — Uncorked" etc. #}
+{% block title %}{% block head_title %}Account{% endblock %} — Uncorked{% endblock %}
+{% block meta_description %}Log in or create your Uncorked account to check out faster and keep your favourite wines.{% endblock %}
+
 {% block content %}
 <div class="account-container">
     <div class="account-card">

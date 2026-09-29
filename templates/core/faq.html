@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block title %}FAQ — Uncorked{% endblock %}
+{% block meta_description %}Answers about ordering wine from Uncorked: age checks, delivery times, payment, our sommelier chat, damaged bottles and guest checkout.{% endblock %}
+{% block og_title %}Frequently Asked Questions — Uncorked{% endblock %}
+
+{% block content %}
+<article class="static-page">
+    <h1>Frequently Asked Questions</h1>
+    <p class="static-page__lead">Can't find your answer? <a href="{% url 'contact' %}">Get in touch</a>, we're happy to help.</p>
+
+    <div class="faq">
+        <details class="faq__item">
+            <summary class="faq__question">Do I need to be 18 to order?</summary>
+            <div class="faq__answer">
+                <p>Yes. You must be 18 or over to buy alcohol from Uncorked. Our couriers may ask for ID on delivery and won't leave wine with anyone under 18.</p>
+            </div>
+        </details>
+
+        <details class="faq__item">
+            <summary class="faq__question">How long does delivery take?</summary>
+            <div class="faq__answer">
+                <p>Orders placed before 2pm on a working day usually arrive in 1–2 working days in Dublin and 2–4 working days elsewhere in Ireland. See <a href="{% url 'shipping_returns' %}">Shipping &amp; Returns</a> for costs.</p>
+            </div>
+        </details>
+
+        <details class="faq__item">
+            <summary class="faq__question">How can I pay?</summary>
+            <div class="faq__answer">
+                <p>We accept Visa, Mastercard and other major debit and credit cards. Payments are handled securely by Stripe, so we never see or store your card details.</p>
+            </div>
+        </details>
+
+        <details class="faq__item">
+            <summary class="faq__question">What is the sommelier chat?</summary>
+            <div class="faq__answer">
+                <p>Tap the chat button in the corner of any page and answer a few quick questions about what you like, what you're eating and your budget. You'll get wine suggestions from our shelves, and you can add them to your cart straight away.</p>
+            </div>
+        </details>
+
+        <details class="faq__item">
+            <summary class="faq__question">A bottle arrived damaged. What do I do?</summary>
+            <div class="faq__answer">
+                <p>Sorry about that! Send us a photo within 48 hours of delivery through our <a href="{% url 'contact' %}">contact form</a> and we'll send a replacement or refund the bottle, your choice.</p>
+            </div>
+        </details>
+
+        <details class="faq__item">
+            <summary class="faq__question">Do I need an account to order?</summary>
+            <div class="faq__answer">
+                <p>No, you can check out as a guest. With an account you can save your delivery details, see your order history, keep a list of favourite wines and write reviews.</p>
+            </div>
+        </details>
+
+        <details class="faq__item">
+            <summary class="faq__question">Do you offer a discount for bigger orders?</summary>
+            <div class="faq__answer">
+                <p>Yes, you get money off when you buy {{ discount_bottles }} bottles or more, and delivery is free over a certain order value. The details are on our <a href="{% url 'shipping_returns' %}">Shipping &amp; Returns</a> page.</p>
+            </div>
+        </details>
+    </div>
+</article>
+{% endblock %}

@@ -1,0 +1,9 @@
+{% autoescape off %}Hi {{ contact.name }},
+
+Thanks for getting in touch! We've got your message about "{{ contact.get_subject_display }}" and we'll get back to you within two working days.
+
+Your message:
+{{ contact.message }}
+
+Cheers,
+The Uncorked Team{% endautoescape %}

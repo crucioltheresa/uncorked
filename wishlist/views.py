@@ -1,4 +1,6 @@
+from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 from django.contrib import messages
@@ -31,3 +33,53 @@ def wishlist_remove(request, wine_id):
     WishlistItem.objects.filter(user=request.user, wine=wine).delete()
     messages.success(request, f'"{wine.name}" removed from your wishlist.')
     return redirect("wishlist_detail")
+
+
+def _wants_json(request):
+    """True for fetch requests from wishlist.js, which ask for JSON."""
+    return (
+        request.headers.get("x-requested-with") == "XMLHttpRequest"
+        or "application/json" in request.headers.get("accept", "")
+    )
+
+
+def _safe_next_url(request):
+    """The page to go back to after a form post, if it's on this site."""
+    next_url = request.POST.get("next") or request.headers.get("referer")
+    if next_url and url_has_allowed_host_and_scheme(
+        next_url,
+        allowed_hosts={request.get_host()},
+        require_https=request.is_secure(),
+    ):
+        return next_url
+    return None
+
+
+@login_required
+@require_POST
+def wishlist_toggle(request, wine_id):
+    """
+    Add the wine to the wishlist, or remove it if it's already there.
+    Fetch requests get JSON; plain form posts are redirected back.
+    """
+    wine = get_object_or_404(Wine, id=wine_id)
+    deleted, _ = WishlistItem.objects.filter(
+        user=request.user, wine=wine
+    ).delete()
+    in_wishlist = not deleted
+    if in_wishlist:
+        WishlistItem.objects.create(user=request.user, wine=wine)
+        message = f'"{wine.name}" added to your favourites.'
+    else:
+        message = f'"{wine.name}" removed from your favourites.'
+
+    if _wants_json(request):
+        return JsonResponse({
+            "wine_id": wine.id,
+            "in_wishlist": in_wishlist,
+            "message": message,
+            "count": WishlistItem.objects.filter(user=request.user).count(),
+        })
+
+    messages.success(request, message)
+    return redirect(_safe_next_url(request) or "wine_list")

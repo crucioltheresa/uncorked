@@ -1,0 +1,9 @@
+{% autoescape off %}New message from the Uncorked contact form
+
+From:    {{ contact.name }} <{{ contact.email }}>
+Topic:   {{ contact.get_subject_display }}
+Sent:    {{ contact.created_at|date:"j M Y, H:i" }}
+
+{{ contact.message }}
+
+Reply to this email to answer {{ contact.name }} directly. Mark it as handled in the admin once you're done.{% endautoescape %}

@@ -3,9 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="{% block meta_description %}Uncorked — Curated wines from independent producers and iconic estates.{% endblock %}">
-    <title>{% block title %}Uncorked{% endblock %}</title>
-    {% load static %}
+    {% load static seo %}
+    <title>{% block title %}Uncorked — Natural &amp; Classic Wines from Dublin{% endblock %}</title>
+    <meta name="description" content="{% block meta_description %}Uncorked — Curated wines from independent producers and iconic estates, delivered across Ireland.{% endblock %}">
+    <link rel="canonical" href="{% block canonical_url %}{% absolute_url request.path %}{% endblock %}">
+    <!-- Open Graph (link previews) -->
+    <meta property="og:site_name" content="Uncorked">
+    <meta property="og:type" content="{% block og_type %}website{% endblock %}">
+    <meta property="og:title" content="{% block og_title %}Uncorked — Natural &amp; Classic Wines from Dublin{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}Curated wines from independent producers and iconic estates, delivered across Ireland.{% endblock %}">
+    <meta property="og:url" content="{% absolute_url request.path %}">
+    {% static 'img/hero.jpg' as default_og_image %}
+    <meta property="og:image" content="{% block og_image %}{% absolute_url default_og_image %}{% endblock %}">
+    <meta name="twitter:card" content="summary_large_image">
     <link rel="icon" href="{% static 'img/favicon.svg' %}" type="image/svg+xml">
     <link rel="apple-touch-icon" href="{% static 'img/apple-touch-icon.png' %}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -131,15 +141,15 @@
     <!-- FOOTER -->
     <footer class="footer">
     <nav class="footer__links">
-        <a href="#">About</a>
-        <span>·</span>
-        <a href="#">FAQ</a>
-        <span>·</span>
-        <a href="#">Shipping</a>
-        <span>·</span>
-        <a href="#">Privacy</a>
-        <span>·</span>
-        <a href="#">Contact</a>
+        <a href="{% url 'about' %}">About</a>
+        <span aria-hidden="true">·</span>
+        <a href="{% url 'faq' %}">FAQ</a>
+        <span aria-hidden="true">·</span>
+        <a href="{% url 'shipping_returns' %}">Shipping &amp; Returns</a>
+        <span aria-hidden="true">·</span>
+        <a href="{% url 'privacy' %}">Privacy</a>
+        <span aria-hidden="true">·</span>
+        <a href="{% url 'contact' %}">Contact</a>
     </nav>
 
     <div class="footer__legal">
@@ -181,6 +191,7 @@
     {% block scripts %}
     <script src="{% static 'js/main.js' %}"></script>
     {% endblock %}
+    <script src="{% static 'js/wishlist.js' %}"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

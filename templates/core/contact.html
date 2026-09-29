@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block title %}Contact Us — Uncorked{% endblock %}
+{% block meta_description %}Questions about an order, a wine recommendation or wholesale? Send Uncorked a message and we'll reply within two working days.{% endblock %}
+{% block og_title %}Contact Uncorked{% endblock %}
+
+{% block content %}
+<article class="static-page">
+    <h1>Contact Us</h1>
+    <p class="static-page__lead">
+        Questions about an order, looking for the right bottle, or interested in
+        wholesale? Send us a message and we'll get back to you within two working
+        days. You can also email <a href="mailto:{{ contact_email }}">{{ contact_email }}</a>.
+    </p>
+
+    <form method="POST" class="contact-form__form" novalidate>
+        {% csrf_token %}
+
+        {% for field in form %}
+        {% if field.name == 'website' %}
+        {# Honeypot: hidden from people and screen readers, filled only by bots #}
+        <div class="contact-form__trap" aria-hidden="true">
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+        </div>
+        {% else %}
+        <div class="form-group">
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {% if field.errors %}<span class="form-error">{{ field.errors|join:" " }}</span>{% endif %}
+        </div>
+        {% endif %}
+        {% endfor %}
+
+        <button type="submit" class="btn btn--primary">Send Message</button>
+    </form>
+</article>
+{% endblock %}

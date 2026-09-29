@@ -1,8 +1,15 @@
 {% extends 'base.html' %}
 
-{% block title %}{{ wine.name }} — Uncorked{% endblock %}
+{% load seo %}
 
-{% block meta_description %}{{ wine.character }} — {{ wine.tasting_notes|truncatechars:150 }}{% endblock %}
+{% block title %}{{ wine.name }}{% if wine.vintage %} {{ wine.vintage }}{% endif %} — Uncorked{% endblock %}
+
+{% block meta_description %}{% filter truncatechars:160 %}{{ wine.name }} by {{ wine.producer }}{% if wine.region %}, {{ wine.region }}{% endif %}. {{ wine.character }}{% if wine.tasting_notes %} — {{ wine.tasting_notes }}{% endif %}{% endfilter %}{% endblock %}
+
+{% block og_type %}product{% endblock %}
+{% block og_title %}{{ wine.name }}{% if wine.vintage %} {{ wine.vintage }}{% endif %} — €{{ wine.price }} at Uncorked{% endblock %}
+{% block og_description %}{% filter truncatechars:200 %}{{ wine.name }} by {{ wine.producer }}. {{ wine.character }}{% if wine.tasting_notes %} — {{ wine.tasting_notes }}{% endif %}{% endfilter %}{% endblock %}
+{% block og_image %}{% if wine.image %}{% absolute_url wine.image.url %}{% else %}{{ block.super }}{% endif %}{% endblock %}
 
 {% block content %}
 <div class="wine-detail">
@@ -175,6 +182,7 @@
                         <img src="{{ related.image.url }}" alt="{{ related.name }}">
                     </a>
                     {% endif %}
+                    {% include "includes/favourite_star.html" with wine=related %}
                 </div>
                 <div class="wine-card__top">
                     <h3 class="wine-card__name">

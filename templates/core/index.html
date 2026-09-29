@@ -32,6 +32,7 @@
                     <img src="{{ wine.image.url }}" alt="{{ wine.name }}">
                 </a>
                 {% endif %}
+                {% include "includes/favourite_star.html" with wine=wine %}
                 <span class="badge badge--{{ wine.wine_type }} wine-card__badge">
                     {{ wine.get_wine_type_display }}
                 </span>

@@ -1,0 +1,56 @@
+{% load static %}<!DOCTYPE html>
+{# Standalone on purpose: no base template, context processors or database, #}
+{# so this page still renders when something has gone wrong on the server. #}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex">
+    <title>Something Went Wrong — Uncorked</title>
+    <link rel="icon" href="{% static 'img/favicon.svg' %}" type="image/svg+xml">
+    <style>
+        :root {
+            --color-bg: #F7F2EC;
+            --color-dark: #1C1612;
+            --color-accent: #B85C2A;
+            --color-mid: #9B8B7A;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: var(--color-bg);
+            color: var(--color-dark);
+            font-family: "DM Sans", Arial, sans-serif;
+            text-align: center;
+        }
+        .error-page { max-width: 480px; }
+        .error-page__logo { font-family: Georgia, serif; font-size: 2rem; font-weight: 700; letter-spacing: 0.02em; margin-bottom: 2rem; }
+        .error-page__code { color: var(--color-accent); font-weight: 500; letter-spacing: 0.15em; margin-bottom: 0.5rem; }
+        .error-page__title { font-family: Georgia, serif; font-size: 1.75rem; margin-bottom: 1rem; }
+        .error-page__text { color: var(--color-mid); line-height: 1.6; margin-bottom: 1.5rem; }
+        .error-page__actions { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; }
+        .error-page__btn { display: inline-block; padding: 12px 24px; font-size: 0.75rem; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; text-decoration: none; border: 0.5px solid var(--color-dark); border-radius: 2px; color: var(--color-dark); }
+        .error-page__btn--primary { background: var(--color-dark); color: var(--color-bg); }
+        .error-page__btn:hover, .error-page__btn:focus-visible { background: var(--color-accent); border-color: var(--color-accent); color: var(--color-bg); }
+    </style>
+</head>
+<body>
+    <main class="error-page">
+        <p class="error-page__logo">Uncorked</p>
+        <p class="error-page__code">500</p>
+        <h1 class="error-page__title">Something went wrong on our side</h1>
+        <p class="error-page__text">
+            Sorry, the page didn't load properly. Please try again in a moment.
+            If it keeps happening, let us know at uncorked.store@gmail.com.
+        </p>
+        <div class="error-page__actions">
+            <a href="/wines/" class="error-page__btn error-page__btn--primary">Browse our wines</a>
+            <a href="/" class="error-page__btn">Back to home</a>
+        </div>
+    </main>
+</body>
+</html>
