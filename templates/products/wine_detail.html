@@ -36,7 +36,7 @@
 
             <!-- Info -->
             <div class="wine-detail__info">
-                {% if request.user.is_superuser %}
+                {% if can_manage_store %}
                 <div class="wine-detail__admin">
                     {% if not wine.is_available %}
                     <p class="message message--warning wine-detail__admin-notice">

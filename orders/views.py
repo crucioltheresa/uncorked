@@ -14,6 +14,7 @@ from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from cart.cart import Cart
 from products.models import Wine
+from reviews.models import Review
 from .models import Order, OrderItem
 from .forms import CheckoutForm
 from .pricing import DELIVERY_COUNTRY, normalise_eircode
@@ -146,11 +147,30 @@ def order_success(request, order_number):
 
 @login_required
 def order_detail(request, order_number):
-    """View order details. User can only see their own orders."""
+    """
+    View order details. User can only see their own orders. Paid, shipped
+    and delivered orders let the customer review each wine (one review per
+    wine, so an existing review shows as "Edit your review").
+    """
     order = get_object_or_404(
         Order, order_number=order_number, user=request.user
     )
-    return render(request, "orders/detail.html", {"order": order})
+    items = list(order.items.select_related("wine", "wine__region"))
+    can_review = order.status in Order.PURCHASED_STATUSES
+    if can_review:
+        reviews = {
+            review.wine_id: review
+            for review in Review.objects.filter(
+                user=request.user, wine__in=[item.wine_id for item in items]
+            )
+        }
+        for item in items:
+            item.user_review = reviews.get(item.wine_id)
+    return render(
+        request,
+        "orders/detail.html",
+        {"order": order, "items": items, "can_review": can_review},
+    )
 
 
 @csrf_exempt

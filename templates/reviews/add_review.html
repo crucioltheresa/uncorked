@@ -1,24 +1,25 @@
 {% extends 'base.html' %}
 
-{% block title %}Review {{ wine.name }} — Uncorked{% endblock %}
+{% block title %}{% if review %}Edit your review of{% else %}Review{% endif %} {{ wine.name }} — Uncorked{% endblock %}
 
 {% block content %}
 <div class="review-form">
-    <h1>Review: {{ wine.name }}</h1>
+    <h1>{% if review %}Edit your review: {% else %}Review: {% endif %}{{ wine.name }}</h1>
     {% if verified %}
     <p class="verified">✓ Verified purchase</p>
     {% endif %}
     <form method="POST">
         {% csrf_token %}
+        {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
         {% for field in form %}
         <div class="form-group">
-            <label>{{ field.label }}</label>
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
             {{ field }}
-            {% if field.errors %}<p class="error">{{ field.errors }}</p>{% endif %}
+            {% if field.errors %}<p class="form-error">{{ field.errors|join:" " }}</p>{% endif %}
         </div>
         {% endfor %}
-        <button type="submit" class="btn btn--primary">Submit Review</button>
-        <a href="{% url 'wine_detail' wine.slug %}">Cancel</a>
+        <button type="submit" class="btn btn--primary">{% if review %}Save Changes{% else %}Submit Review{% endif %}</button>
+        <a href="{% if next %}{{ next }}{% else %}{% url 'wine_detail' wine.slug %}{% endif %}">Cancel</a>
     </form>
 </div>
 {% endblock %}

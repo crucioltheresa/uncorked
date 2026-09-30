@@ -2,10 +2,12 @@ from datetime import timedelta
 from decimal import Decimal
 
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group
 from django.test import Client, TestCase
 from django.urls import reverse
 from django.utils import timezone
 
+from core.decorators import DASHBOARD_PERMISSION
 from core.models import ContactMessage
 from orders.models import Order
 from products.models import Region, Wine
@@ -49,10 +51,6 @@ class DashboardTestCase(TestCase):
         values.update(fields)
         return Wine.objects.create(name=name, **values)
 
-
-class DashboardAccessTests(DashboardTestCase):
-    """US-09 / US-15: Only superusers can use the Store Dashboard."""
-
     def dashboard_urls(self):
         wine = self.wine("Access Red")
         order = make_order("paid", "20.00")
@@ -86,6 +84,10 @@ class DashboardAccessTests(DashboardTestCase):
                             args=[self.region.pk])),
         ]
 
+
+class DashboardAccessTests(DashboardTestCase):
+    """US-09 / US-15: Only superusers can use the Store Dashboard."""
+
     def test_logged_out_users_are_sent_to_login(self):
         """US-09: logged-out visitors are redirected to login everywhere."""
         for method, url in self.dashboard_urls():
@@ -118,7 +120,7 @@ class DashboardAccessTests(DashboardTestCase):
                     self.assertEqual(self.client.get(url).status_code, 200)
 
     def test_dashboard_link_only_for_superusers(self):
-        """US-09: the account area links to the dashboard for superusers."""
+        """US-09: the superuser's profile links to the dashboard."""
         link = f'href="{reverse("dashboard:overview")}"'
         self.client.force_login(self.customer)
         self.assertNotContains(self.client.get(reverse("profile")), link)
@@ -436,3 +438,104 @@ class RegionsSectionTests(DashboardTestCase):
         self.assertContains(response, "already exists")
         self.region.refresh_from_db()
         self.assertEqual(self.region.name, "Rioja Alta")
+
+
+def make_store_manager(email="manager@example.com"):
+    """A normal user (not staff, not superuser) in the Store Manager group."""
+    user = User.objects.create_user(
+        email=email, username=email.split("@")[0], password="x"
+    )
+    user.groups.add(Group.objects.get(name="Store Manager"))
+    return user
+
+
+class StoreManagerRoleTests(DashboardTestCase):
+    """US-04 / US-09 / US-15: The Store Manager role."""
+
+    def setUp(self):
+        super().setUp()
+        self.manager = make_store_manager()
+
+    def test_group_exists_with_the_permission(self):
+        """US-04: the Store Manager group exists after migrations."""
+        group = Group.objects.get(name="Store Manager")
+        codenames = list(group.permissions.values_list(
+            "content_type__app_label", "codename"
+        ))
+        self.assertEqual(codenames, [("dashboard", "access_dashboard")])
+        self.assertFalse(self.manager.is_staff)
+        self.assertFalse(self.manager.is_superuser)
+        self.assertTrue(self.manager.has_perm(DASHBOARD_PERMISSION))
+        self.assertFalse(self.customer.has_perm(DASHBOARD_PERMISSION))
+
+    def test_manager_can_open_every_dashboard_page(self):
+        """US-15: a store manager can open every dashboard page."""
+        self.client.force_login(self.manager)
+        for method, url in self.dashboard_urls():
+            if method == "get":
+                with self.subTest(url=url):
+                    self.assertEqual(self.client.get(url).status_code, 200)
+
+    def test_manager_can_use_product_management(self):
+        """US-09: a store manager can add, edit and delete wines."""
+        wine = self.wine("Managed Red")
+        self.client.force_login(self.manager)
+        for url in [
+            reverse("wine_add"),
+            reverse("wine_edit", args=[wine.slug]),
+            reverse("wine_delete", args=[wine.slug]),
+        ]:
+            with self.subTest(url=url):
+                self.assertEqual(self.client.get(url).status_code, 200)
+        self.client.post(reverse("wine_delete", args=[wine.slug]))
+        self.assertFalse(Wine.objects.filter(pk=wine.pk).exists())
+
+    def test_manager_sees_product_links_and_hidden_wines(self):
+        """US-09: edit links show, and unavailable wine pages still open."""
+        wine = self.wine("Hidden Red", is_available=False)
+        visible = self.wine("Shown Red")
+        self.client.force_login(self.manager)
+        response = self.client.get(reverse("wine_list"))
+        self.assertContains(response, reverse("wine_edit",
+                                              args=[visible.slug]))
+        detail = self.client.get(reverse("wine_detail", args=[wine.slug]))
+        self.assertEqual(detail.status_code, 200)
+        self.assertContains(detail, "hidden from customers")
+
+    def test_manager_cannot_open_django_admin(self):
+        """US-04: a store manager has no Django admin access."""
+        self.client.force_login(self.manager)
+        for url in ["/admin/", reverse("admin:orders_order_changelist")]:
+            with self.subTest(url=url):
+                response = self.client.get(url)
+                self.assertEqual(response.status_code, 302)
+                self.assertTrue(response.url.startswith("/admin/login/"))
+
+    def test_manager_dashboard_shows_email_and_logout(self):
+        """US-15: the dashboard shows the manager's email and a logout."""
+        self.client.force_login(self.manager)
+        response = self.client.get(reverse("dashboard:overview"))
+        self.assertContains(response, "manager@example.com")
+        self.assertContains(
+            response,
+            f'<form method="POST" action="{reverse("account_logout")}">',
+        )
+        self.assertNotContains(response, "Django admin")
+
+    def test_superuser_dashboard_has_django_admin_link(self):
+        """US-04: only superusers see the Django admin link."""
+        self.client.force_login(self.admin)
+        response = self.client.get(reverse("dashboard:overview"))
+        self.assertContains(response, f'href="{reverse("admin:index")}"')
+        self.assertContains(response, "Django admin")
+        self.assertEqual(self.client.get("/admin/").status_code, 200)
+
+    def test_customer_is_still_refused(self):
+        """US-04: a customer can't use the dashboard or manage wines."""
+        self.client.force_login(self.customer)
+        for url in [reverse("dashboard:overview"), reverse("wine_add")]:
+            with self.subTest(url=url):
+                self.assertRedirects(
+                    self.client.get(url), reverse("wine_list"),
+                    fetch_redirect_response=False,
+                )

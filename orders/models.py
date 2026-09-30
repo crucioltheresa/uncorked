@@ -14,6 +14,8 @@ class Order(models.Model):
         ("delivered", "Delivered"),
         ("cancelled", "Cancelled"),
     ]
+    # Statuses where the customer has paid (reviews count as verified)
+    PURCHASED_STATUSES = ("paid", "shipped", "delivered")
 
     order_number = models.UUIDField(
         default=uuid.uuid4, unique=True, editable=False

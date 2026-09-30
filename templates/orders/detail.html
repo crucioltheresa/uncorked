@@ -25,8 +25,11 @@
 
             <div class="order-details">
                 <h3>Order Items</h3>
+                {% if can_review %}
+                <p class="message message--success order-review-status" id="reviewStatus" role="status" aria-live="polite" hidden></p>
+                {% endif %}
                 <div class="order-items">
-                    {% for item in order.items.all %}
+                    {% for item in items %}
                         <div class="order-item">
                             <div class="order-item__info">
                                 <h4>{{ item.wine.name }}</h4>
@@ -36,6 +39,37 @@
                                 <p class="order-item__unit">€{{ item.price_at_purchase }}</p>
                                 <p class="order-item__total">€{{ item.get_total|floatformat:2 }}</p>
                             </div>
+                            {% if can_review %}
+                            <div class="order-item__review">
+                                {% if item.user_review %}
+                                <a href="{% url 'edit_review' item.user_review.id %}?next={{ request.path|urlencode }}"
+                                   class="btn btn--outline btn--sm order-item__review-btn"
+                                   data-review-open data-wine-id="{{ item.wine_id }}"
+                                   data-wine-name="{{ item.wine.name }}"
+                                   data-wine-image="{% if item.wine.image %}{{ item.wine.image.url }}{% endif %}"
+                                   data-url="{% url 'edit_review' item.user_review.id %}"
+                                   data-rating="{{ item.user_review.rating }}"
+                                   data-title="{{ item.user_review.title }}"
+                                   data-body="{{ item.user_review.body }}"
+                                   aria-haspopup="dialog">
+                                    <i class="bi bi-pencil" aria-hidden="true"></i>
+                                    <span data-review-label>Edit your review</span>
+                                </a>
+                                {% else %}
+                                <a href="{% url 'add_review' item.wine_id %}?next={{ request.path|urlencode }}"
+                                   class="btn btn--outline btn--sm order-item__review-btn"
+                                   data-review-open data-wine-id="{{ item.wine_id }}"
+                                   data-wine-name="{{ item.wine.name }}"
+                                   data-wine-image="{% if item.wine.image %}{{ item.wine.image.url }}{% endif %}"
+                                   data-url="{% url 'order_review' order.order_number item.wine_id %}"
+                                   data-rating="" data-title="" data-body=""
+                                   aria-haspopup="dialog">
+                                    <i class="bi bi-star" aria-hidden="true"></i>
+                                    <span data-review-label>Write a review</span>
+                                </a>
+                                {% endif %}
+                            </div>
+                            {% endif %}
                         </div>
                     {% endfor %}
                 </div>
@@ -69,4 +103,12 @@
     </div>
 </div>
 
+{% endblock %}
+
+{% block scripts %}
+{{ block.super }}
+{% if can_review %}
+{% include "reviews/includes/review_modal.html" %}
+<script src="{% static 'js/reviews_modal.js' %}"></script>
+{% endif %}
 {% endblock %}

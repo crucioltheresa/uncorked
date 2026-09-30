@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from core.decorators import can_manage_store
 from orders.models import Order
 from .models import UserProfile
 from .forms import ProfileForm
@@ -8,7 +9,14 @@ from .forms import ProfileForm
 
 @login_required(login_url="account_login")
 def profile(request):
-    """User profile view with order history and delivery details."""
+    """
+    User profile view with order history and delivery details.
+    Store managers (dashboard access without being a superuser) have no
+    customer profile: their account area is the Store Dashboard.
+    """
+    if can_manage_store(request.user) and not request.user.is_superuser:
+        return redirect("dashboard:overview")
+
     profile, _ = UserProfile.objects.get_or_create(user=request.user)
     orders = Order.objects.filter(user=request.user).order_by("-created_at")
 

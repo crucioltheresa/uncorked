@@ -15,7 +15,23 @@
             {% include "dashboard/includes/tab.html" with key="messages" url_name="dashboard:messages" icon="bi-envelope" label="Messages" %}
             {% include "dashboard/includes/tab.html" with key="reviews" url_name="dashboard:reviews" icon="bi-star" label="Reviews" %}
             {% include "dashboard/includes/tab.html" with key="regions" url_name="dashboard:regions" icon="bi-geo-alt" label="Regions" %}
+            {% if request.user.is_superuser %}
+            <li class="dashboard__tab-item">
+                <a href="{% url 'admin:index' %}" class="dashboard__tab">
+                    <i class="bi bi-gear" aria-hidden="true"></i> Django admin
+                </a>
+            </li>
+            {% endif %}
         </ul>
+        <div class="dashboard__account">
+            <span class="dashboard__account-email">
+                <i class="bi bi-person" aria-hidden="true"></i> {{ request.user.email }}
+            </span>
+            <form method="POST" action="{% url 'account_logout' %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn--outline btn--sm">Log out</button>
+            </form>
+        </div>
     </nav>
 
     <div class="dashboard__main">

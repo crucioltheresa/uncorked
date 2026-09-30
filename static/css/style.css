@@ -3089,6 +3089,7 @@ details[open] .nav__country-summary .nav__country-chevron {
 
 .order-item {
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
     padding: var(--space-sm) 0;
     border-bottom: 0.5px solid var(--color-border);
@@ -3119,6 +3120,169 @@ details[open] .nav__country-summary .nav__country-chevron {
 
 .order-item__total {
     font-weight: 600;
+}
+
+/* Review a wine from the order page (US-18) */
+.order-item__review {
+    flex-basis: 100%;
+    margin-top: var(--space-xs);
+}
+
+.order-item__review-btn:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+}
+
+.order-review-status[hidden] {
+    display: none;
+}
+
+.review-modal__content {
+    padding: var(--space-md) var(--container-pad);
+    background: var(--color-bg);
+    border: 0;
+    border-radius: 0;
+}
+
+.review-modal__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-sm);
+}
+
+.review-modal__title {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+}
+
+.review-modal__close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    margin-right: calc(-1 * var(--space-xs));
+    color: var(--color-dark);
+    font-size: var(--text-lg);
+}
+
+.review-modal__close:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+}
+
+.review-modal__wine {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    margin-bottom: var(--space-md);
+}
+
+.review-modal__thumb {
+    width: 56px;
+    height: 56px;
+    object-fit: cover;
+    border-radius: var(--radius-sm);
+}
+
+.review-modal__wine-name {
+    margin: 0;
+    font-weight: 500;
+    color: var(--color-dark);
+}
+
+.review-modal__form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+}
+
+.review-modal__errors {
+    margin: 0;
+    padding: 10px 12px;
+    background: var(--color-error-light);
+    border-left: 3px solid var(--color-error);
+}
+
+.review-modal__form [aria-invalid="true"] {
+    border-color: var(--color-error);
+}
+
+.review-modal__verified {
+    margin: 0;
+    font-size: var(--text-sm);
+    color: var(--color-green);
+}
+
+/* Star rating from radio buttons: stars up to the chosen one light up.
+   The radios stay focusable, so Tab and the arrow keys work. */
+.star-input {
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+
+.star-input__legend {
+    margin-bottom: 6px;
+    font-size: var(--text-sm);
+    font-weight: 500;
+    float: none;
+}
+
+.star-input__stars {
+    display: flex;
+    gap: var(--space-xxs);
+}
+
+.star-input__radio {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+}
+
+.star-input__label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: var(--radius-sm);
+    color: var(--color-border);
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: color var(--transition);
+}
+
+.star-input__stars:has(.star-input__radio:checked) .star-input__label {
+    color: var(--color-accent);
+}
+
+.star-input__radio:checked ~ .star-input__radio + .star-input__label {
+    color: var(--color-border);
+}
+
+.star-input__radio:focus-visible + .star-input__label {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+}
+
+.star-input__label:hover {
+    color: var(--color-accent);
+}
+
+@media (min-width: 576px) {
+    .review-modal .modal-dialog {
+        max-width: 480px;
+    }
+
+    .review-modal__content {
+        padding: var(--space-lg);
+        border-radius: var(--radius-md);
+        box-shadow: var(--shadow-md);
+    }
 }
 
 .order-summary__row {
@@ -4596,6 +4760,21 @@ body:has(.sommelier-dialog:not([hidden])) {
     font-weight: 500;
 }
 
+.dashboard__account {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-xs);
+    padding: var(--space-xs) var(--container-pad) var(--space-sm);
+    font-size: var(--text-sm);
+}
+
+.dashboard__account-email {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
 .dashboard__main {
     min-width: 0;
     padding: var(--space-md) var(--container-pad) 0;
@@ -5139,6 +5318,14 @@ body:has(.sommelier-dialog:not([hidden])) {
 
     .dashboard__main {
         padding: 0;
+    }
+
+    .dashboard__account {
+        flex-direction: column;
+        align-items: flex-start;
+        margin-top: var(--space-md);
+        padding: var(--space-sm) 0 0;
+        border-top: 0.5px solid var(--color-border);
     }
 
     .dash-cards {

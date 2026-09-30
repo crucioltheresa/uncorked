@@ -78,6 +78,7 @@ TEMPLATES = [
                 "orders.context_processors.promotions",
                 "cart.context_processors.cart_bottle_count",
                 "wishlist.context_processors.wishlist_wine_ids",
+                "core.context_processors.store_roles",
             ],
         },
     },

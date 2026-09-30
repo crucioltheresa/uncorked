@@ -8,7 +8,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views.decorators.http import require_POST
 
-from core.decorators import superuser_required
+from core.decorators import store_manager_required
 from core.models import ContactMessage
 from orders.models import Order
 from products.models import Region, Wine
@@ -19,7 +19,7 @@ from .forms import OrderStatusForm, RegionForm
 # Wines with this many bottles or fewer count as low stock
 LOW_STOCK_THRESHOLD = 5
 # Orders that have been paid for (and may since have shipped)
-PAID_STATUSES = ("paid", "shipped", "delivered")
+PAID_STATUSES = Order.PURCHASED_STATUSES
 PER_PAGE = 20
 
 
@@ -42,7 +42,7 @@ def _paid_summary(orders):
     }
 
 
-@superuser_required
+@store_manager_required
 def overview(request):
     """Store at a glance: sales, orders to ship, stock, messages, reviews."""
     since = timezone.now() - timedelta(days=30)
@@ -67,7 +67,7 @@ def overview(request):
     return render(request, "dashboard/overview.html", context)
 
 
-@superuser_required
+@store_manager_required
 def wines(request):
     """All wines with search and filters by type, availability and stock."""
     queryset = Wine.objects.select_related("region").order_by("name")
@@ -105,7 +105,7 @@ def wines(request):
     })
 
 
-@superuser_required
+@store_manager_required
 @require_POST
 def wine_toggle_available(request, wine_id):
     """Show or hide a wine in the shop, then go back to the list."""
@@ -120,7 +120,7 @@ def wine_toggle_available(request, wine_id):
     return redirect("dashboard:wines")
 
 
-@superuser_required
+@store_manager_required
 def orders(request):
     """All orders, newest first, filterable by status and searchable."""
     queryset = Order.objects.order_by("-created_at")
@@ -145,7 +145,7 @@ def orders(request):
     })
 
 
-@superuser_required
+@store_manager_required
 def order_detail(request, order_number):
     """One order: items, totals, delivery details and status."""
     order = get_object_or_404(
@@ -159,7 +159,7 @@ def order_detail(request, order_number):
     })
 
 
-@superuser_required
+@store_manager_required
 @require_POST
 def order_status(request, order_number):
     """Change an order's status (POST only)."""
@@ -175,7 +175,7 @@ def order_status(request, order_number):
     return redirect("dashboard:order_detail", order_number=order.order_number)
 
 
-@superuser_required
+@store_manager_required
 def contact_messages(request):
     """Contact form messages, filterable by handled / not handled."""
     queryset = ContactMessage.objects.order_by("-created_at")
@@ -193,7 +193,7 @@ def contact_messages(request):
     })
 
 
-@superuser_required
+@store_manager_required
 def message_detail(request, pk):
     """One contact message, with a reply link and "mark as handled"."""
     message = get_object_or_404(ContactMessage, pk=pk)
@@ -203,7 +203,7 @@ def message_detail(request, pk):
     })
 
 
-@superuser_required
+@store_manager_required
 @require_POST
 def message_handled(request, pk):
     """Mark a contact message as handled (or not handled again)."""
@@ -217,7 +217,7 @@ def message_handled(request, pk):
     return redirect("dashboard:message_detail", pk=message.pk)
 
 
-@superuser_required
+@store_manager_required
 def reviews(request):
     """Customer reviews, newest first, filterable by rating."""
     queryset = Review.objects.select_related("wine", "user")
@@ -234,7 +234,7 @@ def reviews(request):
     })
 
 
-@superuser_required
+@store_manager_required
 def review_delete(request, pk):
     """Confirmation page on GET; deletes the review on POST."""
     review = get_object_or_404(
@@ -251,7 +251,7 @@ def review_delete(request, pk):
     })
 
 
-@superuser_required
+@store_manager_required
 def regions(request):
     """All regions with how many wines each has."""
     queryset = Region.objects.annotate(wine_count=Count("wine")).order_by(
@@ -280,13 +280,13 @@ def _region_form(request, region=None):
     })
 
 
-@superuser_required
+@store_manager_required
 def region_add(request):
     """Add a region."""
     return _region_form(request)
 
 
-@superuser_required
+@store_manager_required
 def region_edit(request, pk):
     """Edit a region's name or country."""
     return _region_form(request, get_object_or_404(Region, pk=pk))

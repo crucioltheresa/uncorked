@@ -1,0 +1,62 @@
+{% comment %}
+Review modal for the order page (Bootstrap modal). reviews_modal.js fills
+it from the "Write a review" / "Edit your review" button that opened it and
+sends the form with fetch. The rating is five radio buttons shown as stars:
+Tab moves into the group and the arrow keys change the rating.
+{% endcomment %}
+<div class="modal fade review-modal" id="reviewModal" tabindex="-1"
+     aria-labelledby="reviewModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-fullscreen-sm-down">
+        <div class="modal-content review-modal__content">
+            <div class="review-modal__header">
+                <h2 class="review-modal__title" id="reviewModalTitle">Review this wine</h2>
+                <button type="button" class="review-modal__close" data-bs-dismiss="modal" aria-label="Close">
+                    <i class="bi bi-x-lg" aria-hidden="true"></i>
+                </button>
+            </div>
+
+            <div class="review-modal__wine">
+                <img src="" alt="" class="review-modal__thumb" width="56" height="56" data-review-image hidden>
+                <p class="review-modal__wine-name" data-review-wine></p>
+            </div>
+
+            <form method="POST" action="" class="review-modal__form" data-review-form novalidate>
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ request.path }}">
+                <p class="form-error review-modal__errors" id="review-errors" role="alert" tabindex="-1" hidden></p>
+
+                <fieldset class="star-input" aria-describedby="review-rating-error">
+                    <legend class="star-input__legend">Rating</legend>
+                    <div class="star-input__stars">
+                        {% for value in "12345" %}
+                        <input type="radio" name="rating" value="{{ value }}" id="review-rating-{{ value }}" class="star-input__radio">
+                        <label for="review-rating-{{ value }}" class="star-input__label">
+                            <i class="bi bi-star-fill" aria-hidden="true"></i>
+                            <span class="sr-only">{{ value }} star{{ value|pluralize }}</span>
+                        </label>
+                        {% endfor %}
+                    </div>
+                    <span class="form-error" id="review-rating-error" hidden></span>
+                </fieldset>
+
+                <div class="form-group">
+                    <label for="review-title">Title</label>
+                    <input type="text" name="title" id="review-title" maxlength="100" required
+                           placeholder="Review title" aria-describedby="review-title-error">
+                    <span class="form-error" id="review-title-error" hidden></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="review-body">Your review</label>
+                    <textarea name="body" id="review-body" rows="4" required
+                              placeholder="Share your thoughts..." aria-describedby="review-body-error"></textarea>
+                    <span class="form-error" id="review-body-error" hidden></span>
+                </div>
+
+                <p class="review-modal__verified"><i class="bi bi-patch-check-fill" aria-hidden="true"></i> Shown as a verified purchase</p>
+
+                <button type="submit" class="btn btn--primary btn--full">Save review</button>
+            </form>
+        </div>
+    </div>
+</div>

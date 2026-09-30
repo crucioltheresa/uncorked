@@ -2,7 +2,7 @@ from django.contrib import messages
 from django.core.paginator import Paginator
 from django.shortcuts import render, redirect, get_object_or_404
 from django.db.models import Q
-from core.decorators import superuser_required
+from core.decorators import can_manage_store, store_manager_required
 from orders.models import OrderItem
 from .forms import WineForm
 from .models import Wine, Region
@@ -51,9 +51,9 @@ def wine_list(request):
 
 
 def wine_detail(request, slug):
-    # Superusers can still open unavailable wines to edit or re-enable them
+    # Store managers can still open unavailable wines to edit or re-enable
     wines = Wine.objects.all()
-    if not request.user.is_superuser:
+    if not can_manage_store(request.user):
         wines = wines.filter(is_available=True)
     wine = get_object_or_404(wines, slug=slug)
     related_wines = Wine.objects.filter(
@@ -66,7 +66,7 @@ def wine_detail(request, slug):
     return render(request, "products/wine_detail.html", context)
 
 
-@superuser_required
+@store_manager_required
 def wine_add(request):
     """Add a new wine to the catalogue."""
     if request.method == "POST":
@@ -83,7 +83,7 @@ def wine_add(request):
     )
 
 
-@superuser_required
+@store_manager_required
 def wine_edit(request, slug):
     """Edit an existing wine, including replacing its image."""
     wine = get_object_or_404(Wine, slug=slug)
@@ -101,7 +101,7 @@ def wine_edit(request, slug):
     )
 
 
-@superuser_required
+@store_manager_required
 def wine_delete(request, slug):
     """
     Ask for confirmation, then delete on POST. Wines that appear in orders

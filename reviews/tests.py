@@ -152,3 +152,197 @@ class DeleteReviewTests(TestCase):
         response = self.client.post(self.url)
         self.assertEqual(response.status_code, 302)
         self.assertTrue(Review.objects.filter(id=self.review.id).exists())
+
+
+AJAX = {"HTTP_X_REQUESTED_WITH": "XMLHttpRequest"}
+
+
+class ReviewFromOrderTests(TestCase):
+    """US-18: Writing and editing reviews from the order page."""
+
+    def setUp(self):
+        self.client = Client()
+        self.user = User.objects.create_user(
+            email="buyer@example.com", username="buyer", password="x"
+        )
+        self.other = User.objects.create_user(
+            email="other@example.com", username="other", password="x"
+        )
+        region = Region.objects.create(name="Rioja", country="Spain")
+        self.wine = Wine.objects.create(
+            name="Bought Red", producer="Test", region=region,
+            wine_type="red", abv=13.5, price="20.00", stock=10,
+        )
+        self.not_bought = Wine.objects.create(
+            name="Other Red", producer="Test", region=region,
+            wine_type="red", abv=13.5, price="20.00", stock=10,
+        )
+        self.order = self.make_order(self.user, "shipped")
+        self.url = reverse(
+            "order_review", args=[self.order.order_number, self.wine.id]
+        )
+        self.order_path = reverse(
+            "order_detail", args=[self.order.order_number]
+        )
+        self.data = {
+            "rating": "5",
+            "title": "Lovely",
+            "body": "Bright cherry, would buy again.",
+            "next": self.order_path,
+        }
+        self.client.force_login(self.user)
+
+    def make_order(self, user, status):
+        order = Order.objects.create(
+            user=user, full_name="B", email=user.email,
+            address_line1="1 Main St", city="Dublin", postcode="D02 X285",
+            country="Ireland", grand_total="20.00", status=status,
+        )
+        OrderItem.objects.create(
+            order=order, wine=self.wine, quantity=1,
+            price_at_purchase="20.00",
+        )
+        return order
+
+    def test_submit_creates_verified_review_and_returns_to_order(self):
+        """US-18: a review from the order page is verified; back to order."""
+        response = self.client.post(self.url, self.data)
+        self.assertRedirects(response, self.order_path)
+        review = Review.objects.get(user=self.user, wine=self.wine)
+        self.assertTrue(review.verified_purchase)
+        self.assertEqual(review.rating, 5)
+
+    def test_fetch_success_returns_json(self):
+        """US-18: fetch requests get JSON with the saved review."""
+        response = self.client.post(self.url, self.data, **AJAX)
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        review = Review.objects.get(user=self.user, wine=self.wine)
+        self.assertTrue(data["ok"])
+        self.assertEqual(data["review"]["id"], review.id)
+        self.assertEqual(data["review"]["wine_id"], self.wine.id)
+        self.assertTrue(data["review"]["verified_purchase"])
+        self.assertEqual(
+            data["review"]["edit_url"],
+            reverse("edit_review", args=[review.id]),
+        )
+
+    def test_fetch_errors_return_json(self):
+        """US-18: invalid reviews return 400 JSON with the field errors."""
+        response = self.client.post(
+            self.url, {"rating": "9", "title": "", "body": ""}, **AJAX
+        )
+        self.assertEqual(response.status_code, 400)
+        errors = response.json()["errors"]
+        self.assertIn("rating", errors)
+        self.assertIn("title", errors)
+        self.assertIn("body", errors)
+        self.assertFalse(Review.objects.exists())
+
+    def test_only_one_review_per_wine(self):
+        """US-18: a second review of the same wine is refused."""
+        self.client.post(self.url, self.data)
+        response = self.client.post(self.url, self.data, **AJAX)
+        self.assertEqual(response.status_code, 400)
+        self.assertIn(
+            "already reviewed", response.json()["form_errors"][0]
+        )
+        self.assertEqual(Review.objects.count(), 1)
+
+    def test_cannot_review_a_wine_not_bought(self):
+        """US-18: the orders flow refuses a wine that isn't in the order."""
+        url = reverse(
+            "order_review",
+            args=[self.order.order_number, self.not_bought.id],
+        )
+        self.assertEqual(self.client.post(url, self.data).status_code, 404)
+        self.assertFalse(Review.objects.exists())
+
+    def test_cannot_review_from_unpaid_or_someone_elses_order(self):
+        """US-18: pending orders and other people's orders are refused."""
+        pending = self.make_order(self.user, "pending")
+        theirs = self.make_order(self.other, "paid")
+        for order in [pending, theirs]:
+            url = reverse(
+                "order_review", args=[order.order_number, self.wine.id]
+            )
+            with self.subTest(status=order.status, owner=order.user.email):
+                response = self.client.post(url, self.data)
+                self.assertEqual(response.status_code, 404)
+        self.assertFalse(Review.objects.exists())
+
+    def test_unavailable_wine_can_still_be_reviewed(self):
+        """US-18: a wine that's no longer sold can still be reviewed."""
+        Wine.objects.filter(pk=self.wine.pk).update(is_available=False)
+        response = self.client.post(self.url, self.data, **AJAX)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(Review.objects.filter(wine=self.wine).exists())
+
+    def test_edit_updates_the_review(self):
+        """US-18: the owner can edit their review (JSON and redirect)."""
+        review = Review.objects.create(
+            wine=self.wine, user=self.user, rating=2, title="Meh", body="Ok"
+        )
+        url = reverse("edit_review", args=[review.id])
+        data = dict(self.data, rating="4", title="Grew on me")
+        response = self.client.post(url, data, **AJAX)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["review"]["rating"], 4)
+        review.refresh_from_db()
+        self.assertEqual(review.title, "Grew on me")
+        # Bought since: the edit makes it a verified purchase
+        self.assertTrue(review.verified_purchase)
+
+        response = self.client.post(url, dict(data, title="Final"))
+        self.assertRedirects(response, self.order_path)
+        review.refresh_from_db()
+        self.assertEqual(review.title, "Final")
+
+    def test_edit_errors_return_json(self):
+        """US-18: invalid edits return 400 JSON and change nothing."""
+        review = Review.objects.create(
+            wine=self.wine, user=self.user, rating=3, title="Fine", body="Ok"
+        )
+        url = reverse("edit_review", args=[review.id])
+        response = self.client.post(url, {"rating": "3", "title": ""}, **AJAX)
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("title", response.json()["errors"])
+        review.refresh_from_db()
+        self.assertEqual(review.title, "Fine")
+
+    def test_other_user_cannot_edit(self):
+        """US-18: only the review's owner can edit it."""
+        review = Review.objects.create(
+            wine=self.wine, user=self.user, rating=3, title="Mine", body="Ok"
+        )
+        url = reverse("edit_review", args=[review.id])
+        self.client.force_login(self.other)
+        self.assertEqual(self.client.get(url).status_code, 404)
+        response = self.client.post(url, dict(self.data, title="Hacked"))
+        self.assertEqual(response.status_code, 404)
+        review.refresh_from_db()
+        self.assertEqual(review.title, "Mine")
+
+    def test_edit_page_is_prefilled_for_no_javascript(self):
+        """US-18: the edit page shows the review for the owner."""
+        review = Review.objects.create(
+            wine=self.wine, user=self.user, rating=3, title="Pre-filled",
+            body="Ok",
+        )
+        response = self.client.get(
+            reverse("edit_review", args=[review.id]),
+            {"next": self.order_path},
+        )
+        self.assertContains(response, 'value="Pre-filled"')
+        self.assertContains(
+            response, f'name="next" value="{self.order_path}"'
+        )
+
+    def test_wine_page_review_counts_shipped_orders_as_verified(self):
+        """US-18: the wine page form also verifies shipped purchases."""
+        url = reverse("add_review", args=[self.wine.id])
+        response = self.client.post(url, self.data)
+        self.assertRedirects(response, self.order_path)
+        self.assertTrue(
+            Review.objects.get(user=self.user).verified_purchase
+        )

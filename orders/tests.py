@@ -14,6 +14,7 @@ from orders.models import Order, OrderItem
 from orders.pricing import calculate_totals, normalise_eircode
 from orders.views import _send_order_confirmation_email
 from products.models import Wine, Region
+from reviews.models import Review
 
 User = get_user_model()
 
@@ -947,3 +948,87 @@ class OrderBreakdownDisplayTests(TestCase):
         email = mail.outbox[0]
         self.assert_breakdown(email.body)
         self.assert_breakdown(email.alternatives[0][0])
+
+
+class OrderReviewButtonTests(TestCase):
+    """US-03 / US-18: Review buttons on the customer's order page."""
+
+    def setUp(self):
+        self.client = Client()
+        self.user = User.objects.create_user(
+            email="reviewer@example.com", username="reviewer", password="x"
+        )
+        region = Region.objects.create(name="Rioja", country="Spain")
+        self.wine = Wine.objects.create(
+            name="Button Red", producer="Test", region=region,
+            wine_type="red", abv=13.5, price="20.00", stock=10,
+        )
+        self.client.force_login(self.user)
+
+    def order_with_wine(self, status):
+        order = Order.objects.create(
+            user=self.user, full_name="R", email="reviewer@example.com",
+            address_line1="1 Main St", city="Dublin", postcode="D02 X285",
+            country="Ireland", grand_total="20.00", status=status,
+        )
+        OrderItem.objects.create(
+            order=order, wine=self.wine, quantity=1,
+            price_at_purchase="20.00",
+        )
+        return order
+
+    def detail(self, order):
+        return self.client.get(
+            reverse("order_detail", args=[order.order_number])
+        )
+
+    def test_button_for_paid_shipped_and_delivered_orders(self):
+        """US-18: paid, shipped and delivered orders offer a review."""
+        for status in ["paid", "shipped", "delivered"]:
+            with self.subTest(status=status):
+                order = self.order_with_wine(status)
+                response = self.detail(order)
+                self.assertContains(response, "Write a review")
+                self.assertContains(
+                    response,
+                    'data-url="' + reverse(
+                        "order_review",
+                        args=[order.order_number, self.wine.id],
+                    ) + '"',
+                )
+                self.assertContains(response, 'id="reviewModal"')
+
+    def test_no_button_for_pending_or_cancelled_orders(self):
+        """US-18: unpaid orders show no review button or modal."""
+        for status in ["pending", "cancelled"]:
+            with self.subTest(status=status):
+                response = self.detail(self.order_with_wine(status))
+                self.assertNotContains(response, "Write a review")
+                self.assertNotContains(response, 'id="reviewModal"')
+
+    def test_edit_label_when_already_reviewed_in_every_order(self):
+        """US-18: an existing review shows "Edit your review" everywhere."""
+        first = self.order_with_wine("paid")
+        second = self.order_with_wine("delivered")
+        review = Review.objects.create(
+            wine=self.wine, user=self.user, rating=4, title="Nice",
+            body="From the wine page.",
+        )
+        edit_url = reverse("edit_review", args=[review.id])
+        for order in [first, second]:
+            with self.subTest(order=order.pk):
+                response = self.detail(order)
+                self.assertContains(response, "Edit your review")
+                self.assertNotContains(response, "Write a review")
+                self.assertContains(response, f'data-url="{edit_url}"')
+                self.assertContains(response, 'data-rating="4"')
+
+    def test_buttons_link_to_review_pages_without_javascript(self):
+        """US-18: without JavaScript the button opens the review page."""
+        order = self.order_with_wine("paid")
+        order_path = reverse("order_detail", args=[order.order_number])
+        response = self.detail(order)
+        fallback = reverse("add_review", args=[self.wine.id])
+        self.assertContains(
+            response, f'href="{fallback}?next={order_path}"'
+        )

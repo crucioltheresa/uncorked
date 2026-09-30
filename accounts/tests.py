@@ -5,6 +5,7 @@ from django.contrib import admin
 from django.test import TestCase, Client
 from django.urls import reverse
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group
 from django.core import mail
 from django.core.cache import cache
 from allauth.account.models import EmailAddress
@@ -767,3 +768,58 @@ class AdminPanelTests(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "profile-0-full_name")
+
+
+class AccountAreaByRoleTests(TestCase):
+    """US-03 / US-04: The account area depends on the user's role."""
+
+    def setUp(self):
+        self.client = Client()
+        self.customer = User.objects.create_user(
+            email="shopper@example.com", username="shopper", password="x"
+        )
+        self.manager = User.objects.create_user(
+            email="manager@example.com", username="manager", password="x"
+        )
+        self.manager.groups.add(Group.objects.get(name="Store Manager"))
+        self.admin = User.objects.create_superuser(
+            email="dev@example.com", username="dev", password="x"
+        )
+        self.dashboard_url = reverse("dashboard:overview")
+        self.profile_url = reverse("profile")
+
+    def nav_account_link(self, response):
+        """The href of the nav account icon (the person icon)."""
+        html = response.content.decode()
+        icon = html.index('<i class="bi bi-person-fill"')
+        start = html.rindex('<a href="', 0, icon) + len('<a href="')
+        return html[start:html.index('"', start)]
+
+    def test_store_manager_profile_redirects_to_dashboard(self):
+        """US-04: a store manager's profile page is the dashboard."""
+        self.client.force_login(self.manager)
+        response = self.client.get(self.profile_url)
+        self.assertRedirects(response, self.dashboard_url)
+
+    def test_store_manager_nav_icon_points_to_dashboard(self):
+        """US-04: a store manager's account icon opens the dashboard."""
+        self.client.force_login(self.manager)
+        response = self.client.get(reverse("wine_list"))
+        self.assertEqual(self.nav_account_link(response), self.dashboard_url)
+
+    def test_superuser_keeps_profile_with_dashboard_button(self):
+        """US-04: a superuser keeps the profile, with a dashboard button."""
+        self.client.force_login(self.admin)
+        response = self.client.get(self.profile_url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "accounts/profile.html")
+        self.assertContains(response, f'href="{self.dashboard_url}"')
+        self.assertEqual(self.nav_account_link(response), self.profile_url)
+
+    def test_customer_keeps_profile(self):
+        """US-03: a customer's account icon and profile are unchanged."""
+        self.client.force_login(self.customer)
+        response = self.client.get(self.profile_url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(self.nav_account_link(response), self.profile_url)
+        self.assertNotContains(response, f'href="{self.dashboard_url}"')
