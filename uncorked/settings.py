@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     "wishlist",
     "reviews",
     "sommelier",
+    "dashboard",
 ]
 
 MIDDLEWARE = [

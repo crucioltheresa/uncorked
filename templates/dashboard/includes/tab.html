@@ -1,0 +1,5 @@
+<li class="dashboard__tab-item">
+    <a href="{% url url_name %}" class="dashboard__tab{% if section == key %} dashboard__tab--active{% endif %}"{% if section == key %} aria-current="page"{% endif %}>
+        <i class="bi {{ icon }}" aria-hidden="true"></i> {{ label }}
+    </a>
+</li>

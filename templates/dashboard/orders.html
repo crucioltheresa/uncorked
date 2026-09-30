@@ -1,0 +1,60 @@
+{% extends 'dashboard/base.html' %}
+
+{% block dash_title %}Orders{% endblock %}
+{% block heading %}Orders{% endblock %}
+
+{% block dashboard_content %}
+<form method="GET" class="dash-filters" role="search" aria-label="Filter orders">
+    <div class="form-group dash-filters__search">
+        <label for="order-q">Search</label>
+        <input type="search" id="order-q" name="q" value="{{ query }}" placeholder="Email, name or order number">
+    </div>
+    <div class="form-group">
+        <label for="order-status">Status</label>
+        <select id="order-status" name="status">
+            <option value="">All statuses</option>
+            {% for value, label in status_choices %}
+            <option value="{{ value }}"{% if selected_status == value %} selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="dash-filters__actions">
+        <button type="submit" class="btn btn--primary btn--sm">Filter</button>
+        <a href="{% url 'dashboard:orders' %}" class="btn btn--outline btn--sm">Clear</a>
+    </div>
+</form>
+
+<p class="dash-count">{{ page.paginator.count }} order{{ page.paginator.count|pluralize }}</p>
+
+{% if page.object_list %}
+<table class="dash-table">
+    <thead>
+        <tr>
+            <th scope="col">Order</th>
+            <th scope="col">Date</th>
+            <th scope="col">Customer</th>
+            <th scope="col">Email</th>
+            <th scope="col">Total</th>
+            <th scope="col">Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for order in page %}
+        <tr>
+            <td class="dash-table__primary" data-label="Order">
+                <a href="{% url 'dashboard:order_detail' order.order_number %}">#{{ order.order_number|stringformat:"s"|slice:":8"|upper }}</a>
+            </td>
+            <td data-label="Date">{{ order.created_at|date:"j M Y, H:i" }}</td>
+            <td data-label="Customer">{{ order.full_name }}</td>
+            <td data-label="Email">{{ order.email }}</td>
+            <td data-label="Total">€{{ order.grand_total }}</td>
+            <td data-label="Status"><span class="status-badge status-badge--{{ order.status }}">{{ order.get_status_display }}</span></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% include "dashboard/includes/pagination.html" %}
+{% else %}
+<p class="dash-empty">No orders match these filters.</p>
+{% endif %}
+{% endblock %}

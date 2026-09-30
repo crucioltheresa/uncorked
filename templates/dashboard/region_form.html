@@ -1,0 +1,26 @@
+{% extends 'dashboard/base.html' %}
+
+{% block dash_title %}{% if region %}Edit {{ region.name }}{% else %}Add region{% endif %}{% endblock %}
+{% block heading %}{% if region %}Edit region{% else %}Add region{% endif %}{% endblock %}
+
+{% block dashboard_content %}
+<section class="dash-panel dash-panel--narrow">
+    <form method="POST" novalidate class="dash-form">
+        {% csrf_token %}
+        {% if form.non_field_errors %}
+        <p class="form-error dash-form__errors" role="alert">{{ form.non_field_errors|join:" " }}</p>
+        {% endif %}
+        {% for field in form %}
+        <div class="form-group">
+            <label for="{{ field.id_for_label }}">{{ field.label }} *</label>
+            {{ field }}
+            {% if field.errors %}<span class="form-error">{{ field.errors|join:" " }}</span>{% endif %}
+        </div>
+        {% endfor %}
+        <div class="dash-actions">
+            <button type="submit" class="btn btn--primary btn--sm">{% if region %}Save changes{% else %}Add region{% endif %}</button>
+            <a href="{% url 'dashboard:regions' %}" class="btn btn--outline btn--sm">Cancel</a>
+        </div>
+    </form>
+</section>
+{% endblock %}

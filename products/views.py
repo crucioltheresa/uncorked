@@ -1,30 +1,11 @@
-from functools import wraps
-
 from django.contrib import messages
-from django.contrib.auth.views import redirect_to_login
 from django.core.paginator import Paginator
 from django.shortcuts import render, redirect, get_object_or_404
 from django.db.models import Q
+from core.decorators import superuser_required
 from orders.models import OrderItem
 from .forms import WineForm
 from .models import Wine, Region
-
-
-def superuser_required(view):
-    """Logged out: send to login. Logged in but not a superuser: refuse."""
-
-    @wraps(view)
-    def wrapper(request, *args, **kwargs):
-        if not request.user.is_authenticated:
-            return redirect_to_login(request.get_full_path())
-        if not request.user.is_superuser:
-            messages.error(
-                request, "Only site administrators can manage wines."
-            )
-            return redirect("wine_list")
-        return view(request, *args, **kwargs)
-
-    return wrapper
 
 
 def wine_list(request):

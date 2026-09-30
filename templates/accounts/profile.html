@@ -11,7 +11,10 @@
             <h1>My Profile</h1>
             <div class="profile__header-actions">
                 {% if request.user.is_superuser %}
-                <a href="{% url 'wine_add' %}" class="btn btn--primary">
+                <a href="{% url 'dashboard:overview' %}" class="btn btn--primary">
+                    <i class="bi bi-speedometer2" aria-hidden="true"></i> Store Dashboard
+                </a>
+                <a href="{% url 'wine_add' %}" class="btn btn--outline">
                     <i class="bi bi-plus-lg"></i> Add Wine
                 </a>
                 {% endif %}

@@ -1,0 +1,60 @@
+{% extends 'dashboard/base.html' %}
+
+{% block dash_title %}Reviews{% endblock %}
+{% block heading %}Reviews{% endblock %}
+
+{% block dashboard_content %}
+<form method="GET" class="dash-filters" aria-label="Filter reviews">
+    <div class="form-group">
+        <label for="review-rating">Rating</label>
+        <select id="review-rating" name="rating">
+            <option value="">All ratings</option>
+            {% for value in ratings %}
+            <option value="{{ value }}"{% if selected_rating == value %} selected{% endif %}>{{ value }} star{{ value|pluralize }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="dash-filters__actions">
+        <button type="submit" class="btn btn--primary btn--sm">Filter</button>
+    </div>
+</form>
+
+<p class="dash-count">{{ page.paginator.count }} review{{ page.paginator.count|pluralize }}</p>
+
+{% if page.object_list %}
+<table class="dash-table">
+    <thead>
+        <tr>
+            <th scope="col">Wine</th>
+            <th scope="col">Customer</th>
+            <th scope="col">Rating</th>
+            <th scope="col">Verified</th>
+            <th scope="col">Date</th>
+            <th scope="col"><span class="sr-only">Actions</span></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for review in page %}
+        <tr>
+            <td class="dash-table__primary" data-label="Wine">
+                <a href="{% url 'wine_detail' review.wine.slug %}">{{ review.wine.name }}</a>
+                <small>{{ review.title }}</small>
+            </td>
+            <td data-label="Customer">{{ review.user.email }}</td>
+            <td data-label="Rating">
+                <span class="dash-stars" aria-label="{{ review.rating }} out of 5 stars">{% for i in "12345" %}<i class="bi {% if forloop.counter <= review.rating %}bi-star-fill{% else %}bi-star{% endif %}" aria-hidden="true"></i>{% endfor %}</span>
+            </td>
+            <td data-label="Verified">{% if review.verified_purchase %}Yes{% else %}No{% endif %}</td>
+            <td data-label="Date">{{ review.created_at|date:"j M Y" }}</td>
+            <td class="dash-table__actions">
+                <a href="{% url 'dashboard:review_delete' review.pk %}" class="btn btn--outline btn--sm btn--danger-outline">Delete</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% include "dashboard/includes/pagination.html" %}
+{% else %}
+<p class="dash-empty">No reviews match this filter.</p>
+{% endif %}
+{% endblock %}

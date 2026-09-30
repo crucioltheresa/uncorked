@@ -11,6 +11,7 @@ class Order(models.Model):
         ("pending", "Pending"),
         ("paid", "Paid"),
         ("shipped", "Shipped"),
+        ("delivered", "Delivered"),
         ("cancelled", "Cancelled"),
     ]
 

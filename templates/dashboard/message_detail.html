@@ -1,0 +1,36 @@
+{% extends 'dashboard/base.html' %}
+
+{% block dash_title %}Message from {{ contact.name }}{% endblock %}
+{% block heading %}Message{% endblock %}
+{% block header_actions %}
+<a href="{% url 'dashboard:messages' %}" class="btn btn--outline btn--sm"><i class="bi bi-arrow-left" aria-hidden="true"></i> All messages</a>
+{% endblock %}
+
+{% block dashboard_content %}
+<section class="dash-panel">
+    <dl class="dash-meta">
+        <div><dt>From</dt><dd>{{ contact.name }} &lt;{{ contact.email }}&gt;</dd></div>
+        <div><dt>Topic</dt><dd>{{ contact.get_subject_display }}</dd></div>
+        <div><dt>Received</dt><dd>{{ contact.created_at|date:"j F Y, H:i" }}</dd></div>
+        <div><dt>Status</dt><dd>{% if contact.handled %}Handled{% else %}Not handled{% endif %}</dd></div>
+    </dl>
+
+    <div class="dash-message">{{ contact.message|linebreaks }}</div>
+
+    <div class="dash-actions">
+        <a href="mailto:{{ contact.email }}?subject={{ 'Re: '|add:contact.get_subject_display|urlencode }}" class="btn btn--primary btn--sm">
+            <i class="bi bi-reply" aria-hidden="true"></i> Reply by email
+        </a>
+        <form method="POST" action="{% url 'dashboard:message_handled' contact.pk %}">
+            {% csrf_token %}
+            {% if contact.handled %}
+            <input type="hidden" name="handled" value="0">
+            <button type="submit" class="btn btn--outline btn--sm">Mark as not handled</button>
+            {% else %}
+            <input type="hidden" name="handled" value="1">
+            <button type="submit" class="btn btn--outline btn--sm"><i class="bi bi-check2" aria-hidden="true"></i> Mark as handled</button>
+            {% endif %}
+        </form>
+    </div>
+</section>
+{% endblock %}

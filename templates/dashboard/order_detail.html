@@ -1,0 +1,76 @@
+{% extends 'dashboard/base.html' %}
+
+{% block dash_title %}Order #{{ order.order_number|stringformat:"s"|slice:":8"|upper }}{% endblock %}
+{% block heading %}Order #{{ order.order_number|stringformat:"s"|slice:":8"|upper }}{% endblock %}
+{% block header_actions %}
+<a href="{% url 'dashboard:orders' %}" class="btn btn--outline btn--sm"><i class="bi bi-arrow-left" aria-hidden="true"></i> All orders</a>
+{% endblock %}
+
+{% block dashboard_content %}
+<p class="dash-subtitle">
+    Placed {{ order.created_at|date:"j F Y, H:i" }} ·
+    <span class="status-badge status-badge--{{ order.status }}">{{ order.get_status_display }}</span>
+</p>
+
+<div class="dash-columns">
+    <section class="dash-panel">
+        <h2 class="dash-panel__title">Items</h2>
+        <table class="dash-table dash-table--compact">
+            <thead>
+                <tr>
+                    <th scope="col">Wine</th>
+                    <th scope="col">Qty</th>
+                    <th scope="col">Price</th>
+                    <th scope="col">Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in order.items.all %}
+                <tr>
+                    <td class="dash-table__primary" data-label="Wine">{{ item.wine.name }}</td>
+                    <td data-label="Qty">{{ item.quantity }}</td>
+                    <td data-label="Price">€{{ item.price_at_purchase }}</td>
+                    <td data-label="Total">€{{ item.get_total|floatformat:2 }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <div class="dash-totals">
+            {% include "includes/order_totals.html" with subtotal=order.subtotal discount=order.discount delivery=order.delivery_cost total=order.grand_total %}
+        </div>
+    </section>
+
+    <div class="dash-stack">
+        <section class="dash-panel">
+            <h2 class="dash-panel__title">Status</h2>
+            <form method="POST" action="{% url 'dashboard:order_status' order.order_number %}" class="dash-inline-form">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="{{ status_form.status.id_for_label }}">{{ status_form.status.label }}</label>
+                    {{ status_form.status }}
+                </div>
+                <button type="submit" class="btn btn--primary btn--sm">Update status</button>
+            </form>
+        </section>
+
+        <section class="dash-panel">
+            <h2 class="dash-panel__title">Delivery</h2>
+            <address class="dash-address">
+                {{ order.full_name }}<br>
+                {{ order.address_line1 }}<br>
+                {% if order.address_line2 %}{{ order.address_line2 }}<br>{% endif %}
+                {{ order.city }}<br>
+                Eircode: <strong>{{ order.postcode }}</strong><br>
+                {{ order.country }}
+            </address>
+            <p class="dash-contact">
+                <a href="mailto:{{ order.email }}">{{ order.email }}</a>
+                {% if order.user %}<br><small>Customer account</small>{% else %}<br><small>Guest checkout</small>{% endif %}
+            </p>
+            {% if order.stripe_payment_intent %}
+            <p class="dash-contact"><small>Stripe payment: {{ order.stripe_payment_intent }}</small></p>
+            {% endif %}
+        </section>
+    </div>
+</div>
+{% endblock %}

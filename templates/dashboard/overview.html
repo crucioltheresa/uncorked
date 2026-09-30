@@ -1,0 +1,61 @@
+{% extends 'dashboard/base.html' %}
+
+{% block dash_title %}Overview{% endblock %}
+{% block heading %}Overview{% endblock %}
+
+{% block dashboard_content %}
+<section class="dash-cards" aria-label="Store summary">
+    <a href="{% url 'dashboard:orders' %}" class="dash-card">
+        <span class="dash-card__label">Paid orders · last 30 days</span>
+        <span class="dash-card__value">{{ sales_30_days.count }}</span>
+        <span class="dash-card__meta">€{{ sales_30_days.revenue|floatformat:2 }} revenue</span>
+    </a>
+    <a href="{% url 'dashboard:orders' %}" class="dash-card">
+        <span class="dash-card__label">Paid orders · all time</span>
+        <span class="dash-card__value">{{ sales_all_time.count }}</span>
+        <span class="dash-card__meta">€{{ sales_all_time.revenue|floatformat:2 }} revenue</span>
+    </a>
+    <a href="{% url 'dashboard:orders' %}?status=paid" class="dash-card{% if to_ship_count %} dash-card--attention{% endif %}">
+        <span class="dash-card__label">Waiting to be shipped</span>
+        <span class="dash-card__value">{{ to_ship_count }}</span>
+        <span class="dash-card__meta">Paid orders not yet shipped</span>
+    </a>
+    <a href="{% url 'dashboard:wines' %}?available=yes&amp;stock=low" class="dash-card{% if low_stock_count %} dash-card--attention{% endif %}">
+        <span class="dash-card__label">Low stock</span>
+        <span class="dash-card__value">{{ low_stock_count }}</span>
+        <span class="dash-card__meta">Wines with {{ low_stock_threshold }} or fewer bottles</span>
+    </a>
+    <a href="{% url 'dashboard:wines' %}?available=yes&amp;stock=out" class="dash-card{% if out_of_stock_count %} dash-card--alert{% endif %}">
+        <span class="dash-card__label">Out of stock</span>
+        <span class="dash-card__value">{{ out_of_stock_count }}</span>
+        <span class="dash-card__meta">Available wines with no bottles left</span>
+    </a>
+    <a href="{% url 'dashboard:messages' %}?handled=no" class="dash-card{% if unhandled_count %} dash-card--attention{% endif %}">
+        <span class="dash-card__label">Unhandled messages</span>
+        <span class="dash-card__value">{{ unhandled_count }}</span>
+        <span class="dash-card__meta">From the contact form</span>
+    </a>
+</section>
+
+<section class="dash-panel">
+    <div class="dash-panel__header">
+        <h2 class="dash-panel__title">Newest reviews</h2>
+        <a href="{% url 'dashboard:reviews' %}" class="dash-panel__link">All reviews</a>
+    </div>
+    {% if latest_reviews %}
+    <ul class="dash-list">
+        {% for review in latest_reviews %}
+        <li class="dash-list__item">
+            <span class="dash-stars" aria-label="{{ review.rating }} out of 5 stars">{% for i in "12345" %}<i class="bi {% if forloop.counter <= review.rating %}bi-star-fill{% else %}bi-star{% endif %}" aria-hidden="true"></i>{% endfor %}</span>
+            <span class="dash-list__main">
+                <strong>{{ review.title }}</strong> — {{ review.wine.name }}
+            </span>
+            <span class="dash-list__meta">{{ review.user.email }} · {{ review.created_at|date:"j M Y" }}</span>
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p class="dash-empty">No reviews yet.</p>
+    {% endif %}
+</section>
+{% endblock %}

@@ -1,0 +1,36 @@
+{% extends 'dashboard/base.html' %}
+
+{% block dash_title %}Regions{% endblock %}
+{% block heading %}Regions{% endblock %}
+{% block header_actions %}
+<a href="{% url 'dashboard:region_add' %}" class="btn btn--primary btn--sm"><i class="bi bi-plus-lg" aria-hidden="true"></i> Add region</a>
+{% endblock %}
+
+{% block dashboard_content %}
+{% if regions %}
+<table class="dash-table">
+    <thead>
+        <tr>
+            <th scope="col">Region</th>
+            <th scope="col">Country</th>
+            <th scope="col">Wines</th>
+            <th scope="col"><span class="sr-only">Actions</span></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for region in regions %}
+        <tr>
+            <td class="dash-table__primary" data-label="Region">{{ region.name }}</td>
+            <td data-label="Country">{{ region.country }}</td>
+            <td data-label="Wines">{{ region.wine_count }}</td>
+            <td class="dash-table__actions">
+                <a href="{% url 'dashboard:region_edit' region.pk %}" class="btn btn--outline btn--sm">Edit</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p class="dash-empty">No regions yet.</p>
+{% endif %}
+{% endblock %}

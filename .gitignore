@@ -12,3 +12,4 @@ media/
 local_settings.py
 .claude/
 node_modules/
+staticfiles/

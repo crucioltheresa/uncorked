@@ -1,0 +1,105 @@
+{% extends 'dashboard/base.html' %}
+
+{% block dash_title %}Wines{% endblock %}
+{% block heading %}Wines{% endblock %}
+{% block header_actions %}
+<a href="{% url 'wine_add' %}" class="btn btn--primary btn--sm"><i class="bi bi-plus-lg" aria-hidden="true"></i> Add wine</a>
+{% endblock %}
+
+{% block dashboard_content %}
+<form method="GET" class="dash-filters" role="search" aria-label="Filter wines">
+    <div class="form-group dash-filters__search">
+        <label for="wine-q">Search</label>
+        <input type="search" id="wine-q" name="q" value="{{ query }}" placeholder="Name or producer">
+    </div>
+    <div class="form-group">
+        <label for="wine-type">Type</label>
+        <select id="wine-type" name="type">
+            <option value="">All types</option>
+            {% for value, label in type_choices %}
+            <option value="{{ value }}"{% if selected_type == value %} selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="wine-available">Availability</label>
+        <select id="wine-available" name="available">
+            <option value="">All</option>
+            <option value="yes"{% if selected_available == 'yes' %} selected{% endif %}>Available</option>
+            <option value="no"{% if selected_available == 'no' %} selected{% endif %}>Hidden</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="wine-stock">Stock</label>
+        <select id="wine-stock" name="stock">
+            <option value="">Any</option>
+            <option value="low"{% if selected_stock == 'low' %} selected{% endif %}>Low ({{ low_stock_threshold }} or fewer)</option>
+            <option value="out"{% if selected_stock == 'out' %} selected{% endif %}>Out of stock</option>
+        </select>
+    </div>
+    <div class="dash-filters__actions">
+        <button type="submit" class="btn btn--primary btn--sm">Filter</button>
+        <a href="{% url 'dashboard:wines' %}" class="btn btn--outline btn--sm">Clear</a>
+    </div>
+</form>
+
+<p class="dash-count">{{ page.paginator.count }} wine{{ page.paginator.count|pluralize }}</p>
+
+{% if page.object_list %}
+<table class="dash-table">
+    <thead>
+        <tr>
+            <th scope="col"><span class="sr-only">Image</span></th>
+            <th scope="col">Wine</th>
+            <th scope="col">Type</th>
+            <th scope="col">Region</th>
+            <th scope="col">Price</th>
+            <th scope="col">Stock</th>
+            <th scope="col">Available</th>
+            <th scope="col"><span class="sr-only">Actions</span></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for wine in page %}
+        <tr>
+            <td class="dash-table__thumb-cell">
+                {% if wine.image %}
+                <img src="{{ wine.image.url }}" alt="" class="dash-table__thumb" width="48" height="48" loading="lazy">
+                {% else %}
+                <span class="dash-table__thumb dash-table__thumb--empty" aria-hidden="true"></span>
+                {% endif %}
+            </td>
+            <td class="dash-table__primary" data-label="Wine">
+                <a href="{% url 'wine_detail' wine.slug %}">{{ wine.name }}</a>
+                <small>{{ wine.producer }}{% if wine.vintage %} · {{ wine.vintage }}{% endif %}</small>
+            </td>
+            <td data-label="Type">{{ wine.get_wine_type_display }}</td>
+            <td data-label="Region">{% if wine.region %}{{ wine.region.name }}, {{ wine.region.country }}{% else %}—{% endif %}</td>
+            <td data-label="Price">€{{ wine.price }}</td>
+            <td data-label="Stock">
+                <span class="{% if wine.stock <= 0 %}dash-stock dash-stock--out{% elif wine.stock <= low_stock_threshold %}dash-stock dash-stock--low{% else %}dash-stock{% endif %}">{{ wine.stock }}</span>
+            </td>
+            <td data-label="Available">
+                <form method="POST" action="{% url 'dashboard:wine_toggle_available' wine.id %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                    <button type="submit" class="dash-toggle{% if wine.is_available %} dash-toggle--on{% endif %}"
+                            aria-pressed="{% if wine.is_available %}true{% else %}false{% endif %}"
+                            aria-label="{% if wine.is_available %}Hide {{ wine.name }} from the shop{% else %}Show {{ wine.name }} in the shop{% endif %}">
+                        {% if wine.is_available %}Yes{% else %}No{% endif %}
+                    </button>
+                </form>
+            </td>
+            <td class="dash-table__actions">
+                <a href="{% url 'wine_edit' wine.slug %}" class="btn btn--outline btn--sm">Edit</a>
+                <a href="{% url 'wine_delete' wine.slug %}" class="btn btn--outline btn--sm btn--danger-outline">Delete</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% include "dashboard/includes/pagination.html" %}
+{% else %}
+<p class="dash-empty">No wines match these filters.</p>
+{% endif %}
+{% endblock %}

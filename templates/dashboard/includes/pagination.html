@@ -1,0 +1,11 @@
+{% if page.paginator.num_pages > 1 %}
+<nav class="dash-pagination" aria-label="Pages">
+    {% if page.has_previous %}
+    <a href="?{% if querystring %}{{ querystring }}&amp;{% endif %}page={{ page.previous_page_number }}" class="btn btn--outline btn--sm">Previous</a>
+    {% endif %}
+    <span class="dash-pagination__status">Page {{ page.number }} of {{ page.paginator.num_pages }}</span>
+    {% if page.has_next %}
+    <a href="?{% if querystring %}{{ querystring }}&amp;{% endif %}page={{ page.next_page_number }}" class="btn btn--outline btn--sm">Next</a>
+    {% endif %}
+</nav>
+{% endif %}

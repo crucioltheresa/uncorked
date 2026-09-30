@@ -1,0 +1,57 @@
+{% extends 'dashboard/base.html' %}
+
+{% block dash_title %}Messages{% endblock %}
+{% block heading %}Messages{% endblock %}
+
+{% block dashboard_content %}
+<form method="GET" class="dash-filters" aria-label="Filter messages">
+    <div class="form-group">
+        <label for="message-handled">Show</label>
+        <select id="message-handled" name="handled">
+            <option value="">All messages</option>
+            <option value="no"{% if selected_handled == 'no' %} selected{% endif %}>Not handled</option>
+            <option value="yes"{% if selected_handled == 'yes' %} selected{% endif %}>Handled</option>
+        </select>
+    </div>
+    <div class="dash-filters__actions">
+        <button type="submit" class="btn btn--primary btn--sm">Filter</button>
+    </div>
+</form>
+
+<p class="dash-count">{{ page.paginator.count }} message{{ page.paginator.count|pluralize }}</p>
+
+{% if page.object_list %}
+<table class="dash-table">
+    <thead>
+        <tr>
+            <th scope="col">From</th>
+            <th scope="col">Topic</th>
+            <th scope="col">Received</th>
+            <th scope="col">Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for contact in page %}
+        <tr{% if not contact.handled %} class="dash-table__row--unread"{% endif %}>
+            <td class="dash-table__primary" data-label="From">
+                <a href="{% url 'dashboard:message_detail' contact.pk %}">{{ contact.name }}</a>
+                <small>{{ contact.email }}</small>
+            </td>
+            <td data-label="Topic">{{ contact.get_subject_display }}</td>
+            <td data-label="Received">{{ contact.created_at|date:"j M Y, H:i" }}</td>
+            <td data-label="Status">
+                {% if contact.handled %}
+                <span class="status-badge status-badge--delivered">Handled</span>
+                {% else %}
+                <span class="status-badge status-badge--pending">Not handled</span>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% include "dashboard/includes/pagination.html" %}
+{% else %}
+<p class="dash-empty">No messages here.</p>
+{% endif %}
+{% endblock %}
