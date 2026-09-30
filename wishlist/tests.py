@@ -451,3 +451,50 @@ class WineDetailFavouriteButtonTests(TestCase):
         )
         self.client.post(toggle, {"quantity": 1})
         self.assertContains(self.client.get(self.url), "Add to favourites")
+
+
+class StoreManagerFavouritesTests(TestCase):
+    """US-16 / US-17: Store managers don't have favourites."""
+
+    def setUp(self):
+        self.client = Client()
+        from django.contrib.auth.models import Group
+        self.manager = User.objects.create_user(
+            email="manager@example.com", username="manager", password="x"
+        )
+        self.manager.groups.add(Group.objects.get(name="Store Manager"))
+        self.customer = User.objects.create_user(
+            email="fan@example.com", username="fan", password="x"
+        )
+        region = Region.objects.create(name="Rioja", country="Spain")
+        self.wine = Wine.objects.create(
+            name="Star Red", producer="Test", region=region,
+            wine_type="red", abv=13, price="10.00", stock=5,
+        )
+
+    def test_manager_is_redirected_from_wishlist(self):
+        """US-17: /wishlist/ sends a store manager to the dashboard."""
+        self.client.force_login(self.manager)
+        response = self.client.get(reverse("wishlist_detail"))
+        self.assertRedirects(response, reverse("dashboard:overview"))
+
+    def test_manager_sees_no_favourite_stars(self):
+        """US-16: no nav star, card stars or wine page favourites button."""
+        self.client.force_login(self.manager)
+        catalogue = self.client.get(reverse("wine_list"))
+        self.assertNotContains(catalogue, "nav__icon--wishlist")
+        self.assertNotContains(catalogue, "favourite-star")
+        detail = self.client.get(
+            reverse("wine_detail", args=[self.wine.slug])
+        )
+        self.assertNotContains(detail, "to favourites")
+
+    def test_customer_still_has_favourites(self):
+        """US-16: customers keep the nav star and card stars."""
+        self.client.force_login(self.customer)
+        catalogue = self.client.get(reverse("wine_list"))
+        self.assertContains(catalogue, "nav__icon--wishlist")
+        self.assertContains(catalogue, "favourite-star__button")
+        self.assertEqual(
+            self.client.get(reverse("wishlist_detail")).status_code, 200
+        )

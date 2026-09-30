@@ -75,7 +75,8 @@
                                 <input type="number" name="quantity" value="1" min="1" max="{{ wine.stock }}">
                                 <button type="button" onclick="this.previousElementSibling.stepUp()">+</button>
                             </div>
-                            {% if request.user.is_authenticated %}
+                            {% if is_store_manager %}{# Store managers have no favourites #}
+                            {% elif request.user.is_authenticated %}
                             {% if wine.id in wishlist_wine_ids %}
                             <button type="submit" formaction="{% url 'wishlist_toggle' wine.id %}"
                                     class="wine-detail__wishlist wine-detail__wishlist--active"
@@ -144,7 +145,7 @@
             </a>
             {% endif %}
 
-            {% for review in wine.reviews.all %}
+            {% for review in reviews %}
             <div class="review">
                 <div class="review__stars">
                     {% for i in "12345" %}
@@ -158,7 +159,7 @@
                 <h4 class="review__title">{{ review.title }}</h4>
                 <p class="review__body">{{ review.body }}</p>
                 <div class="review__meta">
-                    <span>{{ review.user.email }}</span>
+                    <span class="review__author">{{ review.user.display_name }}</span>
                     {% if review.verified_purchase %}
                     <span class="verified">
                         <i class="bi bi-patch-check-fill"></i> Verified purchase

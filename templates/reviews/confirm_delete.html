@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block title %}Delete your review — Uncorked{% endblock %}
+
+{% block content %}
+<div class="wine-delete">
+    <div class="content-container">
+        <div class="wine-delete__panel">
+            <h1 class="wine-delete__title">Delete Review</h1>
+            <p class="wine-delete__question">
+                Are you sure you want to delete your review of
+                <strong>{{ review.wine.name }}</strong>?
+            </p>
+            <blockquote class="review-quote">
+                <strong>{{ review.title }}</strong><br>
+                {{ review.body|truncatechars:200 }}
+            </blockquote>
+            <p class="wine-delete__note">This can't be undone.</p>
+            <form method="POST" class="wine-delete__actions">
+                {% csrf_token %}
+                {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
+                <button type="submit" class="btn btn--danger">Delete Review</button>
+                <a href="{{ cancel_url }}" class="btn btn--outline">Cancel</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

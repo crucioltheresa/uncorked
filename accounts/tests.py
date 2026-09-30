@@ -823,3 +823,76 @@ class AccountAreaByRoleTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(self.nav_account_link(response), self.profile_url)
         self.assertNotContains(response, f'href="{self.dashboard_url}"')
+
+
+class ProfileReviewsTests(TestCase):
+    """US-03 / US-18 / US-19: "My Reviews" on the profile."""
+
+    def setUp(self):
+        self.client = Client()
+        self.user = User.objects.create_user(
+            email="critic@example.com", username="critic", password="x"
+        )
+        region = Region.objects.create(name="Rioja", country="Spain")
+        self.old_wine = Wine.objects.create(
+            name="Older Red", producer="Test", region=region,
+            wine_type="red", abv=13, price="15.00", stock=5,
+        )
+        self.new_wine = Wine.objects.create(
+            name="Newer White", producer="Test", region=region,
+            wine_type="white", abv=12, price="15.00", stock=5,
+        )
+        self.client.force_login(self.user)
+
+    def add_reviews(self):
+        older = Review.objects.create(
+            wine=self.old_wine, user=self.user, rating=3, title="Decent",
+            body="Fine on a Tuesday.",
+        )
+        newer = Review.objects.create(
+            wine=self.new_wine, user=self.user, rating=5, title="Superb",
+            body="Bright and crisp.", verified_purchase=True,
+        )
+        return older, newer
+
+    def test_lists_reviews_newest_first_with_details(self):
+        """US-03: My Reviews shows each review, newest first."""
+        older, newer = self.add_reviews()
+        response = self.client.get(reverse("profile"))
+        self.assertEqual(list(response.context["reviews"]), [newer, older])
+        self.assertContains(response, "My Reviews")
+        self.assertContains(response, "Superb")
+        self.assertContains(response, "Bright and crisp.")
+        self.assertContains(
+            response, reverse("wine_detail", args=[self.new_wine.slug])
+        )
+        self.assertContains(response, 'aria-label="5 out of 5 stars"')
+        self.assertContains(response, "Verified purchase")
+
+    def test_each_review_has_edit_and_delete(self):
+        """US-18 / US-19: edit uses the review modal; delete confirms."""
+        older, newer = self.add_reviews()
+        response = self.client.get(reverse("profile"))
+        profile_path = reverse("profile")
+        for review in [older, newer]:
+            edit_url = reverse("edit_review", args=[review.id])
+            delete_url = reverse("delete_review", args=[review.id])
+            self.assertContains(response, f'data-url="{edit_url}"')
+            self.assertContains(
+                response, f'href="{delete_url}?next={profile_path}"'
+            )
+        self.assertContains(response, 'id="reviewModal"')
+        self.assertContains(response, "js/reviews_modal.js")
+
+    def test_empty_state(self):
+        """US-03: no reviews yet shows a friendly message and a link."""
+        response = self.client.get(reverse("profile"))
+        self.assertContains(response, "You haven't reviewed any wines yet.")
+        self.assertContains(response, reverse("wine_list"))
+        self.assertNotContains(response, 'id="reviewModal"')
+
+    def test_profile_layout_classes(self):
+        """US-03: details and order history are laid out as two columns."""
+        response = self.client.get(reverse("profile"))
+        self.assertContains(response, "profile__section--details")
+        self.assertContains(response, "profile__section--orders")

@@ -1,6 +1,8 @@
-// US-18 Write a Review / US-03 Order History: reviewing from the order page
+// US-18 Write a Review / US-03 Profile & Order History: reviewing from
+// the order page and editing from the profile's My Reviews
 const {
     reviewButtonLabel,
+    reviewStarClasses,
     reviewErrors,
 } = require('../static/js/reviews_modal');
 
@@ -39,5 +41,19 @@ describe('reviewErrors', () => {
 
     test('anything unexpected becomes a generic error', () => {
         expect(reviewErrors(null).formErrors[0]).toMatch(/something went wrong/i);
+    });
+});
+
+describe('reviewStarClasses', () => {
+    test('fills stars up to the rating', () => {
+        expect(reviewStarClasses(3)).toEqual([
+            'bi bi-star-fill', 'bi bi-star-fill', 'bi bi-star-fill',
+            'bi bi-star', 'bi bi-star',
+        ]);
+    });
+
+    test('five stars are all filled', () => {
+        expect(reviewStarClasses(5).every((c) => c === 'bi bi-star-fill'))
+            .toBe(true);
     });
 });

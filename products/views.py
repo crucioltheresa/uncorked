@@ -62,6 +62,8 @@ def wine_detail(request, slug):
     context = {
         "wine": wine,
         "related_wines": related_wines,
+        # Author and profile in one query, for the reviewers' public names
+        "reviews": wine.reviews.select_related("user", "user__profile"),
     }
     return render(request, "products/wine_detail.html", context)
 

@@ -43,9 +43,11 @@
                 </form>
                 <a href="{% url 'homepage' %}" class="nav__logo">Uncorked</a>
                 <div class="nav__icons">
-                    <a href="{% url 'wishlist_detail' %}" class="nav__icon nav__icon--wishlist">
-                        <i class="bi bi-star"></i>
+                    {% if not is_store_manager %}
+                    <a href="{% url 'wishlist_detail' %}" class="nav__icon nav__icon--wishlist" aria-label="Favourites">
+                        <i class="bi bi-star" aria-hidden="true"></i>
                     </a>
+                    {% endif %}
                     {% if is_store_manager %}
                     <a href="{% url 'dashboard:overview' %}" class="nav__icon" title="Store Dashboard" aria-label="Store Dashboard">
                         <i class="bi bi-person-fill" aria-hidden="true"></i>

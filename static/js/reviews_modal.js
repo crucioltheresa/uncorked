@@ -1,7 +1,8 @@
-// Review modal on the order page. Each wine's "Write a review" / "Edit your
-// review" link still works without JavaScript (it goes to the review page).
-// With JavaScript it opens a Bootstrap modal, sends the form with fetch and,
-// on success, turns every button for that wine into "Edit your review".
+// Review modal on the order page and the profile's "My Reviews". Each
+// "Write a review" / "Edit" link still works without JavaScript (it goes to
+// the review page). With JavaScript it opens a Bootstrap modal, sends the
+// form with fetch and, on success, turns every button for that wine into
+// "Edit your review" and updates the review shown on the profile.
 
 /**
  * Button text for a wine, depending on whether the user has reviewed it.
@@ -10,6 +11,17 @@
  */
 function reviewButtonLabel(hasReview) {
     return hasReview ? 'Edit your review' : 'Write a review';
+}
+
+/**
+ * Icon classes for the five stars of a rating, e.g. 3 -> 3 filled, 2 empty.
+ * @param {number} rating - 1 to 5
+ * @returns {string[]}
+ */
+function reviewStarClasses(rating) {
+    return [1, 2, 3, 4, 5].map(
+        (star) => (star <= rating ? 'bi bi-star-fill' : 'bi bi-star')
+    );
 }
 
 /**
@@ -105,10 +117,27 @@ function initReviewModal() {
             button.dataset.title = review.title;
             button.dataset.body = review.body;
             button.href = `${review.edit_url}?next=${encodeURIComponent(window.location.pathname)}`;
-            button.querySelector('[data-review-label]').textContent = reviewButtonLabel(true);
+            const label = button.querySelector('[data-review-label]');
+            if (label) label.textContent = reviewButtonLabel(true);
             const icon = button.querySelector('i');
             if (icon) icon.className = 'bi bi-pencil';
         });
+        updateReviewCard(review);
+    }
+
+    // Profile "My Reviews": show the edited review straight away
+    function updateReviewCard(review) {
+        const card = document.querySelector(`[data-review-card="${review.id}"]`);
+        if (!card) return;
+        card.querySelector('[data-review-title]').textContent = review.title;
+        card.querySelector('[data-review-body]').textContent = review.body;
+        const stars = card.querySelector('[data-review-stars]');
+        stars.setAttribute('aria-label', `${review.rating} out of 5 stars`);
+        stars.querySelectorAll('i').forEach((icon, index) => {
+            icon.className = reviewStarClasses(review.rating)[index];
+        });
+        const verified = card.querySelector('[data-review-verified]');
+        if (verified) verified.hidden = !review.verified_purchase;
     }
 
     document.addEventListener('click', (event) => {
@@ -179,5 +208,5 @@ if (typeof document !== 'undefined') {
 }
 
 if (typeof module !== 'undefined') {
-    module.exports = { reviewButtonLabel, reviewErrors };
+    module.exports = { reviewButtonLabel, reviewStarClasses, reviewErrors };
 }

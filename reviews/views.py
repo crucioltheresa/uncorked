@@ -208,10 +208,21 @@ def edit_review(request, review_id):
 
 
 @login_required
-@require_POST
 def delete_review(request, review_id):
-    review = get_object_or_404(Review, id=review_id, user=request.user)
-    wine_slug = review.wine.slug
+    """
+    Delete your own review. GET shows a confirmation page; POST deletes
+    and goes back to "next" (e.g. the profile) or the wine page.
+    """
+    review = get_object_or_404(
+        Review.objects.select_related("wine"), id=review_id, user=request.user
+    )
+    default_url = reverse("wine_detail", args=[review.wine.slug])
+    if request.method != "POST":
+        return render(request, "reviews/confirm_delete.html", {
+            "review": review,
+            "next": _safe_next(request, ""),
+            "cancel_url": _safe_next(request, default_url),
+        })
     review.delete()
     messages.success(request, "Review deleted.")
-    return redirect("wine_detail", slug=wine_slug)
+    return redirect(_safe_next(request, default_url))

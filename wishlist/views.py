@@ -4,13 +4,19 @@ from django.utils.http import url_has_allowed_host_and_scheme
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 from django.contrib import messages
+from core.decorators import can_manage_store
 from products.models import Wine
 from .models import WishlistItem
 
 
 @login_required
 def wishlist_detail(request):
-    """The user's favourites, each with a quantity and add-to-cart."""
+    """
+    The user's favourites, each with a quantity and add-to-cart. Store
+    managers have no favourites: their account area is the dashboard.
+    """
+    if can_manage_store(request.user) and not request.user.is_superuser:
+        return redirect("dashboard:overview")
     items = WishlistItem.objects.filter(user=request.user).select_related(
         "wine", "wine__region"
     )

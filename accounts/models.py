@@ -15,8 +15,23 @@ class CustomUser(AbstractUser):
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["username"]
 
-    def __abs__(self):
+    def __str__(self):
         return self.email
+
+    @property
+    def display_name(self):
+        """
+        Public name, e.g. on reviews. Never the full email: the user's
+        first and last name, or the name on their profile, or else the
+        part of the email before the @.
+        """
+        full_name = self.get_full_name().strip()
+        if full_name:
+            return full_name
+        profile = getattr(self, "profile", None)
+        if profile is not None and profile.full_name.strip():
+            return profile.full_name.strip()
+        return self.email.split("@")[0]
 
 
 class UserProfile(models.Model):

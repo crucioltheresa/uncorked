@@ -74,7 +74,7 @@
                 <small>{{ wine.producer }}{% if wine.vintage %} · {{ wine.vintage }}{% endif %}</small>
             </td>
             <td data-label="Type">{{ wine.get_wine_type_display }}</td>
-            <td data-label="Region">{% if wine.region %}{{ wine.region.name }}, {{ wine.region.country }}{% else %}—{% endif %}</td>
+            <td data-label="Region">{{ wine.region|default:"—" }}</td>
             <td data-label="Price">€{{ wine.price }}</td>
             <td data-label="Stock">
                 <span class="{% if wine.stock <= 0 %}dash-stock dash-stock--out{% elif wine.stock <= low_stock_threshold %}dash-stock dash-stock--low{% else %}dash-stock{% endif %}">{{ wine.stock }}</span>

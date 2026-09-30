@@ -14,6 +14,9 @@ class Region(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
+        """"Rioja, Spain", or just "Spain" when the region is the country."""
+        if self.name.strip().lower() == self.country.strip().lower():
+            return self.country
         return f"{self.name}, {self.country}"
 
 

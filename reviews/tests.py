@@ -140,12 +140,22 @@ class DeleteReviewTests(TestCase):
         self.assertEqual(response.status_code, 404)
         self.assertTrue(Review.objects.filter(id=self.review.id).exists())
 
-    def test_delete_with_get_returns_405(self):
-        """US-19: deleting a review with GET is not allowed."""
+    def test_delete_with_get_only_asks_for_confirmation(self):
+        """US-19: GET shows a confirmation page and deletes nothing."""
         self.client.login(username="owner@example.com", password="testpass123")
         response = self.client.get(self.url)
-        self.assertEqual(response.status_code, 405)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "reviews/confirm_delete.html")
+        self.assertContains(response, "Are you sure you want to delete")
         self.assertTrue(Review.objects.filter(id=self.review.id).exists())
+
+    def test_delete_returns_to_next_page(self):
+        """US-19: deleting from the profile goes back to the profile."""
+        self.client.login(username="owner@example.com", password="testpass123")
+        profile_url = reverse("profile")
+        response = self.client.post(self.url, {"next": profile_url})
+        self.assertRedirects(response, profile_url)
+        self.assertFalse(Review.objects.filter(id=self.review.id).exists())
 
     def test_delete_requires_login(self):
         """US-19: anonymous users cannot delete a review."""
@@ -346,3 +356,51 @@ class ReviewFromOrderTests(TestCase):
         self.assertTrue(
             Review.objects.get(user=self.user).verified_purchase
         )
+
+
+class ReviewAuthorNameTests(TestCase):
+    """US-18: Review signatures never show the full email address."""
+
+    def setUp(self):
+        self.client = Client()
+        region = Region.objects.create(name="Rioja", country="Spain")
+        self.wine = Wine.objects.create(
+            name="Named Red", producer="Test", region=region,
+            wine_type="red", abv=13.5, price="20.00", stock=10,
+        )
+        self.user = User.objects.create_user(
+            email="biwedov366@cwsgear.com", username="u1", password="x"
+        )
+
+    def test_uses_first_and_last_name(self):
+        """US-18: the user's full name is used when there is one."""
+        self.user.first_name = "Aoife"
+        self.user.last_name = "Byrne"
+        self.assertEqual(self.user.display_name, "Aoife Byrne")
+
+    def test_uses_profile_name(self):
+        """US-18: otherwise the name saved on the profile."""
+        self.user.profile.full_name = "Siobhan Kelly"
+        self.user.profile.save()
+        self.assertEqual(self.user.display_name, "Siobhan Kelly")
+
+    def test_falls_back_to_email_prefix(self):
+        """US-18: with no name, only the part before the @."""
+        self.assertEqual(self.user.display_name, "biwedov366")
+
+    def test_wine_page_never_shows_the_full_email(self):
+        """US-18: the wine page signs reviews without the email."""
+        Review.objects.create(
+            wine=self.wine, user=self.user, rating=5, title="Great",
+            body="Lovely.",
+        )
+        response = self.client.get(
+            reverse("wine_detail", args=[self.wine.slug])
+        )
+        self.assertContains(
+            response,
+            '<span class="review__author">biwedov366</span>',
+            html=True,
+        )
+        self.assertNotContains(response, "biwedov366@cwsgear.com")
+        self.assertNotContains(response, "cwsgear.com")

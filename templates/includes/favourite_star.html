@@ -2,9 +2,10 @@
 Favourite star for a wine card image. Takes: wine.
 Logged in: a POST form that toggles the wine in the wishlist (works without
 JavaScript; wishlist.js sends it with fetch instead). Logged out: a link to
-log in and come back to this page.
+log in and come back to this page. Store managers don't have favourites.
 {% endcomment %}
-{% if request.user.is_authenticated %}
+{% if is_store_manager %}{# Store managers have no favourites #}
+{% elif request.user.is_authenticated %}
 <form method="POST" action="{% url 'wishlist_toggle' wine.id %}" class="favourite-star" data-favourite-form>
     {% csrf_token %}
     <input type="hidden" name="next" value="{{ request.get_full_path }}">

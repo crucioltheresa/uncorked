@@ -555,3 +555,36 @@ class ProductManagementTests(TestCase):
         self.assertEqual(
             default_storage.__class__.__name__, "InMemoryStorage"
         )
+
+
+class RegionDisplayTests(TestCase):
+    """US-05 / US-29: A region equal to its country is shown once."""
+
+    def test_region_and_country_shown_together(self):
+        """US-29: a normal region reads "Rioja, Spain"."""
+        region = Region(name="Rioja", country="Spain")
+        self.assertEqual(str(region), "Rioja, Spain")
+
+    def test_same_name_shown_once(self):
+        """US-29: "Spain, Spain" becomes "Spain" (any case or spacing)."""
+        self.assertEqual(str(Region(name="Spain", country="Spain")), "Spain")
+        self.assertEqual(
+            str(Region(name=" spain ", country="Spain")), "Spain"
+        )
+
+    def test_catalogue_and_dashboard_show_it_once(self):
+        """US-05: the catalogue and dashboard never say "Spain, Spain"."""
+        region = Region.objects.create(name="Spain", country="Spain")
+        Wine.objects.create(
+            name="Country Red", producer="Test", region=region,
+            wine_type="red", abv=13, price="10.00", stock=5,
+        )
+        admin = get_user_model().objects.create_superuser(
+            email="dev@example.com", username="dev", password="x"
+        )
+        self.client.force_login(admin)
+        for url in [reverse("wine_list"), reverse("dashboard:wines")]:
+            with self.subTest(url=url):
+                response = self.client.get(url)
+                self.assertContains(response, "Spain")
+                self.assertNotContains(response, "Spain, Spain")

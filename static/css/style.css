@@ -2950,6 +2950,111 @@ details[open] .nav__country-summary .nav__country-chevron {
     border-bottom: 0.5px solid var(--color-border);
 }
 
+/* Desktop: Delivery Details one third, Order History two thirds, same
+   height; My Reviews full width below. Stacked on smaller screens. */
+@media (min-width: 1024px) {
+    .profile__layout {
+        display: grid;
+        grid-template-columns: 1fr 2fr;
+        align-items: stretch;
+    }
+
+    .profile__layout > .profile__section {
+        margin-bottom: 0;
+    }
+}
+
+/* My Reviews on the profile */
+.profile__reviews {
+    margin-top: var(--space-md);
+}
+
+.my-review__title,
+.my-review__body,
+.my-review__meta {
+    color: var(--color-dark);
+}
+
+.my-reviews {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.my-review {
+    display: grid;
+    grid-template-columns: 64px 1fr;
+    gap: var(--space-sm);
+    padding: var(--space-sm) 0;
+    border-bottom: 0.5px solid var(--color-border);
+}
+
+.my-review:last-child {
+    border-bottom: 0;
+}
+
+.my-review__thumb {
+    display: block;
+    width: 64px;
+    height: 64px;
+    object-fit: cover;
+    border-radius: var(--radius-sm);
+    background: var(--color-surface);
+}
+
+.my-review__content {
+    min-width: 0;
+}
+
+.my-review__wine {
+    margin: 0 0 var(--space-xxs);
+    font-size: var(--text-base);
+    font-weight: 500;
+}
+
+.my-review__wine a {
+    color: var(--color-dark);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+.my-review__wine a:hover {
+    color: var(--color-accent);
+}
+
+.my-review__stars {
+    margin: 0 0 var(--space-xxs);
+    color: var(--color-accent);
+}
+
+.my-review__title {
+    margin: 0;
+    font-weight: 500;
+}
+
+.my-review__body {
+    margin: 0 0 var(--space-xs);
+    overflow-wrap: anywhere;
+}
+
+.my-review__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+    margin: 0 0 var(--space-xs);
+    font-size: var(--text-sm);
+}
+
+.my-review__meta [hidden] {
+    display: none;
+}
+
+.my-review__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-xs);
+}
+
 .profile__form {
     display: flex;
     flex-direction: column;
@@ -3019,6 +3124,12 @@ details[open] .nav__country-summary .nav__country-chevron {
     display: flex;
     flex-direction: column;
     gap: var(--space-sm);
+}
+
+/* Profile order cards fill the column (the order page's card is narrower) */
+.orders-list .order-card {
+    max-width: none;
+    margin: 0;
 }
 
 .order-card {
@@ -3331,11 +3442,6 @@ details[open] .nav__country-summary .nav__country-chevron {
     .order-card__status {
         text-align: right;
     }
-    .profile__layout {
-        flex-direction: row;
-        align-items: flex-start;
-    }
-
     .profile__sidebar {
         flex: 0 0 240px;
     }
@@ -5262,7 +5368,8 @@ body:has(.sommelier-dialog:not([hidden])) {
 
     .dash-table .dash-table__thumb-cell {
         float: none;
-        width: 56px;
+        width: calc(48px + var(--space-sm));
+        padding-right: var(--space-sm);
     }
 
     .dash-table .dash-table__actions {
