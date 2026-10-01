@@ -110,6 +110,66 @@ class WineDetailTests(TestCase):
         self.assertEqual(response.status_code, 404)
 
 
+class RelatedWinesTests(TestCase):
+    """US-07: "You may also like" on the wine detail page."""
+
+    def setUp(self):
+        self.client = Client()
+        region = Region.objects.create(name="Rioja", country="Spain")
+
+        def wine(name, wine_type="red", **fields):
+            return Wine.objects.create(
+                name=name, producer="Test", region=region,
+                wine_type=wine_type, abv=13, price="15.00", stock=5,
+                **fields,
+            )
+
+        self.current = wine("Current Red")
+        # Five other available reds: more than the four shown
+        self.other_reds = [wine(f"Other Red {i}") for i in range(5)]
+        self.hidden_red = wine("Hidden Red", is_available=False)
+        self.white = wine("Some White", wine_type="white")
+        self.url = reverse("wine_detail", args=[self.current.slug])
+
+    def related(self):
+        return list(self.client.get(self.url).context["related_wines"])
+
+    def test_shows_up_to_four_wines(self):
+        """US-07: the section shows at most four wines."""
+        response = self.client.get(self.url)
+        self.assertContains(response, "YOU MAY ALSO LIKE")
+        self.assertEqual(len(response.context["related_wines"]), 4)
+
+    def test_only_other_available_wines_of_the_same_type(self):
+        """US-07: same type only; never the current or unavailable wine."""
+        related = self.related()
+        self.assertNotIn(self.current, related)
+        self.assertNotIn(self.hidden_red, related)
+        self.assertNotIn(self.white, related)
+        for wine in related:
+            self.assertEqual(wine.wine_type, "red")
+            self.assertTrue(wine.is_available)
+            self.assertIn(wine, self.other_reds)
+
+    def test_cards_link_to_the_related_wines(self):
+        """US-07: each related card links to its wine, not the current."""
+        response = self.client.get(self.url)
+        for wine in response.context["related_wines"]:
+            self.assertContains(
+                response, reverse("wine_detail", args=[wine.slug])
+            )
+        self.assertNotContains(response, "Hidden Red")
+        self.assertNotContains(response, "Some White")
+
+    def test_section_hidden_when_nothing_matches(self):
+        """US-07: no other wine of the same type, no section."""
+        response = self.client.get(
+            reverse("wine_detail", args=[self.white.slug])
+        )
+        self.assertEqual(list(response.context["related_wines"]), [])
+        self.assertNotContains(response, "YOU MAY ALSO LIKE")
+
+
 class HomepageWorldMapTests(TestCase):
     """US-29: World map on the homepage."""
 
