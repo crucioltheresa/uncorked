@@ -32,6 +32,18 @@ describe('isCountryClickable', () => {
     });
 });
 
+describe('countryFilterUrl encodes country names', () => {
+    test.each([
+        ['Czech Republic', '/wines/?country=Czech%20Republic'],
+        ['New Zealand', '/wines/?country=New%20Zealand'],
+        ['South Africa', '/wines/?country=South%20Africa'],
+    ])('%s has no raw spaces', (name, expected) => {
+        const url = countryFilterUrl('/wines/', name);
+        expect(url).toBe(expected);
+        expect(url).not.toContain(' ');
+    });
+});
+
 describe('labels and links', () => {
     test('aria-label names the country and its wines', () => {
         expect(countryAriaLabel(countries[0])).toBe('France: 2 wines');

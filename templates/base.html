@@ -93,7 +93,7 @@
                     <div class="nav__country-dropdown" id="countryDropdown">
                         <div class="nav__country-grid">
                             {% for country in countries %}
-                            <a href="{% url 'wine_list' %}?country={{ country.name }}" class="nav__country-link">{{ country.name }}</a>
+                            <a href="{% url 'wine_list' %}?country={{ country.name|urlencode }}" class="nav__country-link">{{ country.name }}</a>
                             {% endfor %}
                         </div>
                     </div>
@@ -107,7 +107,7 @@
                     </summary>
                     <div class="nav__country-grid">
                         {% for country in countries %}
-                        <a href="{% url 'wine_list' %}?country={{ country.name }}" class="nav__country-link">{{ country.name }}</a>
+                        <a href="{% url 'wine_list' %}?country={{ country.name|urlencode }}" class="nav__country-link">{{ country.name }}</a>
                         {% endfor %}
                     </div>
                 </details>

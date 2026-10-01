@@ -81,7 +81,8 @@
 </section>
 
 <!-- SOCIAL PROOF -->
-<section class="social-proof">
+<section class="social-proof" aria-labelledby="socialProofTitle">
+    <h2 class="visually-hidden" id="socialProofTitle">Our philosophy and awards</h2>
     <p class="social-proof__quote">"We see wine as more than just a drink. It's about curiosity, connection, and finding something that surprises you."</p>
     <p class="social-proof__name">The Uncorked Team</p>
     <div class="social-proof__awards">
@@ -111,7 +112,7 @@
     <p class="explore-instruction explore-instruction--touch">Tap a country to explore its wines.</p>
 
     <!-- WORLD MAP -->
-    <div class="world-map-container">
+    <div class="world-map-container" data-wine-list-url="{% url 'wine_list' %}">
         {% include "includes/world-map.svg" %}
     </div>
 </section>
@@ -137,8 +138,8 @@
 </section>
 
 <!-- REVIEWS -->
-<section class="homepage-section homepage-section--surface">
-    <span class="label">What People Say</span>
+<section class="homepage-section homepage-section--surface" aria-labelledby="reviewsTitle">
+    <h2 class="label label--heading" id="reviewsTitle">What People Say</h2>
     <div class="reviews-carousel" id="reviewsCarousel">
         <div class="review-card">
             <div class="review__stars">★★★★★</div>

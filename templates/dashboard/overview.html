@@ -4,7 +4,8 @@
 {% block heading %}Overview{% endblock %}
 
 {% block dashboard_content %}
-<section class="dash-cards" aria-label="Store summary">
+<section class="dash-cards" aria-labelledby="storeSummaryTitle">
+    <h2 class="visually-hidden" id="storeSummaryTitle">Store summary</h2>
     <a href="{% url 'dashboard:orders' %}" class="dash-card">
         <span class="dash-card__label">Paid orders · last 30 days</span>
         <span class="dash-card__value">{{ sales_30_days.count }}</span>

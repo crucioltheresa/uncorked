@@ -267,6 +267,72 @@ class CountryFilterTests(TestCase):
         self.assertEqual(wines[0].wine_type, 'red')
 
 
+class CountryLinkEncodingTests(TestCase):
+    """US-29: Country links are URL-encoded (names with spaces)."""
+
+    COUNTRIES = ['Czech Republic', 'New Zealand', 'South Africa']
+
+    def setUp(self):
+        self.client = Client()
+        for number, country in enumerate(self.COUNTRIES):
+            region = Region.objects.create(
+                name=f'Region {number}', slug=f'region-{number}',
+                country=country,
+            )
+            Wine.objects.create(
+                name=f'{country} Wine', slug=f'country-wine-{number}',
+                region=region, wine_type='red', price=20.0,
+                producer='Producer', abv=13.0, is_available=True,
+            )
+
+    def test_nav_country_links_are_encoded(self):
+        """US-29: nav country links use %20, never a raw space."""
+        response = self.client.get(reverse('homepage'))
+        for country in self.COUNTRIES:
+            encoded = country.replace(' ', '%20')
+            # Desktop dropdown and mobile accordion
+            self.assertContains(
+                response, f'href="/wines/?country={encoded}"', count=2
+            )
+            self.assertNotContains(response, f'?country={country}"')
+
+    def test_map_gets_catalogue_url_for_encoded_links(self):
+        """US-29: the map builds its links from a plain catalogue URL."""
+        response = self.client.get(reverse('homepage'))
+        self.assertContains(
+            response,
+            f'class="world-map-container" '
+            f'data-wine-list-url="{reverse("wine_list")}"',
+        )
+
+    def test_encoded_country_links_filter_the_catalogue(self):
+        """US-29: following an encoded country link shows that country."""
+        for country in self.COUNTRIES:
+            encoded = country.replace(' ', '%20')
+            response = self.client.get(f'/wines/?country={encoded}')
+            wines = response.context['wines']
+            self.assertEqual(wines.paginator.count, 1)
+            self.assertEqual(wines[0].name, f'{country} Wine')
+
+    def test_pagination_links_are_encoded(self):
+        """US-29: page links keep the country and search, encoded."""
+        region = Region.objects.get(country='South Africa')
+        for number in range(12):
+            Wine.objects.create(
+                name=f'Extra {number}', slug=f'extra-{number}',
+                region=region, wine_type='red', price=20.0,
+                producer='Producer', abv=13.0, is_available=True,
+            )
+        response = self.client.get(
+            reverse('wine_list'),
+            {'country': 'South Africa', 'q': 'South Africa'},
+        )
+        self.assertEqual(response.context['wines'].paginator.num_pages, 2)
+        self.assertContains(response, '&amp;country=South%20Africa')
+        self.assertContains(response, '&amp;q=South%20Africa')
+        self.assertNotContains(response, 'country=South Africa')
+
+
 class WineSearchTests(TestCase):
     """US-08: Search the catalogue."""
 

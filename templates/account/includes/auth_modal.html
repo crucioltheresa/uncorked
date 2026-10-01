@@ -4,7 +4,7 @@ Forms post to the normal allauth URLs; auth_modal.js sends them with fetch
 and reads allauth's JSON reply. Without JavaScript, the links in the page
 go to the full login and signup pages instead.
 {% endcomment %}
-<div class="modal fade auth-modal" id="authModal" tabindex="-1"
+<div class="modal fade auth-modal" id="authModal" tabindex="-1" role="dialog" aria-modal="true"
      aria-labelledby="authModalTitle" aria-hidden="true"
      data-login-url="{% url 'account_login' %}"
      data-signup-url="{% url 'account_signup' %}"

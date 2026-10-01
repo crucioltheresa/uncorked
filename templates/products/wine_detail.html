@@ -19,7 +19,7 @@
         <p class="breadcrumb">
             <a href="{% url 'homepage' %}">Home</a>
             <span>›</span>
-            <a href="{% url 'wine_list' %}?type={{ wine.wine_type }}">{{ wine.get_wine_type_display }} Wine</a>
+            <a href="{% url 'wine_list' %}?type={{ wine.wine_type|urlencode }}">{{ wine.get_wine_type_display }} Wine</a>
             <span>›</span>
             <span class="bold">{{ wine.name }}</span>
         </p>

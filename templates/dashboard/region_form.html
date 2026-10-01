@@ -4,7 +4,7 @@
 {% block heading %}{% if region %}Edit region{% else %}Add region{% endif %}{% endblock %}
 
 {% block dashboard_content %}
-<section class="dash-panel dash-panel--narrow">
+<div class="dash-panel dash-panel--narrow">
     <form method="POST" novalidate class="dash-form">
         {% csrf_token %}
         {% if form.non_field_errors %}
@@ -22,5 +22,5 @@
             <a href="{% url 'dashboard:regions' %}" class="btn btn--outline btn--sm">Cancel</a>
         </div>
     </form>
-</section>
+</div>
 {% endblock %}

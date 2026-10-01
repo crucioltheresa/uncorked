@@ -7,7 +7,7 @@
 {% endblock %}
 
 {% block dashboard_content %}
-<section class="dash-panel">
+<div class="dash-panel">
     <dl class="dash-meta">
         <div><dt>From</dt><dd>{{ contact.name }} &lt;{{ contact.email }}&gt;</dd></div>
         <div><dt>Topic</dt><dd>{{ contact.get_subject_display }}</dd></div>
@@ -32,5 +32,5 @@
             {% endif %}
         </form>
     </div>
-</section>
+</div>
 {% endblock %}

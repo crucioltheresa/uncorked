@@ -95,7 +95,7 @@
         {% if wines.has_other_pages %}
         <div class="pagination">
             {% if wines.has_previous %}
-            <a href="?page={{ wines.previous_page_number }}{% if selected_type %}&type={{ selected_type }}{% endif %}{% if selected_country %}&country={{ selected_country }}{% endif %}{% if selected_region %}&region={{ selected_region }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}">
+            <a href="?page={{ wines.previous_page_number }}{% if selected_type %}&amp;type={{ selected_type|urlencode }}{% endif %}{% if selected_country %}&amp;country={{ selected_country|urlencode }}{% endif %}{% if selected_region %}&amp;region={{ selected_region|urlencode }}{% endif %}{% if search_query %}&amp;q={{ search_query|urlencode }}{% endif %}">
                 <i class="bi bi-chevron-left"></i>
             </a>
             {% endif %}
@@ -103,11 +103,11 @@
             {% if wines.number == num %}
             <span class="current">{{ num }}</span>
             {% else %}
-            <a href="?page={{ num }}{% if selected_type %}&type={{ selected_type }}{% endif %}{% if selected_country %}&country={{ selected_country }}{% endif %}{% if selected_region %}&region={{ selected_region }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}">{{ num }}</a>
+            <a href="?page={{ num }}{% if selected_type %}&amp;type={{ selected_type|urlencode }}{% endif %}{% if selected_country %}&amp;country={{ selected_country|urlencode }}{% endif %}{% if selected_region %}&amp;region={{ selected_region|urlencode }}{% endif %}{% if search_query %}&amp;q={{ search_query|urlencode }}{% endif %}">{{ num }}</a>
             {% endif %}
             {% endfor %}
             {% if wines.has_next %}
-            <a href="?page={{ wines.next_page_number }}{% if selected_type %}&type={{ selected_type }}{% endif %}{% if selected_country %}&country={{ selected_country }}{% endif %}{% if selected_region %}&region={{ selected_region }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}">
+            <a href="?page={{ wines.next_page_number }}{% if selected_type %}&amp;type={{ selected_type|urlencode }}{% endif %}{% if selected_country %}&amp;country={{ selected_country|urlencode }}{% endif %}{% if selected_region %}&amp;region={{ selected_region|urlencode }}{% endif %}{% if search_query %}&amp;q={{ search_query|urlencode }}{% endif %}">
                 <i class="bi bi-chevron-right"></i>
             </a>
             {% endif %}

@@ -13,6 +13,11 @@ function isQuizComplete(index, questionCount) {
     return index >= questionCount;
 }
 
+// Wine page URL for a recommended wine, with the slug encoded
+function wineDetailUrl(slug) {
+    return `/wines/${encodeURIComponent(slug)}/`;
+}
+
 // Value of one cookie from a document.cookie string, or null
 function parseCookie(cookieString, name) {
     let cookieValue = null;
@@ -152,11 +157,11 @@ function initSommelierChat(containerId, questions) {
                 const card = document.createElement('div');
                 card.classList.add('chat-wine-card');
                 card.innerHTML = `
-                    <a href="/wines/${wine.slug}/" class="chat-wine-card__image-link">
+                    <a href="${wineDetailUrl(wine.slug)}" class="chat-wine-card__image-link">
                         ${wine.image ? `<img src="${wine.image}" alt="${wine.name}" class="chat-wine-card__image">` : '<div class="chat-wine-card__placeholder"></div>'}
                     </a>
                     <div class="chat-wine-card__body">
-                        <a href="/wines/${wine.slug}/" class="chat-wine-card__name">${wine.name}</a>
+                        <a href="${wineDetailUrl(wine.slug)}" class="chat-wine-card__name">${wine.name}</a>
                         <p class="chat-wine-card__region">${wine.region}</p>
                         <p class="chat-wine-card__character">${wine.character}</p>
                         <div class="chat-wine-card__footer">
@@ -181,5 +186,7 @@ function initSommelierChat(containerId, questions) {
 }
 
 if (typeof module !== "undefined") {
-    module.exports = { buildSommelierPayload, isQuizComplete, parseCookie };
+    module.exports = {
+        buildSommelierPayload, isQuizComplete, parseCookie, wineDetailUrl,
+    };
 }

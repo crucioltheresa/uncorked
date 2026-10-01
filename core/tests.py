@@ -58,6 +58,52 @@ class HomepageTests(TestCase):
         )
 
 
+class ValidHtmlTests(TestCase):
+    """US-26: Markup fixes from the W3C HTML validator."""
+
+    def setUp(self):
+        self.client = Client()
+
+    def test_homepage_has_no_c2pa_metadata(self):
+        """US-26: the inlined world map has no C2PA metadata."""
+        response = self.client.get(reverse("homepage"))
+        self.assertNotContains(response, "c2pa")
+        self.assertNotContains(response, "<metadata")
+        self.assertContains(response, 'class="world-map"')
+
+    def test_auth_modal_is_a_dialog(self):
+        """US-01 / US-02: the login and signup modal has role="dialog"."""
+        response = self.client.get(reverse("homepage"))
+        self.assertContains(
+            response,
+            'id="authModal" tabindex="-1" role="dialog" aria-modal="true"',
+        )
+
+    def test_review_modal_is_a_dialog(self):
+        """US-18: the review modal has role="dialog"."""
+        html = render_to_string(
+            "reviews/includes/review_modal.html", {"csrf_token": "token"}
+        )
+        self.assertIn(
+            'id="reviewModal" tabindex="-1" role="dialog" aria-modal="true"',
+            html,
+        )
+
+    def test_homepage_sections_have_headings(self):
+        """US-26: the social proof and reviews sections have an h2."""
+        response = self.client.get(reverse("homepage"))
+        self.assertContains(
+            response,
+            '<h2 class="visually-hidden" id="socialProofTitle">'
+            "Our philosophy and awards</h2>",
+        )
+        self.assertContains(
+            response,
+            '<h2 class="label label--heading" id="reviewsTitle">'
+            "What People Say</h2>",
+        )
+
+
 class NewsletterSignupTests(TestCase):
     """US-23: Newsletter signup."""
 

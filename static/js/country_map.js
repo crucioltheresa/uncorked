@@ -119,9 +119,11 @@ if (typeof document !== 'undefined') (function() {
     }
   }
 
-  // Navigate to wines filtered by country
+  // Navigate to wines filtered by country. The catalogue URL comes from the
+  // map container, so it never picks up a link that already has a query.
   function navigateToCountry(countryName) {
-    const wineListUrl = document.querySelector('a[href*="/wines/"]')?.href || '/wines/';
+    const container = document.querySelector('[data-wine-list-url]');
+    const wineListUrl = container ? container.dataset.wineListUrl : '/wines/';
     window.location.href = countryFilterUrl(wineListUrl, countryName);
   }
 })();

@@ -3,7 +3,18 @@ const {
     buildSommelierPayload,
     isQuizComplete,
     parseCookie,
+    wineDetailUrl,
 } = require('../static/js/sommelier_chat');
+
+describe('wineDetailUrl', () => {
+    test('builds the wine page URL from the slug', () => {
+        expect(wineDetailUrl('etna-bianco')).toBe('/wines/etna-bianco/');
+    });
+
+    test('encodes anything unsafe in the slug', () => {
+        expect(wineDetailUrl('a b/c')).toBe('/wines/a%20b%2Fc/');
+    });
+});
 
 describe('buildSommelierPayload', () => {
     test('wraps the answers the way /sommelier/submit/ expects', () => {

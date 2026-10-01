@@ -4,7 +4,7 @@
 {% block heading %}Delete review{% endblock %}
 
 {% block dashboard_content %}
-<section class="dash-panel dash-panel--narrow">
+<div class="dash-panel dash-panel--narrow">
     <p class="dash-confirm">
         Are you sure you want to delete the review <strong>"{{ review.title }}"</strong>
         of <strong>{{ review.wine.name }}</strong> by {{ review.user.email }}?
@@ -16,5 +16,5 @@
         <button type="submit" class="btn btn--danger btn--sm">Delete review</button>
         <a href="{% url 'dashboard:reviews' %}" class="btn btn--outline btn--sm">Cancel</a>
     </form>
-</section>
+</div>
 {% endblock %}

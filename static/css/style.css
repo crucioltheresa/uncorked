@@ -229,6 +229,14 @@ p {
     color: var(--color-accent);
 }
 
+/* A label used as a section heading (h2): keep the label look instead of
+   the heading font and margins */
+.label--heading {
+    font-family: var(--font-body);
+    line-height: inherit;
+    margin: 0;
+}
+
 .italic {
     font-style: italic;
 }
