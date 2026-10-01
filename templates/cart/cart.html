@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Your Cart — Uncorked{% endblock %}
 
@@ -6,7 +7,10 @@
 <div class="cart">
     <h1 class="cart__title">Your Cart</h1>
 
-    {% if cart|length > 0 %}
+    {# Results of quantity changes made without a reload (cart.js) #}
+    <p class="cart__status" role="status" aria-live="polite" data-cart-status></p>
+
+    <div data-cart-contents {% if not cart|length %}hidden{% endif %}>
     <table class="cart__table">
         <thead class="cart__head">
             <tr>
@@ -19,7 +23,7 @@
         </thead>
         <tbody>
             {% for item in cart %}
-            <tr class="cart__row">
+            <tr class="cart__row" data-cart-row="{{ item.wine.id }}">
                 <td class="cart__cell cart__cell--product">
                     <a href="{% url 'wine_detail' item.wine.slug %}" class="cart__product">
                         {% if item.wine.image %}
@@ -34,8 +38,21 @@
                     </a>
                 </td>
                 <td class="cart__cell cart__cell--price" data-label="Price">€{{ item.price }}</td>
-                <td class="cart__cell cart__cell--qty" data-label="Qty">{{ item.quantity }}</td>
-                <td class="cart__cell cart__cell--total">€{{ item.total_price }}</td>
+                <td class="cart__cell cart__cell--qty">
+                    {# Works without JavaScript through the Update button; cart.js sends changes automatically. #}
+                    {# novalidate so 0 (remove) and over-stock values reach the server, which handles them. #}
+                    <form method="POST" action="{% url 'cart_update' item.wine.id %}" class="cart__update" data-cart-update novalidate>
+                        {% csrf_token %}
+                        <label for="quantity-{{ item.wine.id }}" class="sr-only">Quantity for {{ item.wine.name }}</label>
+                        <div class="quantity-stepper">
+                            <button type="button" onclick="this.nextElementSibling.stepDown()" aria-label="Decrease quantity of {{ item.wine.name }}">−</button>
+                            <input type="number" id="quantity-{{ item.wine.id }}" name="quantity" value="{{ item.quantity }}" min="1" max="{{ item.wine.stock }}" inputmode="numeric" data-cart-quantity>
+                            <button type="button" onclick="this.previousElementSibling.stepUp()" aria-label="Increase quantity of {{ item.wine.name }}">+</button>
+                        </div>
+                        <button type="submit" class="cart__update-btn" data-cart-update-button>Update</button>
+                    </form>
+                </td>
+                <td class="cart__cell cart__cell--total" data-cart-line-total>€{{ item.total_price }}</td>
                 <td class="cart__cell cart__cell--remove">
                     <form method="POST" action="{% url 'cart_remove' item.wine.id %}">
                         {% csrf_token %}
@@ -50,18 +67,25 @@
     </table>
 
     <div class="cart__summary">
-        {% include "includes/order_totals.html" with subtotal=totals.subtotal discount=totals.discount delivery=totals.delivery_cost total=totals.grand_total %}
+        <div data-cart-totals>
+            {% include "includes/order_totals.html" with subtotal=totals.subtotal discount=totals.discount delivery=totals.delivery_cost total=totals.grand_total %}
+        </div>
         <div class="cart__actions">
             <a href="{% url 'wine_list' %}" class="btn btn--outline">Continue Shopping</a>
             <a href="{% url 'checkout' %}" class="btn btn--primary">Proceed to Checkout</a>
         </div>
     </div>
+    </div>
 
-    {% else %}
-    <div class="cart__empty">
+    {# Also shown by cart.js when the last wine is set to 0 #}
+    <div class="cart__empty" data-cart-empty {% if cart|length %}hidden{% endif %}>
         <p>Your cart is empty.</p>
         <a href="{% url 'wine_list' %}" class="btn btn--primary">Browse our wines</a>
     </div>
-    {% endif %}
 </div>
+{% endblock %}
+
+{% block scripts %}
+{{ block.super }}
+<script src="{% static 'js/cart.js' %}"></script>
 {% endblock %}

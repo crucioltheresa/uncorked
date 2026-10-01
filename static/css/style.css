@@ -2452,11 +2452,12 @@ details[open] .nav__country-summary .nav__country-chevron {
 
 .cart__row {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr auto;
+    grid-template-columns: auto 1fr auto;
     grid-template-areas:
-        "product product product remove"
-        "price qty total total";
-    row-gap: var(--space-xs);
+        "product product remove"
+        "price qty total";
+    align-items: center;
+    gap: var(--space-xs) var(--space-sm);
     padding: var(--space-sm) 0;
     border-bottom: 0.5px solid var(--color-border);
 }
@@ -2477,10 +2478,54 @@ details[open] .nav__country-summary .nav__country-chevron {
     font-weight: 500;
 }
 
-.cart__cell--price::before,
-.cart__cell--qty::before {
+.cart__cell--price::before {
     content: attr(data-label) " ";
     color: var(--color-mid);
+}
+
+/* Quantity: the stepper plus an Update button (hidden by cart.js, which
+   sends changes automatically) */
+.cart__update {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-xs);
+}
+
+.cart__update-btn {
+    font-size: var(--text-xs);
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-dark);
+    background: none;
+    border: 0.5px solid var(--color-dark);
+    border-radius: var(--radius-sm);
+    padding: 6px 10px;
+    cursor: pointer;
+    transition: color var(--transition), border-color var(--transition);
+}
+
+.cart__update-btn:hover,
+.cart__update-btn:focus-visible {
+    color: var(--color-accent);
+    border-color: var(--color-accent);
+}
+
+/* Line total fades while its new value is on the way */
+.cart__row--updating .cart__cell--total {
+    opacity: 0.5;
+}
+
+/* Status line for quantity changes; takes no space while empty */
+.cart__status {
+    margin: 0 0 var(--space-sm);
+}
+
+.cart__status:empty {
+    margin: 0;
+    padding: 0;
+    border: 0;
 }
 
 .cart__product {
@@ -2640,8 +2685,7 @@ details[open] .nav__country-summary .nav__country-chevron {
         vertical-align: middle;
     }
 
-    .cart__cell--price::before,
-    .cart__cell--qty::before {
+    .cart__cell--price::before {
         content: none;
     }
 

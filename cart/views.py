@@ -1,4 +1,6 @@
+from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
+from django.template.loader import render_to_string
 from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_GET, require_POST
 from django.contrib import messages
@@ -57,6 +59,114 @@ def cart_remove(request, wine_id):
     cart.remove(wine)
     messages.success(request, f'"{wine.name}" removed from your cart.')
     return redirect("cart_detail")
+
+
+def _wants_json(request):
+    """True for fetch requests from cart.js."""
+    return (
+        request.headers.get("x-requested-with") == "XMLHttpRequest"
+        or "application/json" in request.headers.get("accept", "")
+    )
+
+
+def _update_response(request, cart, wine, level, message, status=200):
+    """
+    Answer a quantity update. Fetch requests get JSON with the new line and
+    cart totals (and the totals block as HTML, so it matches the page);
+    everything else gets a flash message and goes back to the cart.
+    """
+    if not _wants_json(request):
+        getattr(messages, level)(request, message)
+        return redirect("cart_detail")
+
+    totals = cart.get_totals()
+    totals_html = render_to_string(
+        "includes/order_totals.html",
+        {
+            "subtotal": totals.subtotal,
+            "discount": totals.discount,
+            "delivery": totals.delivery_cost,
+            "total": totals.grand_total,
+        },
+    )
+    delivery = totals.delivery_cost
+    return JsonResponse(
+        {
+            "ok": status == 200,
+            "level": level,
+            "message": message,
+            "wine_id": wine.id,
+            "quantity": cart.get_quantity(wine),
+            "max": wine.stock,
+            "line_total": str(cart.get_line_total(wine)),
+            "subtotal": str(totals.subtotal),
+            "discount": str(totals.discount),
+            "delivery": None if delivery is None else str(delivery),
+            "total": str(totals.grand_total),
+            "bottle_count": len(cart),
+            "totals_html": totals_html,
+        },
+        status=status,
+    )
+
+
+@require_POST
+def cart_update(request, wine_id):
+    """
+    Set one cart line to an exact quantity (the cart page's stepper).
+
+    0 removes the wine; more than the stock is capped at the stock with a
+    message; anything that isn't a whole number of 0 or more is rejected
+    and the cart is left as it was.
+    """
+    cart = Cart(request)
+    wine = get_object_or_404(Wine, id=wine_id)
+    if not cart.get_quantity(wine):
+        return _update_response(
+            request, cart, wine, "error",
+            f'"{wine.name}" is not in your cart.', status=400,
+        )
+
+    try:
+        quantity = int(request.POST.get("quantity", "").strip())
+    except ValueError:
+        quantity = -1
+    if quantity < 0:
+        return _update_response(
+            request, cart, wine, "error",
+            "Please enter a whole number of bottles (0 removes the wine).",
+            status=400,
+        )
+
+    if quantity == 0:
+        cart.remove(wine)
+        return _update_response(
+            request, cart, wine, "success",
+            f'"{wine.name}" removed from your cart.',
+        )
+
+    if wine.stock <= 0:
+        cart.remove(wine)
+        return _update_response(
+            request, cart, wine, "warning",
+            f'Sorry, "{wine.name}" is out of stock and was removed '
+            "from your cart.",
+        )
+
+    if quantity > wine.stock:
+        cart.add(wine=wine, quantity=wine.stock, override_quantity=True)
+        return _update_response(
+            request, cart, wine, "warning",
+            f'Only {wine.stock} of "{wine.name}" in stock. '
+            f"Your cart now has {wine.stock}.",
+        )
+
+    cart.add(wine=wine, quantity=quantity, override_quantity=True)
+    bottles = "bottle" if quantity == 1 else "bottles"
+    return _update_response(
+        request, cart, wine, "success",
+        f'"{wine.name}" updated to {quantity} {bottles}.',
+    )
 
 
 PREVIEW_MAX_ITEMS = 4

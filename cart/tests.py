@@ -311,3 +311,188 @@ class CartPreviewTests(TestCase):
             'id="cartPreviewPanel" role="region" '
             'aria-label="Cart preview" hidden',
         )
+
+
+class UpdateCartQuantityTests(TestCase):
+    """US-11: Update the quantity of a wine on the cart page."""
+
+    def setUp(self):
+        self.client = Client()
+        region = Region.objects.create(name="Rioja", country="Spain")
+        self.wine = Wine.objects.create(
+            name="Test Red",
+            producer="Test Producer",
+            region=region,
+            wine_type="red",
+            abv=13.5,
+            price="12.50",
+            stock=10,
+        )
+        self.other = Wine.objects.create(
+            name="Test White",
+            producer="Test Producer",
+            region=region,
+            wine_type="white",
+            abv=12.0,
+            price="15.00",
+            stock=10,
+        )
+        self.client.post(
+            reverse("cart_add", args=[self.wine.id]), {"quantity": 2}
+        )
+        self.url = reverse("cart_update", args=[self.wine.id])
+
+    def quantity(self):
+        cart = self.client.session["cart"]
+        return cart.get(str(self.wine.id), {}).get("quantity", 0)
+
+    def post_json(self, quantity):
+        return self.client.post(
+            self.url,
+            {"quantity": quantity},
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+            HTTP_ACCEPT="application/json",
+        )
+
+    def test_update_changes_quantity(self):
+        """US-11: Update sets the wine to the chosen quantity."""
+        response = self.client.post(self.url, {"quantity": 5}, follow=True)
+        self.assertRedirects(response, reverse("cart_detail"))
+        self.assertEqual(self.quantity(), 5)
+        self.assertContains(response, "updated to 5 bottles")
+        self.assertContains(response, "€62.50")
+
+    def test_update_can_lower_quantity(self):
+        """US-11: the quantity can go down as well as up."""
+        self.client.post(self.url, {"quantity": 1})
+        self.assertEqual(self.quantity(), 1)
+
+    def test_quantity_above_stock_is_capped_with_message(self):
+        """US-11: more than the stock is capped at the stock, with a note."""
+        response = self.client.post(self.url, {"quantity": 50}, follow=True)
+        self.assertEqual(self.quantity(), 10)
+        self.assertContains(
+            response, "Only 10 of &quot;Test Red&quot; in stock."
+        )
+        self.assertContains(response, "message--warning")
+
+    def test_zero_removes_item(self):
+        """US-11: setting the quantity to 0 removes the wine."""
+        self.client.post(
+            reverse("cart_add", args=[self.other.id]), {"quantity": 1}
+        )
+        response = self.client.post(self.url, {"quantity": 0}, follow=True)
+        cart = self.client.session["cart"]
+        self.assertNotIn(str(self.wine.id), cart)
+        self.assertIn(str(self.other.id), cart)
+        self.assertContains(response, "removed from your cart")
+
+    def test_invalid_values_are_rejected(self):
+        """US-11: negative, decimal, text or missing values change nothing."""
+        for value in ["-1", "2.5", "abc", ""]:
+            with self.subTest(value=value):
+                response = self.client.post(
+                    self.url, {"quantity": value}, follow=True
+                )
+                self.assertRedirects(response, reverse("cart_detail"))
+                self.assertEqual(self.quantity(), 2)
+                self.assertContains(response, "message--error")
+        self.client.post(self.url)
+        self.assertEqual(self.quantity(), 2)
+
+    def test_wine_not_in_cart_is_rejected(self):
+        """US-11: a wine that isn't in the cart can't be updated into it."""
+        url = reverse("cart_update", args=[self.other.id])
+        response = self.client.post(url, {"quantity": 3})
+        self.assertRedirects(response, reverse("cart_detail"))
+        self.assertNotIn(str(self.other.id), self.client.session["cart"])
+
+    def test_get_not_allowed(self):
+        """US-11: update only accepts POST."""
+        response = self.client.get(self.url, {"quantity": 5})
+        self.assertEqual(response.status_code, 405)
+        self.assertEqual(self.quantity(), 2)
+
+    def test_update_requires_csrf_token(self):
+        """US-11: update is protected by CSRF like the other cart forms."""
+        client = Client(enforce_csrf_checks=True)
+        response = client.post(self.url, {"quantity": 5})
+        self.assertEqual(response.status_code, 403)
+
+    def test_discount_recalculates(self):
+        """US-11: going from 8 bottles to 7 removes the 8-bottle discount."""
+        self.client.post(self.url, {"quantity": 8})
+        totals = self.client.get(reverse("cart_detail")).context["totals"]
+        self.assertEqual(totals.discount, Decimal("10.00"))
+        self.assertEqual(totals.grand_total, Decimal("90.00"))
+
+        self.client.post(self.url, {"quantity": 7})
+        response = self.client.get(reverse("cart_detail"))
+        totals = response.context["totals"]
+        self.assertEqual(totals.discount, Decimal("0.00"))
+        self.assertEqual(totals.grand_total, Decimal("87.50"))
+        self.assertNotContains(response, "totals__row--discount")
+
+    def test_json_response_for_fetch(self):
+        """US-11: fetch requests get JSON with the new line and totals."""
+        response = self.post_json(8)
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertTrue(data["ok"])
+        self.assertEqual(data["level"], "success")
+        self.assertEqual(data["quantity"], 8)
+        self.assertEqual(data["line_total"], "100.00")
+        self.assertEqual(data["subtotal"], "100.00")
+        self.assertEqual(data["discount"], "10.00")
+        self.assertIsNone(data["delivery"])
+        self.assertEqual(data["total"], "90.00")
+        self.assertEqual(data["bottle_count"], 8)
+        self.assertIn("totals__row--discount", data["totals_html"])
+        # The message is in the JSON, not left over for the next page
+        page = self.client.get(reverse("cart_detail"))
+        self.assertNotContains(page, "updated to 8 bottles")
+
+    def test_json_discount_removed_at_seven(self):
+        """US-11: the JSON totals drop the discount going from 8 to 7."""
+        self.post_json(8)
+        data = self.post_json(7).json()
+        self.assertEqual(data["discount"], "0.00")
+        self.assertEqual(data["total"], "87.50")
+        self.assertNotIn("totals__row--discount", data["totals_html"])
+
+    def test_json_capped_and_removed(self):
+        """US-11: JSON reports a stock cap and a removal (quantity 0)."""
+        data = self.post_json(50).json()
+        self.assertEqual(data["level"], "warning")
+        self.assertEqual(data["quantity"], 10)
+        self.assertEqual(data["max"], 10)
+
+        data = self.post_json(0).json()
+        self.assertEqual(data["quantity"], 0)
+        self.assertEqual(data["bottle_count"], 0)
+        self.assertEqual(data["total"], "0.00")
+
+    def test_json_invalid_value_returns_400_with_cart_unchanged(self):
+        """US-11: an invalid value gets a 400 with the current quantity."""
+        response = self.post_json("abc")
+        self.assertEqual(response.status_code, 400)
+        data = response.json()
+        self.assertFalse(data["ok"])
+        self.assertEqual(data["level"], "error")
+        self.assertEqual(data["quantity"], 2)
+
+    def test_cart_page_has_labelled_steppers_and_status(self):
+        """US-11: each row has a labelled stepper, Update and a status area."""
+        response = self.client.get(reverse("cart_detail"))
+        self.assertContains(
+            response, f'action="{self.url}" class="cart__update"'
+        )
+        self.assertContains(
+            response,
+            f'<label for="quantity-{self.wine.id}" class="sr-only">'
+            "Quantity for Test Red</label>",
+        )
+        self.assertContains(response, 'min="1" max="10"')
+        self.assertContains(response, ">Update</button>")
+        self.assertContains(response, 'role="status" aria-live="polite"')
+        self.assertContains(response, "js/cart.js")

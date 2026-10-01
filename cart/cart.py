@@ -29,6 +29,13 @@ class Cart:
     def get_quantity(self, wine):
         return self.cart.get(str(wine.id), {}).get("quantity", 0)
 
+    def get_line_total(self, wine):
+        """Price times quantity for one wine; 0.00 if it isn't in the cart."""
+        stored = self.cart.get(str(wine.id))
+        if not stored:
+            return Decimal("0.00")
+        return Decimal(stored["price"]) * stored["quantity"]
+
     def remove(self, wine):
         wine_id = str(wine.id)
         if wine_id in self.cart:
