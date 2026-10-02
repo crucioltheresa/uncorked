@@ -559,7 +559,7 @@ Git and GitHub (with GitHub Projects), VS Code, Figma, Chrome DevTools and Light
 
 | Suite | Tests | Command |
 | --- | ---: | --- |
-| Django (Python) | 349 | `python manage.py test` |
+| Django (Python) | 350 | `python manage.py test` |
 | Jest (JavaScript) | 62 | `npm test` |
 | flake8 (PEP 8) | 0 issues | `flake8` |
 | JSHint | 0 issues | `npm run lint:js` |
@@ -572,7 +572,7 @@ Some tests cover two stories, so they're counted under both.
 
 | Story | Django tests | Jest tests | Main test classes / files |
 | --- | ---: | ---: | --- |
-| US-01 Registration | 14 | 5 | RegistrationTests, SignupConfirmationEmailTests, AuthModalTests; auth_modal.test.js |
+| US-01 Registration | 15 | 5 | RegistrationTests, SignupConfirmationEmailTests, AuthModalTests; auth_modal.test.js |
 | US-02 Login and logout | 20 | 5 | LoginLogoutTests, EmailVerificationTests, PasswordResetEmailTests, AuthModalTests; auth_modal.test.js |
 | US-03 Profile and orders | 25 | 7 | ProfileViewTests, ProfileEircodeTests, ProfileReviewsTests, OrderDetailViewTests; reviews_modal.test.js |
 | US-04 Admin access | 14 | 0 | AdminPanelTests, StoreManagerRoleTests, AccountAreaByRoleTests |
@@ -828,4 +828,4 @@ Plaster, Playfair Display and DM Sans from [Google Fonts](https://fonts.google.c
 ### Acknowledgements
 
 - My best friends, who always believed in me and supported me throughout this learning journey.
-- The Code Institute tutors and community, for their help and encouragement along the way.
+- The Code Institute community, for their help and encouragement along the way.

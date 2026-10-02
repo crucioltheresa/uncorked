@@ -103,6 +103,24 @@ class LoginLogoutTests(TestCase):
         response = self.client.get(reverse("account_login"))
         self.assertRedirects(response, "/", fetch_redirect_response=False)
 
+    def test_logged_in_user_redirected_from_signup_page(self):
+        """US-01: logged-in user cannot access or post the signup page."""
+        self.client.login(
+            username="test@example.com", password="Str0ngPass!23"
+        )
+        response = self.client.get(reverse("account_signup"))
+        self.assertRedirects(response, "/", fetch_redirect_response=False)
+
+        response = self.client.post(reverse("account_signup"), {
+            "email": "second@example.com",
+            "password1": "Str0ngPass!23",
+            "password2": "Str0ngPass!23",
+        })
+        self.assertRedirects(response, "/", fetch_redirect_response=False)
+        self.assertFalse(
+            User.objects.filter(email="second@example.com").exists()
+        )
+
     def test_logout_logs_user_out(self):
         """US-02: logout ends the session and redirects home."""
         self.client.login(
