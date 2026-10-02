@@ -151,8 +151,8 @@ function initReviewModal() {
 
     // Focus goes to the rating (the checked star, or the first one)
     modalEl.addEventListener('shown.bs.modal', () => {
-        const target = form.querySelector('input[name="rating"]:checked')
-            || form.querySelector('input[name="rating"]');
+        const target = form.querySelector('input[name="rating"]:checked') ||
+            form.querySelector('input[name="rating"]');
         target.focus();
     });
 

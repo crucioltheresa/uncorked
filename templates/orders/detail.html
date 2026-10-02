@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load images %}
 {% load static %}
 
 {% block title %}Order #{{ order.order_number }} — Uncorked{% endblock %}
@@ -15,7 +16,7 @@
 
         <div class="order-card">
             <div class="order-card__status-row">
-                <h3>Status</h3>
+                <h2 class="order-card__heading">Status</h2>
                 <span class="order-card__status-badge order-card__status--{{ order.status }}">
                     {{ order.get_status_display }}
                 </span>
@@ -24,7 +25,7 @@
             <hr>
 
             <div class="order-details">
-                <h3>Order Items</h3>
+                <h2 class="order-card__heading">Order Items</h2>
                 {% if can_review %}
                 <p class="message message--success order-review-status" id="reviewStatus" role="status" aria-live="polite" hidden></p>
                 {% endif %}
@@ -32,7 +33,7 @@
                     {% for item in items %}
                         <div class="order-item">
                             <div class="order-item__info">
-                                <h4>{{ item.wine.name }}</h4>
+                                <h3>{{ item.wine.name }}</h3>
                                 <p>{{ item.wine.region }} · Qty: {{ item.quantity }}</p>
                             </div>
                             <div class="order-item__price">
@@ -46,7 +47,7 @@
                                    class="btn btn--outline btn--sm order-item__review-btn"
                                    data-review-open data-wine-id="{{ item.wine_id }}"
                                    data-wine-name="{{ item.wine.name }}"
-                                   data-wine-image="{% if item.wine.image %}{{ item.wine.image.url }}{% endif %}"
+                                   data-wine-image="{{ item.wine.image|image_url:112 }}"
                                    data-url="{% url 'edit_review' item.user_review.id %}"
                                    data-rating="{{ item.user_review.rating }}"
                                    data-title="{{ item.user_review.title }}"
@@ -60,7 +61,7 @@
                                    class="btn btn--outline btn--sm order-item__review-btn"
                                    data-review-open data-wine-id="{{ item.wine_id }}"
                                    data-wine-name="{{ item.wine.name }}"
-                                   data-wine-image="{% if item.wine.image %}{{ item.wine.image.url }}{% endif %}"
+                                   data-wine-image="{{ item.wine.image|image_url:112 }}"
                                    data-url="{% url 'order_review' order.order_number item.wine_id %}"
                                    data-rating="" data-title="" data-body=""
                                    aria-haspopup="dialog">
@@ -80,7 +81,7 @@
 
                 <hr>
 
-                <h3>Delivery Address</h3>
+                <h2 class="order-card__heading">Delivery Address</h2>
                 <div class="order-address">
                     <p>{{ order.full_name }}</p>
                     <p>{{ order.address_line1 }}</p>
@@ -91,7 +92,7 @@
 
                 <hr>
 
-                <h3>Contact</h3>
+                <h2 class="order-card__heading">Contact</h2>
                 <p>{{ order.email }}</p>
             </div>
 
@@ -109,6 +110,6 @@
 {{ block.super }}
 {% if can_review %}
 {% include "reviews/includes/review_modal.html" %}
-<script src="{% static 'js/reviews_modal.js' %}"></script>
+<script src="{% static 'js/reviews_modal.js' %}" defer></script>
 {% endif %}
 {% endblock %}

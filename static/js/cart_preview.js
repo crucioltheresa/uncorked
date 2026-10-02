@@ -44,8 +44,8 @@ function focusLeftPreview(containsNewFocus, hasNewFocus) {
             panel.innerHTML = await response.text();
         } catch (error) {
             loaded = false;
-            panel.innerHTML = '<p class="cart-preview__loading">Couldn\'t load your cart. <a href="'
-                + trigger.getAttribute('href') + '">View cart</a></p>';
+            panel.innerHTML = '<p class="cart-preview__loading">Couldn\'t load your cart. <a href="' +
+                trigger.getAttribute('href') + '">View cart</a></p>';
         }
     }
 

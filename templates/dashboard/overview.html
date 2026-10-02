@@ -47,7 +47,7 @@
     <ul class="dash-list">
         {% for review in latest_reviews %}
         <li class="dash-list__item">
-            <span class="dash-stars" aria-label="{{ review.rating }} out of 5 stars">{% for i in "12345" %}<i class="bi {% if forloop.counter <= review.rating %}bi-star-fill{% else %}bi-star{% endif %}" aria-hidden="true"></i>{% endfor %}</span>
+            <span class="dash-stars" role="img" aria-label="{{ review.rating }} out of 5 stars">{% for i in "12345" %}<i class="bi {% if forloop.counter <= review.rating %}bi-star-fill{% else %}bi-star{% endif %}" aria-hidden="true"></i>{% endfor %}</span>
             <span class="dash-list__main">
                 <strong>{{ review.title }}</strong> — {{ review.wine.name }}
             </span>

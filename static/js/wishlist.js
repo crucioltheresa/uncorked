@@ -19,9 +19,9 @@ function favouriteState(inWishlist, wineName, variant = 'star') {
     }
     return {
         pressed: inWishlist ? 'true' : 'false',
-        label: inWishlist
-            ? `Remove ${wineName} from favourites`
-            : `Add ${wineName} to favourites`,
+        label: inWishlist ?
+            `Remove ${wineName} from favourites` :
+            `Add ${wineName} to favourites`,
         iconClass,
         text: inWishlist ? 'Remove from favourites' : 'Add to favourites',
         activeClass: inWishlist,
@@ -34,9 +34,9 @@ function applyFavouriteState(button, inWishlist) {
     const state = favouriteState(inWishlist, button.dataset.wineName, variant);
     button.setAttribute('aria-pressed', state.pressed);
     button.setAttribute('aria-label', state.label);
-    const activeClass = variant === 'detail'
-        ? 'wine-detail__wishlist--active'
-        : 'favourite-star__button--active';
+    const activeClass = variant === 'detail' ?
+        'wine-detail__wishlist--active' :
+        'favourite-star__button--active';
     button.classList.toggle(activeClass, state.activeClass);
     const icon = button.querySelector('i');
     if (icon) icon.className = state.iconClass;

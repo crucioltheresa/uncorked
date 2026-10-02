@@ -223,16 +223,30 @@ class CartBadgeTests(TestCase):
         self.assertEqual(response.context["cart_bottle_count"], 5)
         self.assertContains(
             response,
-            '<span class="nav__icon-count" '
-            'aria-label="5 bottles in your cart">5</span>',
+            '<span class="nav__icon-count" aria-hidden="true">5</span>',
             html=True,
         )
+
+    def test_cart_link_name_includes_bottle_count(self):
+        """US-11: the cart link names the count; the badge has no label."""
+        self.client.post(
+            reverse("cart_add", args=[self.red.id]), {"quantity": 3}
+        )
+        response = self.client.get(reverse("wine_list"))
+        self.assertContains(
+            response,
+            '<span class="visually-hidden" data-cart-link-text>'
+            "Your cart, 3 bottles</span>",
+            html=True,
+        )
+        self.assertNotContains(response, "in your cart")
 
     def test_no_badge_when_cart_is_empty(self):
         """US-11: an empty cart shows no badge and creates no cart."""
         response = self.client.get(reverse("wine_list"))
         self.assertEqual(response.context["cart_bottle_count"], 0)
         self.assertNotContains(response, "nav__icon-count")
+        self.assertContains(response, ">Your cart</span>")
         self.assertNotIn("cart", self.client.session)
 
 

@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load images %}
 
 {% block title %}{% if wine %}Edit {{ wine.name }}{% else %}Add Wine{% endif %} — Uncorked{% endblock %}
 
@@ -29,7 +30,7 @@
                     <label for="{{ field.id_for_label }}">{% if wine.image %}Replace image{% else %}Image{% endif %}</label>
                     {% if wine.image %}
                     <div class="wine-form__current-image">
-                        <img src="{{ wine.image.url }}" alt="Current image of {{ wine.name }}">
+                        <img src="{{ wine.image|image_url:144 }}" alt="Current image of {{ wine.name }}" width="72" height="96" decoding="async">
                         <span>Current image. Choose a new file to replace it.</span>
                     </div>
                     {% endif %}

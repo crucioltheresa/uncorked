@@ -1,4 +1,5 @@
 {% extends 'dashboard/base.html' %}
+{% load images %}
 
 {% block dash_title %}Wines{% endblock %}
 {% block heading %}Wines{% endblock %}
@@ -64,7 +65,7 @@
         <tr>
             <td class="dash-table__thumb-cell">
                 {% if wine.image %}
-                <img src="{{ wine.image.url }}" alt="" class="dash-table__thumb" width="48" height="48" loading="lazy">
+                <img src="{{ wine.image|image_url:96 }}" alt="" class="dash-table__thumb" width="48" height="48" loading="lazy" decoding="async">
                 {% else %}
                 <span class="dash-table__thumb dash-table__thumb--empty" aria-hidden="true"></span>
                 {% endif %}

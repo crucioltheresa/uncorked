@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load images %}
 
 {% block title %}
     {% if selected_type %}{{ selected_type|title }} Wines{% else %}All Wines{% endif %} — Uncorked
@@ -33,14 +34,15 @@
         <p class="search-results-info">{{ total_wines }} result{% if total_wines != 1 %}s{% endif %} for <strong>"{{ search_query }}"</strong></p>
         {% endif %}
 
-        <!-- Wine grid -->
+        <!-- Wine grid (the h2 keeps the card names, h3, in order) -->
+        <h2 class="visually-hidden">Wine list</h2>
         <div class="wine-grid">
             {% for wine in wines %}
             <div class="wine-card">
                 <div class="wine-card__image">
                     {% if wine.image %}
                     <a href="{% url 'wine_detail' wine.slug %}">
-                        <img src="{{ wine.image.url }}" alt="{{ wine.name }}">
+                        {% if forloop.counter <= 4 %}{% wine_image wine.image "card" alt=wine.name eager=True priority=forloop.first %}{% else %}{% wine_image wine.image "card" alt=wine.name %}{% endif %}
                     </a>
                     {% endif %}
                     {% include "includes/favourite_star.html" with wine=wine %}
@@ -61,11 +63,7 @@
                 <form method="POST" action="{% url 'cart_add' wine.id %}">
                     {% csrf_token %}
                     <div class="wine-card__actions">
-                        <div class="quantity-stepper">
-                            <button type="button" onclick="this.nextElementSibling.stepDown()">−</button>
-                            <input type="number" name="quantity" value="1" min="1" max="{{ wine.stock }}">
-                            <button type="button" onclick="this.previousElementSibling.stepUp()">+</button>
-                        </div>
+                        {% include "includes/quantity_stepper.html" with wine_name=wine.name max=wine.stock %}
                         <button type="submit" class="wine-card__add-btn">Add to Cart</button>
                     </div>
                 </form>
@@ -96,7 +94,7 @@
         <div class="pagination">
             {% if wines.has_previous %}
             <a href="?page={{ wines.previous_page_number }}{% if selected_type %}&amp;type={{ selected_type|urlencode }}{% endif %}{% if selected_country %}&amp;country={{ selected_country|urlencode }}{% endif %}{% if selected_region %}&amp;region={{ selected_region|urlencode }}{% endif %}{% if search_query %}&amp;q={{ search_query|urlencode }}{% endif %}">
-                <i class="bi bi-chevron-left"></i>
+                <i class="bi bi-chevron-left" aria-hidden="true"></i><span class="visually-hidden">Previous page</span>
             </a>
             {% endif %}
             {% for num in wines.paginator.page_range %}
@@ -108,7 +106,7 @@
             {% endfor %}
             {% if wines.has_next %}
             <a href="?page={{ wines.next_page_number }}{% if selected_type %}&amp;type={{ selected_type|urlencode }}{% endif %}{% if selected_country %}&amp;country={{ selected_country|urlencode }}{% endif %}{% if selected_region %}&amp;region={{ selected_region|urlencode }}{% endif %}{% if search_query %}&amp;q={{ search_query|urlencode }}{% endif %}">
-                <i class="bi bi-chevron-right"></i>
+                <i class="bi bi-chevron-right" aria-hidden="true"></i><span class="visually-hidden">Next page</span>
             </a>
             {% endif %}
         </div>

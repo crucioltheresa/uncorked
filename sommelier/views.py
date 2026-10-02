@@ -2,6 +2,7 @@ import json
 from django.shortcuts import render
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
+from core.images import image_url
 from .utils import QUESTIONS, get_recommendations
 
 
@@ -40,7 +41,7 @@ def quiz_submit(request):
                     "character": wine.character,
                     "price": str(wine.price),
                     "slug": wine.slug,
-                    "image": wine.image.url if wine.image else "",
+                    "image": image_url(wine.image, 640),
                     "type": wine.get_wine_type_display(),
                     "cart_url": f"/cart/add/{wine.id}/",
                 }

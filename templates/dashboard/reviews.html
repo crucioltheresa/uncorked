@@ -42,7 +42,7 @@
             </td>
             <td data-label="Customer">{{ review.user.email }}</td>
             <td data-label="Rating">
-                <span class="dash-stars" aria-label="{{ review.rating }} out of 5 stars">{% for i in "12345" %}<i class="bi {% if forloop.counter <= review.rating %}bi-star-fill{% else %}bi-star{% endif %}" aria-hidden="true"></i>{% endfor %}</span>
+                <span class="dash-stars" role="img" aria-label="{{ review.rating }} out of 5 stars">{% for i in "12345" %}<i class="bi {% if forloop.counter <= review.rating %}bi-star-fill{% else %}bi-star{% endif %}" aria-hidden="true"></i>{% endfor %}</span>
             </td>
             <td data-label="Verified">{% if review.verified_purchase %}Yes{% else %}No{% endif %}</td>
             <td data-label="Date">{{ review.created_at|date:"j M Y" }}</td>

@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load images %}
 
 {% load seo %}
 
@@ -30,7 +31,7 @@
             <!-- Image -->
             <div class="wine-detail__image">
                 {% if wine.image %}
-                <img src="{{ wine.image.url }}" alt="{{ wine.name }}">
+                {% wine_image wine.image "detail" alt=wine.name priority=True %}
                 {% endif %}
             </div>
 
@@ -70,11 +71,7 @@
                     {% csrf_token %}
                     <div class="wine-detail__actions">
                         <div class="wine-detail__quantity-row">
-                            <div class="quantity-stepper">
-                                <button type="button" onclick="this.nextElementSibling.stepDown()">−</button>
-                                <input type="number" name="quantity" value="1" min="1" max="{{ wine.stock }}">
-                                <button type="button" onclick="this.previousElementSibling.stepUp()">+</button>
-                            </div>
+                            {% include "includes/quantity_stepper.html" with wine_name=wine.name max=wine.stock %}
                             {% if is_store_manager %}{# Store managers have no favourites #}
                             {% elif request.user.is_authenticated %}
                             {% if wine.id in wishlist_wine_ids %}
@@ -156,7 +153,7 @@
                     {% endif %}
                     {% endfor %}
                 </div>
-                <h4 class="review__title">{{ review.title }}</h4>
+                <h3 class="review__title">{{ review.title }}</h3>
                 <p class="review__body">{{ review.body }}</p>
                 <div class="review__meta">
                     <span class="review__author">{{ review.user.display_name }}</span>
@@ -194,7 +191,7 @@
                 <div class="wine-card__image">
                     {% if related.image %}
                     <a href="{% url 'wine_detail' related.slug %}">
-                        <img src="{{ related.image.url }}" alt="{{ related.name }}">
+                        {% wine_image related.image "card" alt=related.name %}
                     </a>
                     {% endif %}
                     {% include "includes/favourite_star.html" with wine=related %}
@@ -210,11 +207,7 @@
                 <form method="POST" action="{% url 'cart_add' related.id %}">
                     {% csrf_token %}
                     <div class="wine-card__actions">
-                        <div class="quantity-stepper">
-                            <button type="button" onclick="this.nextElementSibling.stepDown()">−</button>
-                            <input type="number" name="quantity" value="1" min="1" max="{{ related.stock }}">
-                            <button type="button" onclick="this.previousElementSibling.stepUp()">+</button>
-                        </div>
+                        {% include "includes/quantity_stepper.html" with wine_name=related.name max=related.stock %}
                         <button type="submit" class="wine-card__add-btn">Add to Cart</button>
                     </div>
                 </form>

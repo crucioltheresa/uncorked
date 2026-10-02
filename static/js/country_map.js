@@ -50,6 +50,9 @@ if (typeof document !== 'undefined') (function() {
 
     if (isCountryClickable(isoCode, isoMap)) {
       path.classList.add('world-map__country--has-wines');
+      // A link role makes the label valid and tells screen readers it opens
+      // the catalogue
+      path.setAttribute('role', 'link');
       path.setAttribute('aria-label', countryAriaLabel(countryInfo));
       path.setAttribute('tabindex', '0');
 

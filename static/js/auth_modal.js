@@ -13,13 +13,13 @@
 function authResultAction(status, data, ctx) {
     if (status === 200 && data && data.location) {
         // Signup with mandatory email verification lands on "check your email"
-        if (ctx.formType === 'signup'
-                && data.location.split('?')[0] === ctx.verificationUrl) {
+        if (ctx.formType === 'signup' &&
+                data.location.split('?')[0] === ctx.verificationUrl) {
             return { type: 'verify' };
         }
-        return ctx.hasNext
-            ? { type: 'redirect', url: data.location }
-            : { type: 'reload' };
+        return ctx.hasNext ?
+            { type: 'redirect', url: data.location } :
+            { type: 'reload' };
     }
     if (status === 400 && data && data.form) {
         const fieldErrors = {};

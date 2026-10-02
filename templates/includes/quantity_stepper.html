@@ -1,0 +1,10 @@
+{% comment %}
+Quantity stepper for add-to-cart forms: − and + buttons around a number
+input named "quantity". Takes: wine_name (for the accessible names) and
+max (the wine's stock).
+{% endcomment %}
+<div class="quantity-stepper">
+    <button type="button" onclick="this.nextElementSibling.stepDown()" aria-label="Fewer bottles of {{ wine_name }}">−</button>
+    <input type="number" name="quantity" value="1" min="1" max="{{ max }}" aria-label="Quantity of {{ wine_name }}">
+    <button type="button" onclick="this.previousElementSibling.stepUp()" aria-label="More bottles of {{ wine_name }}">+</button>
+</div>

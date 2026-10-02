@@ -1,0 +1,8 @@
+{
+    "esversion": 11,
+    "browser": true,
+    "globals": {
+        "bootstrap": false,
+        "module": false
+    }
+}

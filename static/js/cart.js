@@ -21,16 +21,14 @@ function parseCartQuantity(raw) {
 }
 
 /**
- * Labels for the nav cart icon and its badge for a number of bottles.
+ * Accessible name of the nav cart link (its visually hidden text), which
+ * includes the number of bottles. Matches base.html.
  * @param {number} count - bottles in the cart
- * @returns {{trigger: string, badge: string}}
+ * @returns {string}
  */
-function cartTriggerLabels(count) {
-    const bottles = `${count} bottle${count === 1 ? '' : 's'}`;
-    return {
-        trigger: count ? `Your cart, ${bottles}` : 'Your cart',
-        badge: `${bottles} in your cart`,
-    };
+function cartLinkText(count) {
+    if (!count) return 'Your cart';
+    return `Your cart, ${count} bottle${count === 1 ? '' : 's'}`;
 }
 
 /**
@@ -64,12 +62,13 @@ function cartStatusClass(level) {
         }, 50);
     }
 
-    // Nav icon: badge number and labels; the badge goes when the cart empties
+    // Nav icon: the link's hidden text and the badge number (hidden from
+    // screen readers, which hear the text); the badge goes when it's empty
     function updateBadge(count) {
         const trigger = document.querySelector('.cart-preview__trigger');
         if (!trigger) return;
-        const labels = cartTriggerLabels(count);
-        trigger.setAttribute('aria-label', labels.trigger);
+        const linkText = trigger.querySelector('[data-cart-link-text]');
+        if (linkText) linkText.textContent = cartLinkText(count);
         let badge = trigger.querySelector('.nav__icon-count');
         if (!count) {
             if (badge) badge.remove();
@@ -78,10 +77,10 @@ function cartStatusClass(level) {
         if (!badge) {
             badge = document.createElement('span');
             badge.className = 'nav__icon-count';
+            badge.setAttribute('aria-hidden', 'true');
             trigger.appendChild(badge);
         }
         badge.textContent = count;
-        badge.setAttribute('aria-label', labels.badge);
     }
 
     // A removed row takes focus with it, so move focus somewhere sensible
@@ -90,9 +89,9 @@ function cartStatusClass(level) {
         const nextRow = row.nextElementSibling || row.previousElementSibling;
         row.remove();
         if (!hadFocus) return;
-        const target = nextRow
-            ? nextRow.querySelector('[data-cart-quantity]')
-            : empty.querySelector('a');
+        const target = nextRow ?
+            nextRow.querySelector('[data-cart-quantity]') :
+            empty.querySelector('a');
         if (target) target.focus();
     }
 
@@ -211,6 +210,6 @@ function cartStatusClass(level) {
 
 if (typeof module !== 'undefined') {
     module.exports = {
-        parseCartQuantity, cartTriggerLabels, cartStatusClass, CART_UPDATE_DELAY,
+        parseCartQuantity, cartLinkText, cartStatusClass, CART_UPDATE_DELAY,
     };
 }

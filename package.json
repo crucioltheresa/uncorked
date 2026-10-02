@@ -4,7 +4,8 @@
   "private": true,
   "description": "Front-end tests for the Uncorked wine shop",
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "lint:js": "jshint static/js/"
   },
   "jest": {
     "testEnvironment": "node",
@@ -16,6 +17,7 @@
     ]
   },
   "devDependencies": {
-    "jest": "^30.5.2"
+    "jest": "^30.5.2",
+    "jshint": "^2.13.6"
   }
 }

@@ -296,6 +296,17 @@ class OrderDetailViewTests(TestCase):
         response = self.client.get(self.url)
         self.assertContains(response, "Test Wine")
 
+    def test_order_detail_heading_levels_in_order(self):
+        """US-03: sections are h2 under the h1, wine names h3 (no skips)."""
+        self.client.login(username="test@example.com", password="testpass123")
+        response = self.client.get(self.url)
+        for title in ["Status", "Order Items", "Delivery Address", "Contact"]:
+            self.assertContains(
+                response, f'<h2 class="order-card__heading">{title}</h2>'
+            )
+        self.assertContains(response, "<h3>Test Wine</h3>")
+        self.assertNotContains(response, "<h4")
+
     def test_sequential_id_does_not_work(self):
         """US-03: a sequential order id returns 404; only the number works."""
         self.client.login(username="test@example.com", password="testpass123")

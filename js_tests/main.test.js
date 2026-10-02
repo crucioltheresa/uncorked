@@ -1,5 +1,21 @@
 // US-26 Homepage: the rotating promo bar and the Back button
-const { nextPromoIndex, referrerIsSameSite } = require('../static/js/main');
+const {
+    nextPromoIndex, shouldRotatePromo, referrerIsSameSite,
+} = require('../static/js/main');
+
+describe('shouldRotatePromo', () => {
+    test('rotates several messages for everyone else', () => {
+        expect(shouldRotatePromo(2, false)).toBe(true);
+    });
+
+    test('stops for users who prefer reduced motion', () => {
+        expect(shouldRotatePromo(2, true)).toBe(false);
+    });
+
+    test('nothing to rotate with a single message', () => {
+        expect(shouldRotatePromo(1, false)).toBe(false);
+    });
+});
 
 describe('nextPromoIndex', () => {
     test('moves to the next message', () => {

@@ -1,6 +1,6 @@
 // US-11 View and Manage Cart: quantity updates on the cart page
 const {
-    parseCartQuantity, cartTriggerLabels, cartStatusClass, CART_UPDATE_DELAY,
+    parseCartQuantity, cartLinkText, cartStatusClass, CART_UPDATE_DELAY,
 } = require('../static/js/cart');
 
 describe('parseCartQuantity', () => {
@@ -21,21 +21,17 @@ describe('parseCartQuantity', () => {
     });
 });
 
-describe('cartTriggerLabels', () => {
+describe('cartLinkText', () => {
     test('several bottles', () => {
-        expect(cartTriggerLabels(3)).toEqual({
-            trigger: 'Your cart, 3 bottles',
-            badge: '3 bottles in your cart',
-        });
+        expect(cartLinkText(3)).toBe('Your cart, 3 bottles');
     });
 
     test('one bottle is singular', () => {
-        expect(cartTriggerLabels(1).trigger).toBe('Your cart, 1 bottle');
-        expect(cartTriggerLabels(1).badge).toBe('1 bottle in your cart');
+        expect(cartLinkText(1)).toBe('Your cart, 1 bottle');
     });
 
-    test('empty cart has no count in the icon label', () => {
-        expect(cartTriggerLabels(0).trigger).toBe('Your cart');
+    test('empty cart has no count in the link name', () => {
+        expect(cartLinkText(0)).toBe('Your cart');
     });
 });
 

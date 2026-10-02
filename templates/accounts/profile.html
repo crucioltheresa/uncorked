@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load images %}
 {% load static %}
 
 {% block title %}My Profile — Uncorked{% endblock %}
@@ -115,7 +116,7 @@
                 <li class="my-review" data-review-card="{{ review.id }}">
                     <a href="{% url 'wine_detail' review.wine.slug %}" class="my-review__wine-link" tabindex="-1" aria-hidden="true">
                         {% if review.wine.image %}
-                        <img src="{{ review.wine.image.url }}" alt="" class="my-review__thumb" width="64" height="64" loading="lazy">
+                        <img src="{{ review.wine.image|image_url:128 }}" alt="" class="my-review__thumb" width="64" height="64" loading="lazy" decoding="async">
                         {% else %}
                         <span class="my-review__thumb my-review__thumb--empty"></span>
                         {% endif %}
@@ -124,7 +125,7 @@
                         <h3 class="my-review__wine">
                             <a href="{% url 'wine_detail' review.wine.slug %}">{{ review.wine.name }}</a>
                         </h3>
-                        <p class="my-review__stars" data-review-stars aria-label="{{ review.rating }} out of 5 stars">{% for i in "12345" %}<i class="bi {% if forloop.counter <= review.rating %}bi-star-fill{% else %}bi-star{% endif %}" aria-hidden="true"></i>{% endfor %}</p>
+                        <p class="my-review__stars" data-review-stars role="img" aria-label="{{ review.rating }} out of 5 stars">{% for i in "12345" %}<i class="bi {% if forloop.counter <= review.rating %}bi-star-fill{% else %}bi-star{% endif %}" aria-hidden="true"></i>{% endfor %}</p>
                         <p class="my-review__title" data-review-title>{{ review.title }}</p>
                         <p class="my-review__body" data-review-body>{{ review.body }}</p>
                         <p class="my-review__meta">
@@ -138,7 +139,7 @@
                                class="btn btn--outline btn--sm"
                                data-review-open data-wine-id="{{ review.wine_id }}"
                                data-wine-name="{{ review.wine.name }}"
-                               data-wine-image="{% if review.wine.image %}{{ review.wine.image.url }}{% endif %}"
+                               data-wine-image="{{ review.wine.image|image_url:112 }}"
                                data-url="{% url 'edit_review' review.id %}"
                                data-rating="{{ review.rating }}"
                                data-title="{{ review.title }}"
@@ -177,6 +178,6 @@
 {{ block.super }}
 {% if reviews %}
 {% include "reviews/includes/review_modal.html" %}
-<script src="{% static 'js/reviews_modal.js' %}"></script>
+<script src="{% static 'js/reviews_modal.js' %}" defer></script>
 {% endif %}
 {% endblock %}

@@ -58,6 +58,56 @@ class HomepageTests(TestCase):
         )
 
 
+class PagePerformanceTests(TestCase):
+    """US-26: Homepage images and scripts load efficiently."""
+
+    def setUp(self):
+        self.client = Client()
+
+    def test_hero_is_webp_with_jpeg_fallback_and_high_priority(self):
+        """US-26: the hero has a WebP source, its size and is not lazy."""
+        response = self.client.get(reverse("homepage"))
+        self.assertContains(
+            response,
+            '<source srcset="/static/img/hero.webp" type="image/webp">',
+        )
+        self.assertContains(
+            response,
+            '<img src="/static/img/hero.jpg" alt="Uncorked wine selection" '
+            'class="hero__img" width="540" height="720" '
+            'fetchpriority="high" decoding="async">',
+        )
+
+    def test_photos_below_the_fold_are_lazy(self):
+        """US-26: editorial and sommelier photos load lazily, with sizes."""
+        response = self.client.get(reverse("homepage"))
+        for name, size in [("editorial_1", 864), ("editorial_2", 777)]:
+            self.assertContains(
+                response,
+                f'width="{size}" height="{size}" loading="lazy" '
+                'decoding="async"',
+            )
+            self.assertContains(response, f"/static/img/{name}.webp")
+        self.assertContains(response, "/static/img/sommelier.webp")
+        self.assertEqual(
+            response.content.decode().count('fetchpriority="high"'), 1
+        )
+
+    def test_scripts_are_deferred_and_cdn_preconnected(self):
+        """US-26: page scripts don't block rendering."""
+        response = self.client.get(reverse("homepage"))
+        html = response.content.decode()
+        self.assertIn('<script src="/static/js/main.js" defer>', html)
+        self.assertIn('bootstrap.bundle.min.js" defer>', html)
+        self.assertNotRegex(html, r'<script src="[^"]+"></script>')
+        self.assertIn(
+            '<link rel="preconnect" href="https://fonts.gstatic.com" '
+            "crossorigin>",
+            html,
+        )
+        self.assertIn("display=swap", html)
+
+
 class ValidHtmlTests(TestCase):
     """US-26: Markup fixes from the W3C HTML validator."""
 

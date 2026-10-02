@@ -1,3 +1,4 @@
+{% load images %}
 {% comment %}
 Nav cart preview fragment (loaded by cart_preview.js). Shows up to four
 items, then "+ N more", with the subtotal and any bulk discount.
@@ -7,7 +8,7 @@ items, then "+ N more", with the subtotal and any bulk discount.
     {% for item in items %}
     <li class="cart-preview__item">
         {% if item.wine.image %}
-        <img src="{{ item.wine.image.url }}" alt="" class="cart-preview__thumb" width="48" height="48" loading="lazy">
+        <img src="{{ item.wine.image|image_url:96 }}" alt="" class="cart-preview__thumb" width="48" height="48" loading="lazy" decoding="async">
         {% else %}
         <span class="cart-preview__thumb cart-preview__thumb--empty" aria-hidden="true"></span>
         {% endif %}

@@ -10,7 +10,7 @@
 </div>
 
 {% if chat_id == 'quiz-chat' %}
-<script src="{% static 'js/sommelier_chat.js' %}"></script>
+<script src="{% static 'js/sommelier_chat.js' %}" defer></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         if (window.initSommelierChat) {

@@ -455,6 +455,109 @@ class WineImageUploadTests(TestCase):
         mock_upload.assert_not_called()
 
 
+@override_settings(STORAGES=CLOUDINARY_STORAGES)
+@patch.object(cloudinary.config(), "cloud_name", "uncorked-test")
+class OptimisedImageTests(TestCase):
+    """US-05 / US-07: Wine images are served optimised and responsive."""
+
+    def setUp(self):
+        self.client = Client()
+        region = Region.objects.create(name="Rioja", country="Spain")
+        for number in range(6):
+            Wine.objects.create(
+                name=f"Image Wine {number}", slug=f"image-wine-{number}",
+                region=region, wine_type="red", price=20, abv=13,
+                producer="Producer", stock=5, image="wines/image_3.jpg",
+            )
+
+    def test_optimised_url_has_auto_format_quality_and_width(self):
+        """US-05: f_auto, q_auto and a width limit; plain URL unchanged."""
+        storage = CloudinaryMediaStorage()
+        url = storage.optimised_url("wines/image_3.jpg", 480)
+        self.assertIn("/image/upload/c_limit,f_auto,q_auto,w_480/", url)
+        self.assertTrue(url.endswith("/media/wines/image_3.jpg"))
+        self.assertIn(
+            "/upload/f_auto,q_auto/",
+            storage.optimised_url("wines/image_3.jpg"),
+        )
+        self.assertNotIn("f_auto", storage.url("wines/image_3.jpg"))
+
+    def test_catalogue_cards_have_srcset_sizes_and_loading_hints(self):
+        """US-05: cards get a srcset; the first row loads first."""
+        response = self.client.get(reverse("wine_list"))
+        html = response.content.decode()
+        self.assertIn("w_320/v1/media/wines/image_3.jpg 320w", html)
+        self.assertIn("w_800/v1/media/wines/image_3.jpg 800w", html)
+        self.assertIn(
+            'sizes="(min-width: 1280px) 25vw, (min-width: 768px) 50vw, '
+            '100vw"',
+            html,
+        )
+        # Only the first card is high priority; cards 5 and 6 are lazy
+        self.assertEqual(html.count('fetchpriority="high"'), 1)
+        self.assertEqual(html.count('loading="lazy" decoding="async"'), 2)
+
+    def test_wine_page_image_is_high_priority_and_not_lazy(self):
+        """US-07: the wine page's main image loads first, at up to 1440px."""
+        response = self.client.get(
+            reverse("wine_detail", args=["image-wine-0"])
+        )
+        self.assertContains(
+            response, "w_1440/v1/media/wines/image_3.jpg 1440w"
+        )
+        self.assertContains(response, 'fetchpriority="high"', count=1)
+        self.assertContains(response, 'sizes="(min-width: 768px) 50vw, 100vw"')
+
+    def test_thumbnails_use_the_optimised_url(self):
+        """US-11: cart thumbnails are small, auto-format images."""
+        wine = Wine.objects.get(slug="image-wine-0")
+        self.client.post(reverse("cart_add", args=[wine.id]), {"quantity": 1})
+        response = self.client.get(reverse("cart_detail"))
+        self.assertContains(response, "c_limit,f_auto,q_auto,w_128/")
+
+
+class CatalogueAccessibilityTests(TestCase):
+    """US-05: Catalogue markup is accessible (headings, labels, links)."""
+
+    def setUp(self):
+        self.client = Client()
+        create_test_wines()
+
+    def test_wine_list_heading_keeps_levels_in_order(self):
+        """US-05: an h2 sits between the page h1 and the h3 card names."""
+        response = self.client.get(reverse("wine_list"))
+        html = response.content.decode()
+        self.assertIn('<h2 class="visually-hidden">Wine list</h2>', html)
+        self.assertLess(
+            html.index("Wine list</h2>"), html.index('class="wine-card__name"')
+        )
+
+    def test_quantity_steppers_are_labelled(self):
+        """US-10: each stepper's input and buttons name the wine."""
+        response = self.client.get(reverse("wine_list"))
+        self.assertContains(response, 'aria-label="Quantity of Wine 1"')
+        self.assertContains(response, 'aria-label="Fewer bottles of Wine 1"')
+        self.assertContains(response, 'aria-label="More bottles of Wine 1"')
+
+    def test_pagination_arrows_have_names(self):
+        """US-05: the previous and next arrows have a text name."""
+        region = Region.objects.get(slug="rioja")
+        for number in range(12):
+            Wine.objects.create(
+                name=f"Page Wine {number}", slug=f"page-wine-{number}",
+                region=region, wine_type="red", price=20, abv=13,
+                producer="Producer", is_available=True,
+            )
+        response = self.client.get(reverse("wine_list"), {"page": 2})
+        self.assertContains(
+            response, '<span class="visually-hidden">Previous page</span>'
+        )
+        response = self.client.get(reverse("wine_list"))
+        self.assertContains(
+            response, '<span class="visually-hidden">Next page</span>'
+        )
+
+
 class ProductManagementTests(TestCase):
     """US-09: Superusers manage the catalogue from the front end."""
 

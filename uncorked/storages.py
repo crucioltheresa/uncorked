@@ -84,3 +84,24 @@ class CloudinaryMediaStorage(Storage):
             secure=True,
         )
         return url
+
+    def optimised_url(self, name, width=None):
+        """
+        Image URL with automatic format (WebP/AVIF where supported) and
+        quality (f_auto, q_auto), scaled down to at most `width` pixels
+        wide (c_limit never enlarges). Other files get their normal URL.
+        """
+        public_id, resource_type, file_format = self._resource(name)
+        if resource_type != "image":
+            return self.url(name)
+        options = {"fetch_format": "auto", "quality": "auto"}
+        if width:
+            options.update(width=int(width), crop="limit")
+        url, _ = cloudinary.utils.cloudinary_url(
+            public_id,
+            resource_type="image",
+            format=file_format,
+            secure=True,
+            **options,
+        )
+        return url

@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load images %}
 {% load static %}
 
 {% block title %}Your Cart — Uncorked{% endblock %}
@@ -27,7 +28,7 @@
                 <td class="cart__cell cart__cell--product">
                     <a href="{% url 'wine_detail' item.wine.slug %}" class="cart__product">
                         {% if item.wine.image %}
-                        <img src="{{ item.wine.image.url }}" alt="" class="cart__thumb" width="64" height="64">
+                        <img src="{{ item.wine.image|image_url:128 }}" alt="" class="cart__thumb" width="64" height="64" decoding="async">
                         {% else %}
                         <span class="cart__thumb cart__thumb--empty" aria-hidden="true"><i class="bi bi-cup-straw"></i></span>
                         {% endif %}
@@ -87,5 +88,5 @@
 
 {% block scripts %}
 {{ block.super }}
-<script src="{% static 'js/cart.js' %}"></script>
+<script src="{% static 'js/cart.js' %}" defer></script>
 {% endblock %}

@@ -5,6 +5,12 @@ function nextPromoIndex(current, count) {
     return (current + 1) % count;
 }
 
+// Rotate the promo messages only when there's more than one and the user
+// hasn't asked for reduced motion (they see the first message, still)
+function shouldRotatePromo(messageCount, prefersReducedMotion) {
+    return messageCount > 1 && !prefersReducedMotion;
+}
+
 // True when the previous page was on this site (so Back can use history)
 function referrerIsSameSite(referrer, host) {
     return Boolean(referrer) && new URL(referrer).host === host;
@@ -38,7 +44,12 @@ function initPromoBar() {
     promoEl.textContent = promoMessages[0];
     promoEl.style.opacity = '1';
     promoEl.style.transform = 'translateX(0)';
-    setInterval(updatePromo, 3000);
+
+    const reducedMotion = window.matchMedia &&
+        window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (shouldRotatePromo(promoMessages.length, reducedMotion)) {
+        setInterval(updatePromo, 3000);
+    }
 }
 
 // Browser only from here (the file can also be loaded by tests in Node)
@@ -253,5 +264,5 @@ if (typeof document !== 'undefined') {
 }
 
 if (typeof module !== "undefined") {
-    module.exports = { nextPromoIndex, referrerIsSameSite };
+    module.exports = { nextPromoIndex, shouldRotatePromo, referrerIsSameSite };
 }
