@@ -201,7 +201,7 @@ Real photographs of bottles and wine shop shelves set the mood: a full-width her
 
 ### Wireframes and mockups
 
-[TO ADD: link to the Figma wireframes and mockups]
+I designed the wireframes, the high-fidelity mockups and the Facebook page mockup in Figma: [Uncorked on Figma](https://www.figma.com/design/mnswxvlirwrek7YlplbpXQ/Uncorked---projeto-5?node-id=0-1&t=d3YyChSpnQzkYVJS-1).
 
 ### Design changes during development
 
@@ -366,9 +366,12 @@ Semantic landmarks and heading order, labelled form fields, focus styles, text a
 
 ### Future features
 
-- Sign in with Google, Facebook or Apple (US-36).
+- Sign in with Google, Facebook and Apple (US-36).
+- Back-in-stock email alerts.
+- Wine subscription boxes.
+- Gift cards and gift messages.
+- More languages.
 - A live Facebook Business Page to replace the mockup, with the footer link pointing to it.
-- [TO ADD: any other future features you plan]
 
 ---
 
@@ -604,9 +607,38 @@ Some tests cover two stories, so they're counted under both.
 
 I tested the live site by hand on desktop and phone sizes (390, 768, 1280 and 1440px) and with the keyboard only. All tests passed.
 
-| # | Feature | Steps | Expected result | Result |
+| # | User story | Test | Expected | Result |
 | ---: | --- | --- | --- | --- |
-| [TO ADD: the 30 manual test rows] | | | | Pass |
+| 1 | US-01 | Sign up with a new email | "Check your email" in the pop-up; confirmation email arrives | ✅ Pass |
+| 2 | US-01 | Click the confirmation link, then log in | Account confirmed; logged in | ✅ Pass |
+| 3 | US-02 | Log in with a wrong password | Error shown inside the pop-up | ✅ Pass |
+| 4 | US-02 | Log out from the profile | Back to the homepage with a message | ✅ Pass |
+| 5 | US-02 | Forgot password | Reset email arrives; new password works | ✅ Pass |
+| 6 | US-05/06 | Catalogue, then a type from the nav | Only that type shown | ✅ Pass |
+| 7 | US-29 | Map country click and nav Country dropdown | Catalogue filtered by that country | ✅ Pass |
+| 8 | US-08 | Search a wine name and a country | Matching results; "no results" message for nonsense | ✅ Pass |
+| 9 | US-07 | Open a wine page | Details and "You may also like" (same type) | ✅ Pass |
+| 10 | US-16/17 | Star a wine, open Favourites | Star fills; wine listed; add to cart and remove work | ✅ Pass |
+| 11 | US-10/11 | Add wines to the cart, change quantities | Totals, badge and preview update | ✅ Pass |
+| 12 | US-12 | 8 bottles in the cart | 10% discount shown | ✅ Pass |
+| 13 | US-12 | Guest checkout with a Dublin Eircode | €5.95 delivery, or free over €100 | ✅ Pass |
+| 14 | US-12 | Invalid Eircode | Clear error, no order created | ✅ Pass |
+| 15 | US-13/30 | Pay with 4242 4242 4242 4242 | Success page; order paid; confirmation email | ✅ Pass |
+| 16 | US-14 | Pay with 4000 0000 0000 0002 | Error shown; cart kept; order pending | ✅ Pass |
+| 17 | US-03 | Edit delivery details, open an order | Saved; order detail with totals | ✅ Pass |
+| 18 | US-18 | Write and edit a review from the order page | Shown on the wine page as verified, name not email | ✅ Pass |
+| 19 | US-19 | Delete the review from the profile | Confirmation, then removed | ✅ Pass |
+| 20 | US-20/21 | Sommelier chat, all 5 questions | Up to 3 recommendations; add to cart works | ✅ Pass |
+| 21 | US-23 | Newsletter: valid, duplicate, invalid email | Success / info / error messages | ✅ Pass |
+| 22 | US-27 | Contact form | Success message; both emails arrive; message in the dashboard | ✅ Pass |
+| 23 | US-09 | Manager: add a wine with an image, edit, delete | Image on Cloudinary; changes visible; delete confirmation | ✅ Pass |
+| 24 | US-15 | Manager: change an order to Shipped | Status updated | ✅ Pass |
+| 25 | US-04 | Manager opens `/admin/` | Access refused | ✅ Pass |
+| 26 | US-04 | Customer opens `/dashboard/` | Redirected with a message | ✅ Pass |
+| 27 | US-22 | `/robots.txt` and `/sitemap.xml` | Both load correctly | ✅ Pass |
+| 28 | US-26 | Promo bar, carousels, map, Back button | All work | ✅ Pass |
+| 29 | US-28 | Key pages at 390, 768, 1280 and 1440px | No overflow, layouts correct | ✅ Pass |
+| 30 | Accessibility | Keyboard only through nav, pop-ups, cart | Everything reachable, focus visible, Escape closes pop-ups | ✅ Pass |
 
 ### Validation
 
@@ -647,18 +679,29 @@ Known results:
 | --- | --- | --- |
 | Checkout crashed with "Object of type Decimal is not JSON serializable" | The cart saved Decimal prices in the session, which is stored as JSON | The session now only holds strings and whole numbers; Decimals are created when the cart is read |
 | Stripe webhook failed on valid events | Stripe's event objects aren't dictionaries, so `.get()` didn't work | The event is converted with `to_dict()` before reading it, and the webhook now logs each event |
-| Paid orders stayed "pending" | The webhook endpoint in the Stripe dashboard used the wrong URL, so Stripe's events never reached the site [TO ADD: the URL that was set] | The endpoint now points to `/webhook/` on the live site |
+| Paid orders stayed "pending" | The Stripe endpoint pointed to `/order/webhook/`, which returned 404, so Stripe kept retrying and the orders were never marked paid. I found it with `heroku logs` and a `curl` POST to each path (400 means the route exists, 404 means the path is wrong) | The real route is `/webhook/`; I updated the endpoint URL in Stripe |
 | Migration adding order numbers failed | A unique UUID field with a default gives every existing order the same value | The migration adds the field as optional, generates a UUID for each existing order, then makes it unique |
-| Site-wide scripts missing on some pages | Pages that add their own script replaced `{% block scripts %}`, which also contains `main.js` | Those pages now start the block with `{{ block.super }}` |
+| The promo bar stopped rotating on the homepage | The homepage's `{% block scripts %}` replaced the one in `base.html`, which loads `main.js` | The block starts with `{{ block.super }}`; later I moved all the JavaScript into separate files in `static/js/` |
 | Every page used the homepage grid on desktop | The desktop grid was applied to all `main` elements | It's limited to the homepage with `main:has(> .hero)` |
 | Country links broke for names with spaces (e.g. "Czech Republic") | Query values weren't URL-encoded | Templates use the `urlencode` filter and JavaScript uses `encodeURIComponent` |
 
+### Deployment challenges
+
+| Challenge | What I did |
+| --- | --- |
+| I lost access to the AWS account that stored the production media on Amazon S3 | Moved the media to Cloudinary with a custom storage that keeps Django's file names, and wrote the `upload_media` command to upload the local `media/` folder |
+| The Heroku Postgres add-on is paid | Moved the database to a free Neon PostgreSQL database, connected through `DATABASE_URL` |
+| The Heroku build failed at `collectstatic`: Django 6.1's new `MAILERS` email setting conflicted with the old `EMAIL_*` settings | Replaced the old settings with a single `MAILERS` configuration (Gmail SMTP when the password is set, the console otherwise) |
+| OneDrive turned some test files into cloud-only placeholders, so Jest found fewer test files than exist | Saved the files again as normal local files (contents unchanged) so every test file is found |
+
 ### Known issues
 
-- Lighthouse can report the promo text contrast while it fades (see above).
+- Lighthouse can measure the promo text mid-fade, so accessibility scores 96 on some runs. At rest the text has full contrast, and reduced motion is respected.
+- Homepage mobile performance is limited by render-blocking stylesheets (Bootstrap, Bootstrap Icons, Google Fonts and the site CSS).
+- The free Neon database can take a moment to respond after being idle.
+- Delivery is Ireland only, by design.
 - The W3C checker's API sometimes refuses automated requests from scripts (HTTP 429); `validate_html` then keeps the last complete report and asks you to try again later.
 - The Facebook link points to facebook.com because the business page is a mockup.
-- [TO ADD: any other known issues]
 
 ---
 
@@ -758,7 +801,8 @@ To fork, use **Fork** on the [GitHub repository](https://github.com/cruciolthere
 ### Code
 
 - The [Django](https://docs.djangoproject.com/), [django-allauth](https://docs.allauth.org/), [Stripe](https://docs.stripe.com/) and [Cloudinary](https://cloudinary.com/documentation) documentation.
-- [TO ADD: tutorials, courses or other code references you used]
+- Code Institute's **Boutique Ado** walkthrough project, which gave me the structure for the e-commerce flow: the cart in the session, checkout with Stripe, webhooks and user profiles.
+- My previous project, [Tag Rugby League Manager](https://github.com/crucioltheresa/tag-rugby-league-manager), for the testing style: a `tests.py` in each app and Jest for the JavaScript.
 
 ### Libraries
 
@@ -769,7 +813,7 @@ Bootstrap, Bootstrap Icons, Google Fonts, Simple Icons and the Python packages l
 The interactive world map uses:
 
 - Map data derived from [Natural Earth](https://www.naturalearthdata.com/) (public domain), built collaboratively by USGS, NOAA and Natural Earth contributors.
-- SVG processing based on [world-atlas](https://github.com/d3/world-atlas) (ISC License).
+- SVG processing based on [world-atlas](https://github.com/topojson/world-atlas) (ISC License).
 
 ### Fonts
 
@@ -777,11 +821,11 @@ Plaster, Playfair Display and DM Sans from [Google Fonts](https://fonts.google.c
 
 ### Images
 
-- Hero, editorial and sommelier photos: [TO ADD: source]
-- Wine photos: [TO ADD: source]
-- Award logos: [TO ADD: source]
-- Payment logos: [Simple Icons](https://simpleicons.org/)
+- **Photos** (hero, editorial strips, sommelier section and wines): photos sourced from Pinterest and used for educational, non-commercial purposes only. All rights belong to their original creators.
+- **Award logos**: award logos are used for illustrative purposes only. Uncorked is a fictional shop with no affiliation with these organisations.
+- **Payment logos**: [Simple Icons](https://simpleicons.org/).
 
 ### Acknowledgements
 
-[TO ADD: acknowledgements, e.g. your mentor]
+- My best friends, who always believed in me and supported me throughout this learning journey.
+- The Code Institute tutors and community, for their help and encouragement along the way.
