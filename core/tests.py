@@ -1,3 +1,4 @@
+import gzip
 import tempfile
 from decimal import Decimal
 from io import StringIO
@@ -92,6 +93,21 @@ class PagePerformanceTests(TestCase):
         self.assertEqual(
             response.content.decode().count('fetchpriority="high"'), 1
         )
+
+    def test_pages_are_gzipped_when_the_browser_accepts_it(self):
+        """US-26: pages are compressed for browsers that accept gzip."""
+        plain = self.client.get(reverse("homepage"))
+        response = self.client.get(
+            reverse("homepage"), HTTP_ACCEPT_ENCODING="gzip, deflate, br"
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response["Content-Encoding"], "gzip")
+        self.assertIn("Accept-Encoding", response["Vary"])
+        # Smaller than the uncompressed page, and decompresses back to HTML
+        self.assertLess(len(response.content), len(plain.content))
+        html = gzip.decompress(response.content).decode()
+        self.assertIn("<!DOCTYPE html>", html)
+        self.assertFalse(plain.has_header("Content-Encoding"))
 
     def test_scripts_are_deferred_and_cdn_preconnected(self):
         """US-26: page scripts don't block rendering."""

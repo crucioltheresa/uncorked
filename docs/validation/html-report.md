@@ -1,87 +1,71 @@
 # HTML validation report
 
-Generated on 02 October 2026 at 02:41 by `python manage.py validate_html`. Every page was rendered with Django's test client against the local database and sent to the [W3C Nu HTML Checker](https://validator.w3.org/nu/).
+All pages were checked with the [W3C Nu HTML Checker](https://validator.w3.org/nu/).
 
-- Pages checked: 0
-- Pages skipped: 35
-- Errors: 0
-- Warnings: 0
-
-| Group | Page | URL | Errors | Warnings |
+| Pages | Checked on | Method | Errors | Warnings |
 | --- | --- | --- | ---: | ---: |
-| Public | Homepage | `/` | skipped | not checked (validator: HTTP Error 429: Too Many Requests) |
-| Public | Catalogue | `/wines/` | skipped | not checked (validator: HTTP Error 429: Too Many Requests) |
-| Public | Catalogue: type | `/wines/?type=red` | skipped | not checked (validator: HTTP Error 429: Too Many Requests) |
-| Public | Catalogue: country | `/wines/?country=Czech+Republic` | skipped | not checked (validator: HTTP Error 429: Too Many Requests) |
-| Public | Search results | `/wines/?q=red` | skipped | not checked (validator: HTTP Error 429: Too Many Requests) |
-| Public | Wine page | `/wines/gulp-hablo-2022/` | skipped | not checked (validator: HTTP Error 429: Too Many Requests) |
-| Public | Sommelier | `/sommelier/` | skipped | not checked (validator: HTTP Error 429: Too Many Requests) |
-| Public | About | `/about/` | skipped | not checked (validator: HTTP Error 429: Too Many Requests) |
-| Public | FAQ | `/faq/` | skipped | not checked (validator: HTTP Error 429: Too Many Requests) |
-| Public | Shipping & Returns | `/shipping-returns/` | skipped | not checked (validator: HTTP Error 429: Too Many Requests) |
-| Public | Privacy | `/privacy/` | skipped | not checked (validator: HTTP Error 429: Too Many Requests) |
-| Public | Contact | `/contact/` | skipped | not checked (validator: HTTP Error 429: Too Many Requests) |
-| Public | Login | `/accounts/login/` | skipped | not checked (validator: HTTP Error 429: Too Many Requests) |
-| Public | Signup | `/accounts/signup/` | skipped | not checked (validator: HTTP Error 429: Too Many Requests) |
-| Public | Password reset | `/accounts/password/reset/` | skipped | not checked (validator: HTTP Error 429: Too Many Requests) |
-| Public | 404 | `/this-page-does-not-exist/` | skipped | not checked (validator: HTTP Error 429: Too Many Requests) |
-| Customer | Wine page (logged in) | `/wines/gulp-hablo-2022/` | skipped | not checked (validator: HTTP Error 429: Too Many Requests) |
-| Customer | Cart with items | `/cart/` | skipped | not checked (validator: HTTP Error 429: Too Many Requests) |
-| Customer | Checkout | `/checkout/` | skipped | not checked (validator: HTTP Error 429: Too Many Requests) |
-| Customer | Profile | `/accounts/profile/` | skipped | not checked (validator: HTTP Error 429: Too Many Requests) |
-| Customer | Order detail | `/order/58797445-3620-4f00-9f61-cd40bbf7376a/` | skipped | not checked (validator: HTTP Error 429: Too Many Requests) |
-| Customer | Favourites | `/wishlist/` | skipped | not checked (validator: HTTP Error 429: Too Many Requests) |
-| Customer | Order success | `/order/success/58797445-3620-4f00-9f61-cd40bbf7376a/` | skipped | not checked (validator: HTTP Error 429: Too Many Requests) |
-| Manager | Dashboard overview | `/dashboard/` | skipped | not checked (validator: HTTP Error 429: Too Many Requests) |
-| Manager | Dashboard wines | `/dashboard/wines/` | skipped | not checked (validator: HTTP Error 429: Too Many Requests) |
-| Manager | Dashboard orders | `/dashboard/orders/` | skipped | not checked (validator: HTTP Error 429: Too Many Requests) |
-| Manager | Dashboard order detail | `/dashboard/orders/8757988b-4332-4fc3-aa97-09da7f3320da/` | skipped | not checked (validator: HTTP Error 429: Too Many Requests) |
-| Manager | Dashboard messages | `/dashboard/messages/` | skipped | not checked (validator: HTTP Error 429: Too Many Requests) |
-| Manager | Dashboard message detail |  | skipped | no contact messages |
-| Manager | Dashboard reviews | `/dashboard/reviews/` | skipped | not checked (validator: HTTP Error 429: Too Many Requests) |
-| Manager | Dashboard regions | `/dashboard/regions/` | skipped | not checked (validator: HTTP Error 429: Too Many Requests) |
-| Manager | Add region | `/dashboard/regions/add/` | skipped | not checked (validator: HTTP Error 429: Too Many Requests) |
-| Manager | Add wine | `/wines/add/` | skipped | not checked (validator: HTTP Error 429: Too Many Requests) |
-| Manager | Edit wine | `/wines/gulp-hablo-2022/edit/` | skipped | not checked (validator: HTTP Error 429: Too Many Requests) |
-| Manager | Delete wine (confirmation) | `/wines/gulp-hablo-2022/delete/` | skipped | not checked (validator: HTTP Error 429: Too Many Requests) |
+| 15 public pages | 2 October 2026 | Live site, by address | 0 | 0 |
+| 18 logged-in pages and the 404 page | 2 October 2026 | Local, `python manage.py validate_html` | 0 | 0 |
+| Cart, checkout, profile, dashboard | Manual | Live site, page source pasted into the checker | see screenshots | |
 
-## Errors by page
+Total: 34 pages, 0 errors, 0 warnings. One page wasn't checked: the dashboard message detail, because the local database has no contact messages.
 
-No errors.
-## Skipped pages
+## 1. Public pages (live site)
 
-- Homepage: not checked (validator: HTTP Error 429: Too Many Requests)
-- Catalogue: not checked (validator: HTTP Error 429: Too Many Requests)
-- Catalogue: type: not checked (validator: HTTP Error 429: Too Many Requests)
-- Catalogue: country: not checked (validator: HTTP Error 429: Too Many Requests)
-- Search results: not checked (validator: HTTP Error 429: Too Many Requests)
-- Wine page: not checked (validator: HTTP Error 429: Too Many Requests)
-- Sommelier: not checked (validator: HTTP Error 429: Too Many Requests)
-- About: not checked (validator: HTTP Error 429: Too Many Requests)
-- FAQ: not checked (validator: HTTP Error 429: Too Many Requests)
-- Shipping & Returns: not checked (validator: HTTP Error 429: Too Many Requests)
-- Privacy: not checked (validator: HTTP Error 429: Too Many Requests)
-- Contact: not checked (validator: HTTP Error 429: Too Many Requests)
-- Login: not checked (validator: HTTP Error 429: Too Many Requests)
-- Signup: not checked (validator: HTTP Error 429: Too Many Requests)
-- Password reset: not checked (validator: HTTP Error 429: Too Many Requests)
-- 404: not checked (validator: HTTP Error 429: Too Many Requests)
-- Wine page (logged in): not checked (validator: HTTP Error 429: Too Many Requests)
-- Cart with items: not checked (validator: HTTP Error 429: Too Many Requests)
-- Checkout: not checked (validator: HTTP Error 429: Too Many Requests)
-- Profile: not checked (validator: HTTP Error 429: Too Many Requests)
-- Order detail: not checked (validator: HTTP Error 429: Too Many Requests)
-- Favourites: not checked (validator: HTTP Error 429: Too Many Requests)
-- Order success: not checked (validator: HTTP Error 429: Too Many Requests)
-- Dashboard overview: not checked (validator: HTTP Error 429: Too Many Requests)
-- Dashboard wines: not checked (validator: HTTP Error 429: Too Many Requests)
-- Dashboard orders: not checked (validator: HTTP Error 429: Too Many Requests)
-- Dashboard order detail: not checked (validator: HTTP Error 429: Too Many Requests)
-- Dashboard messages: not checked (validator: HTTP Error 429: Too Many Requests)
-- Dashboard message detail: no contact messages
-- Dashboard reviews: not checked (validator: HTTP Error 429: Too Many Requests)
-- Dashboard regions: not checked (validator: HTTP Error 429: Too Many Requests)
-- Add region: not checked (validator: HTTP Error 429: Too Many Requests)
-- Add wine: not checked (validator: HTTP Error 429: Too Many Requests)
-- Edit wine: not checked (validator: HTTP Error 429: Too Many Requests)
-- Delete wine (confirmation): not checked (validator: HTTP Error 429: Too Many Requests)
+Checked on 2 October 2026. Each live address was entered in the checker (`https://validator.w3.org/nu/?doc=<address>`), and the results page was saved as a screenshot in [screenshots/](screenshots/).
+
+| Page | Address | Errors | Warnings | Screenshot |
+| --- | --- | ---: | ---: | --- |
+| Homepage | `/` | ✅ 0 | 0 | [html-homepage.png](screenshots/html-homepage.png) |
+| Catalogue | `/wines/` | ✅ 0 | 0 | [html-catalogue.png](screenshots/html-catalogue.png) |
+| Catalogue: type | `/wines/?type=red` | ✅ 0 | 0 | [html-catalogue-type.png](screenshots/html-catalogue-type.png) |
+| Catalogue: country | `/wines/?country=Czech%20Republic` | ✅ 0 | 0 | [html-catalogue-country.png](screenshots/html-catalogue-country.png) |
+| Search results | `/wines/?q=red` | ✅ 0 | 0 | [html-search-results.png](screenshots/html-search-results.png) |
+| Wine page | `/wines/gulp-hablo-2022/` | ✅ 0 | 0 | [html-wine-page.png](screenshots/html-wine-page.png) |
+| Sommelier | `/sommelier/` | ✅ 0 | 0 | [html-sommelier.png](screenshots/html-sommelier.png) |
+| About | `/about/` | ✅ 0 | 0 | [html-about.png](screenshots/html-about.png) |
+| FAQ | `/faq/` | ✅ 0 | 0 | [html-faq.png](screenshots/html-faq.png) |
+| Shipping & Returns | `/shipping-returns/` | ✅ 0 | 0 | [html-shipping-returns.png](screenshots/html-shipping-returns.png) |
+| Privacy | `/privacy/` | ✅ 0 | 0 | [html-privacy.png](screenshots/html-privacy.png) |
+| Contact | `/contact/` | ✅ 0 | 0 | [html-contact.png](screenshots/html-contact.png) |
+| Login | `/accounts/login/` | ✅ 0 | 0 | [html-login.png](screenshots/html-login.png) |
+| Signup | `/accounts/signup/` | ✅ 0 | 0 | [html-signup.png](screenshots/html-signup.png) |
+| Password reset | `/accounts/password/reset/` | ✅ 0 | 0 | [html-password-reset.png](screenshots/html-password-reset.png) |
+
+## 2. Logged-in pages and the 404 page (local)
+
+Checked on 2 October 2026 with `python manage.py validate_html --customer <email> --manager <email>`. The command renders each page with Django's test client against the local database (logged in as a customer or a store manager, with a bottle in the cart) and sends the HTML to the checker's API. These pages can't be checked by address: the checker would see the login page instead, and the 404 page answers with a 404 status.
+
+They were validated locally with the same templates that are deployed: no template has changed since this run.
+
+| Group | Page | Address | Errors | Warnings |
+| --- | --- | --- | ---: | ---: |
+| Public | 404 | `/this-page-does-not-exist/` | ✅ 0 | 0 |
+| Customer | Wine page (logged in) | `/wines/gulp-hablo-2022/` | ✅ 0 | 0 |
+| Customer | Cart with items | `/cart/` | ✅ 0 | 0 |
+| Customer | Checkout | `/checkout/` | ✅ 0 | 0 |
+| Customer | Profile | `/accounts/profile/` | ✅ 0 | 0 |
+| Customer | Order detail | `/order/<order number>/` | ✅ 0 | 0 |
+| Customer | Favourites | `/wishlist/` | ✅ 0 | 0 |
+| Customer | Order success | `/order/success/<order number>/` | ✅ 0 | 0 |
+| Manager | Dashboard overview | `/dashboard/` | ✅ 0 | 0 |
+| Manager | Dashboard wines | `/dashboard/wines/` | ✅ 0 | 0 |
+| Manager | Dashboard orders | `/dashboard/orders/` | ✅ 0 | 0 |
+| Manager | Dashboard order detail | `/dashboard/orders/<order number>/` | ✅ 0 | 0 |
+| Manager | Dashboard messages | `/dashboard/messages/` | ✅ 0 | 0 |
+| Manager | Dashboard reviews | `/dashboard/reviews/` | ✅ 0 | 0 |
+| Manager | Dashboard regions | `/dashboard/regions/` | ✅ 0 | 0 |
+| Manager | Add region | `/dashboard/regions/add/` | ✅ 0 | 0 |
+| Manager | Add wine | `/wines/add/` | ✅ 0 | 0 |
+| Manager | Edit wine | `/wines/gulp-hablo-2022/edit/` | ✅ 0 | 0 |
+| Manager | Delete wine (confirmation) | `/wines/gulp-hablo-2022/delete/` | ✅ 0 | 0 |
+| Manager | Dashboard message detail | `/dashboard/messages/<id>/` | skipped | no contact messages in the local database |
+
+## 3. Manual checks (live site)
+
+Four logged-in pages were also checked by hand on the live site: while logged in, the page source (View Page Source) was copied and pasted into the checker's "Text Input" tab. The results are saved as screenshots:
+
+- Cart (with items): [html-manual-cart.png](screenshots/html-manual-cart.png)
+- Checkout: [html-manual-checkout.png](screenshots/html-manual-checkout.png)
+- Profile: [html-manual-profile.png](screenshots/html-manual-profile.png)
+- Store Dashboard: [html-manual-dashboard.png](screenshots/html-manual-dashboard.png)
