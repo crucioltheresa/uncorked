@@ -129,6 +129,47 @@ class CheckoutSubmitTests(TestCase):
         )
 
     @patch("orders.views.stripe.PaymentIntent.create")
+    def test_payment_page_has_progress_state_and_site_scripts(
+        self, mock_create
+    ):
+        """US-13: Pay button has a processing state; site scripts load."""
+        response = self.submit_checkout(mock_create)
+        order = Order.objects.get(email="jane@example.com")
+        self.assertContains(response, 'data-client-secret="pi_test_secret"')
+        self.assertContains(
+            response,
+            "data-success-url="
+            f'"{reverse("order_success", args=[order.order_number])}"',
+        )
+        self.assertContains(
+            response, f'data-idle-label="Pay €{order.grand_total}"'
+        )
+        self.assertContains(response, "data-submit-spinner hidden")
+        self.assertContains(
+            response, 'role="status" aria-live="polite" data-submit-status'
+        )
+        self.assertContains(response, 'id="card-errors" role="alert"')
+        # The page keeps base.html's scripts and loads the payment script
+        self.assertContains(response, "js/main.js")
+        self.assertContains(response, "js/checkout.js")
+        # The Stripe code lives in checkout.js, not inline in the page
+        self.assertNotContains(response, "confirmCardPayment")
+
+    def test_checkout_form_has_progress_state(self):
+        """US-12: Continue to Payment has a processing state."""
+        self.client.post(
+            reverse("cart_add", args=[self.wine.id]), {"quantity": 1}
+        )
+        response = self.client.get(reverse("checkout"))
+        self.assertContains(
+            response, '<form method="POST" data-checkout-form>'
+        )
+        self.assertContains(
+            response, 'data-idle-label="Continue to Payment"'
+        )
+        self.assertContains(response, "js/checkout.js")
+
+    @patch("orders.views.stripe.PaymentIntent.create")
     def test_logged_in_valid_checkout_shows_payment_page(self, mock_create):
         """US-12: a logged-in user's valid checkout reaches payment."""
         self.client.login(username="test@example.com", password="testpass123")

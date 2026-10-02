@@ -518,6 +518,20 @@ erDiagram
 - **Secrets in environment variables**: the secret key, database URL, Stripe keys, Cloudinary URL and email password are read from environment variables (a `.env` file locally, config vars on Heroku) and never committed. `DEBUG` is off in production.
 - **Private pages** are excluded from search engines in `robots.txt`.
 
+### Security settings (HTTPS)
+
+In production only (`DEBUG` off and not while the tests run), the site forces HTTPS. Local development and the test suite keep plain HTTP.
+
+| Setting | Value | Why |
+| --- | --- | --- |
+| `SECURE_PROXY_SSL_HEADER` | `("HTTP_X_FORWARDED_PROTO", "https")` | Heroku ends HTTPS before Django; this header tells Django the request was secure, so the redirect doesn't loop |
+| `SECURE_SSL_REDIRECT` | `True` | Sends every HTTP request to HTTPS |
+| `SESSION_COOKIE_SECURE` | `True` | The login session cookie is only sent over HTTPS |
+| `CSRF_COOKIE_SECURE` | `True` | The CSRF cookie is only sent over HTTPS |
+| `SECURE_HSTS_SECONDS` | `3600` | Browsers use HTTPS for this site for an hour |
+| `SECURE_HSTS_INCLUDE_SUBDOMAINS` | `False` | The site lives on a Heroku subdomain it doesn't control the rest of |
+| `SECURE_HSTS_PRELOAD` | `False` | Not submitted to the browsers' HSTS preload list |
+
 ---
 
 ## Technologies
@@ -559,8 +573,8 @@ Git and GitHub (with GitHub Projects), VS Code, Figma, Chrome DevTools and Light
 
 | Suite | Tests | Command |
 | --- | ---: | --- |
-| Django (Python) | 350 | `python manage.py test` |
-| Jest (JavaScript) | 62 | `npm test` |
+| Django (Python) | 352 | `python manage.py test` |
+| Jest (JavaScript) | 66 | `npm test` |
 | flake8 (PEP 8) | 0 issues | `flake8` |
 | JSHint | 0 issues | `npm run lint:js` |
 
@@ -583,9 +597,9 @@ Some tests cover two stories, so they're counted under both.
 | US-09 Manage wines | 36 | 4 | ProductManagementTests, WinesSectionTests, WineImageUploadTests, DashboardAccessTests; dashboard.test.js |
 | US-10 Add to cart | 9 | 0 | AddToCartTests |
 | US-11 Cart | 32 | 12 | UpdateCartQuantityTests, CartPreviewTests, CartBadgeTests, ViewManageCartTests; cart.test.js, cart_preview.test.js |
-| US-12 Checkout | 23 | 0 | CheckoutTests, EircodeValidationTests, DeliveryCostTests, BulkDiscountTests, GuestCheckoutTests |
-| US-13 Payment confirmation | 12 | 0 | StripeWebhookTests, CheckoutToWebhookTests, GuestOrderAccessTests |
-| US-14 Payment failure | 2 | 0 | PaymentFailureTests |
+| US-12 Checkout | 24 | 4 | CheckoutTests, CheckoutSubmitTests, EircodeValidationTests, DeliveryCostTests, BulkDiscountTests, GuestCheckoutTests; checkout.test.js |
+| US-13 Payment confirmation | 13 | 4 | StripeWebhookTests, CheckoutToWebhookTests, GuestOrderAccessTests, CheckoutSubmitTests; checkout.test.js |
+| US-14 Payment failure | 2 | 4 | PaymentFailureTests; checkout.test.js |
 | US-15 Manage orders | 12 | 4 | OrdersSectionTests, OverviewTests, AdminOrdersTests; dashboard.test.js |
 | US-16 Add favourites | 17 | 4 | AddToWishlistTests, FavouriteStarTests, WineDetailFavouriteButtonTests; wishlist.test.js |
 | US-17 Favourites page | 13 | 4 | FavouritesPageTests, ViewManageWishlistTests; wishlist.test.js |
@@ -648,7 +662,7 @@ Full reports are in [docs/validation/](docs/validation/).
 | --- | --- | --- |
 | HTML (W3C Nu checker) | 34 pages, 0 errors, 0 warnings | [html-report.md](docs/validation/html-report.md), [screenshots](docs/validation/screenshots/) |
 | CSS (W3C Jigsaw) | Valid CSS level 3, 0 errors (107 expected warnings, explained) | [css-report.md](docs/validation/css-report.md) |
-| JavaScript (JSHint) | 10 files, 0 issues | [js-report.md](docs/validation/js-report.md) |
+| JavaScript (JSHint) | 11 files, 0 issues | [js-report.md](docs/validation/js-report.md) |
 | Python (PEP 8, flake8) | 0 issues | `flake8` |
 | Lighthouse | See below | [lighthouse.md](docs/validation/lighthouse.md) |
 

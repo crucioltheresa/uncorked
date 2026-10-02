@@ -321,6 +321,11 @@ p {
     border: none;
 }
 
+/* A form being sent (checkout.js): the button stays readable, just busy */
+form[aria-busy="true"] .btn:disabled {
+    cursor: progress;
+}
+
 .btn--primary {
     background: var(--color-dark);
     color: var(--color-bg);

@@ -75,7 +75,6 @@ function initSommelierChat(containerId, questions) {
 
         setTimeout(() => {
             const msg = addMessage('...', 'bot');
-            msg.setAttribute('aria-live', 'polite');
 
             setTimeout(() => {
                 msg.innerHTML = q.text;
@@ -113,8 +112,8 @@ function initSommelierChat(containerId, questions) {
 
     function submitAnswers() {
         setTimeout(() => {
-            const msg = addMessage('One moment, finding your perfect bottles...', 'bot');
-            msg.setAttribute('aria-live', 'polite');
+            // Loading message, announced by the chat's live log region
+            addMessage('One moment, finding your perfect bottles...', 'bot');
 
             fetch('/sommelier/submit/', {
                 method: 'POST',
@@ -141,7 +140,6 @@ function initSommelierChat(containerId, questions) {
     function showResults(wines) {
         const msg = document.createElement('div');
         msg.classList.add('chat-message', 'chat-message--bot');
-        msg.setAttribute('aria-live', 'polite');
 
         const msgContent = document.createElement('div');
         if (!wines || wines.length === 0) {

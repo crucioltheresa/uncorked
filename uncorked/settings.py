@@ -24,6 +24,21 @@ ALLOWED_HOSTS = [
     ".ngrok-free.dev",
 ]
 
+# HTTPS in production only: local development (DEBUG=True) and the test
+# suite keep plain HTTP and normal cookies
+TESTING = "test" in sys.argv
+if not DEBUG and not TESTING:
+    # Heroku's router ends HTTPS and tells Django through this header;
+    # without it every request looks like HTTP and the redirect loops
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    # One hour of HSTS to start with; no subdomains or preload list
+    SECURE_HSTS_SECONDS = 3600
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = False
+    SECURE_HSTS_PRELOAD = False
+
 
 # Application definition
 
@@ -162,7 +177,7 @@ STATIC_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 # Tests never upload media, don't need a collectstatic manifest, always use
 # a local SQLite database and hash passwords with a fast test-only hasher
-if "test" in sys.argv:
+if TESTING:
     MEDIA_STORAGE = "django.core.files.storage.InMemoryStorage"
     STATIC_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"
     DATABASES = {
@@ -234,7 +249,7 @@ LOGGING = {
         "orders": {
             "handlers": ["console"],
             # Tests check log output with assertLogs instead of printing it
-            "level": "CRITICAL" if "test" in sys.argv else "INFO",
+            "level": "CRITICAL" if TESTING else "INFO",
         },
     },
 }

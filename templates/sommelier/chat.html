@@ -5,7 +5,7 @@
     window.SOMMELIER_QUESTIONS = {{ sommelier_questions_json | safe }};
 </script>
 
-<div class="sommelier-chat" id="{{ chat_id | default:'sommelier-chat' }}">
+<div class="sommelier-chat" id="{{ chat_id | default:'sommelier-chat' }}" role="log" aria-live="polite">
     <!-- Chat messages appear here -->
 </div>
 

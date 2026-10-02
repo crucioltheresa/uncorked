@@ -6,7 +6,6 @@ All pages were checked with the [W3C Nu HTML Checker](https://validator.w3.org/n
 | --- | --- | --- | ---: | ---: |
 | 15 public pages | 2 October 2026 | Live site, by address | 0 | 0 |
 | 18 logged-in pages and the 404 page | 2 October 2026 | Local, `python manage.py validate_html` | 0 | 0 |
-| Cart, checkout, profile, dashboard | Manual | Live site, page source pasted into the checker | see screenshots | |
 
 Total: 34 pages, 0 errors, 0 warnings. One page wasn't checked: the dashboard message detail, because the local database has no contact messages.
 
@@ -60,12 +59,3 @@ They were validated locally with the same templates that are deployed: no templa
 | Manager | Edit wine | `/wines/gulp-hablo-2022/edit/` | ✅ 0 | 0 |
 | Manager | Delete wine (confirmation) | `/wines/gulp-hablo-2022/delete/` | ✅ 0 | 0 |
 | Manager | Dashboard message detail | `/dashboard/messages/<id>/` | skipped | no contact messages in the local database |
-
-## 3. Manual checks (live site)
-
-Four logged-in pages were also checked by hand on the live site: while logged in, the page source (View Page Source) was copied and pasted into the checker's "Text Input" tab. The results are saved as screenshots:
-
-- Cart (with items): [html-manual-cart.png](screenshots/html-manual-cart.png)
-- Checkout: [html-manual-checkout.png](screenshots/html-manual-checkout.png)
-- Profile: [html-manual-profile.png](screenshots/html-manual-profile.png)
-- Store Dashboard: [html-manual-dashboard.png](screenshots/html-manual-dashboard.png)

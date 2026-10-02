@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Payment — Uncorked{% endblock %}
 
@@ -9,36 +10,24 @@
         {% include "includes/order_totals.html" with subtotal=order.subtotal discount=order.discount delivery=order.delivery_cost total=order.grand_total %}
     </div>
 
-    <form id="payment-form">
+    <form id="payment-form"
+          data-stripe-key="{{ stripe_public_key }}"
+          data-client-secret="{{ client_secret }}"
+          data-success-url="{% url 'order_success' order.order_number %}">
         <div id="card-element"></div>
         <div id="card-errors" role="alert"></div>
-        <button id="submit-btn" type="submit" class="btn btn--primary">
-            Pay €{{ order.grand_total }}
+        <button id="submit-btn" type="submit" class="btn btn--primary"
+                data-submit-button data-idle-label="Pay €{{ order.grand_total }}">
+            <span class="spinner-border spinner-border-sm" aria-hidden="true" data-submit-spinner hidden></span>
+            <span data-submit-label>Pay €{{ order.grand_total }}</span>
         </button>
+        <p class="visually-hidden" role="status" aria-live="polite" data-submit-status></p>
     </form>
 </div>
 {% endblock %}
 
 {% block scripts %}
+{{ block.super }}
 <script src="https://js.stripe.com/v3/"></script>
-<script>
-    const stripe = Stripe('{{ stripe_public_key }}');
-    const elements = stripe.elements();
-    const cardElement = elements.create('card');
-    cardElement.mount('#card-element');
-
-    const form = document.getElementById('payment-form');
-    form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const { error, paymentIntent } = await stripe.confirmCardPayment(
-            '{{ client_secret }}',
-            { payment_method: { card: cardElement } }
-        );
-        if (error) {
-            document.getElementById('card-errors').textContent = error.message;
-        } else if (paymentIntent.status === 'succeeded') {
-            window.location.href = '{% url "order_success" order.order_number %}';
-        }
-    });
-</script>
+<script src="{% static 'js/checkout.js' %}" defer></script>
 {% endblock %}

@@ -3,6 +3,7 @@
     "browser": true,
     "globals": {
         "bootstrap": false,
+        "Stripe": false,
         "module": false
     }
 }

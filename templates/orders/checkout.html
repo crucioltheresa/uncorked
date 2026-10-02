@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Checkout — Uncorked{% endblock %}
 
@@ -8,7 +9,7 @@
     <div class="checkout__layout">
         <div class="checkout__form">
             <h2>Delivery Details</h2>
-            <form method="POST">
+            <form method="POST" data-checkout-form>
                 {% csrf_token %}
                 {% for field in form %}
                 <div class="form-group">
@@ -37,7 +38,11 @@
                 </div>
                 {% endif %}
 
-                <button type="submit" class="btn btn--primary">Continue to Payment</button>
+                <button type="submit" class="btn btn--primary" data-submit-button data-idle-label="Continue to Payment">
+                    <span class="spinner-border spinner-border-sm" aria-hidden="true" data-submit-spinner hidden></span>
+                    <span data-submit-label>Continue to Payment</span>
+                </button>
+                <p class="visually-hidden" role="status" aria-live="polite" data-submit-status></p>
             </form>
         </div>
         <div class="checkout__summary">
@@ -52,4 +57,9 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+{{ block.super }}
+<script src="{% static 'js/checkout.js' %}" defer></script>
 {% endblock %}
