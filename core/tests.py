@@ -59,6 +59,24 @@ class HomepageTests(TestCase):
         )
 
 
+class FacebookLinkTests(TestCase):
+    """US-24: The footer links to the Facebook business page."""
+
+    def test_footer_has_facebook_link_opening_in_new_tab(self):
+        """US-24: Facebook link opens a new tab safely and has a name."""
+        for url in [reverse("homepage"), reverse("about")]:
+            response = self.client.get(url)
+            self.assertContains(
+                response,
+                '<a href="https://www.facebook.com/" '
+                'class="footer__social-link" target="_blank" '
+                'rel="noopener" '
+                'aria-label="Uncorked on Facebook (opens in a new tab)">'
+                '<i class="bi bi-facebook" aria-hidden="true"></i></a>',
+                html=True,
+            )
+
+
 class PagePerformanceTests(TestCase):
     """US-26: Homepage images and scripts load efficiently."""
 
